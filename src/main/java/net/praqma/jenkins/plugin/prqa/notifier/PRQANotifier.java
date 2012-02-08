@@ -1,35 +1,11 @@
-/*
- * The MIT License
- *
- * Copyright 2012 jes.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
 /**
  *
  * @author jes
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-
 import hudson.Extension;
-import java.io.IOException;
+import java.io.*;
 import org.kohsuke.stapler.StaplerRequest;
 
 import net.sf.json.JSONObject;
@@ -40,14 +16,22 @@ import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
-import hudson.tasks.Notifier;
 import hudson.tasks.Publisher;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.export.Exported;
 
 //TODO maybe it should extends Recorder
-public class PRQANotifier extends Notifier {
-    //Default null construtor
+public class PRQANotifier extends Publisher {
 
-    public PRQANotifier() {
+    private PrintStream out;
+    private Boolean totalBetter;
+    private int totalMax;
+
+    @DataBoundConstructor
+    public PRQANotifier(boolean totalBetter, String totalMax) {
+        this.totalBetter = totalBetter;
+        this.totalMax = Integer.parseInt(totalMax);
+
     }
 
     @Override
@@ -59,39 +43,68 @@ public class PRQANotifier extends Notifier {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
-        return false;
-    }
 
-    private void execute(String cmd) {
-    }
-}
+        out = listener.getLogger();
 
-/**
- * This class is used by Jenkins to define the plugin.
- * 
- * @author jes
- */
-@Extension
-public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+        build.getDescription();
 
-    public DescriptorImpl() {
-        super(PRQANotifier.class);
-        load();
-    }
+        out.println(build.getDisplayName());
+        out.println("[" + totalBetter + "]");
+        out.println("[" + totalMax + "]");
 
-    @Override
-    public String getDisplayName() {
-        return "PRQA Report";
-    }
-
-    @Override
-    public Notifier newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-        save();
-        return new PRQANotifier();
-    }
-
-    @Override
-    public boolean isApplicable(Class<? extends AbstractProject> arg0) {
         return true;
     }
+
+    @Exported
+    public boolean getTotalBetter() {
+        return totalBetter;
+    }
+
+    @Exported
+    public int getTotalMax() {
+        return totalMax;
+    }
+
+    /**
+     * This class is used by Jenkins to define the plugin.
+     * 
+     * @author jes
+     */
+    @Extension
+    public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
+
+        private String prqaHome;
+
+        @Override
+        public String getDisplayName() {
+            return "Programming Research Report";
+        }
+
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> arg0) {
+            return true;
+        }
+
+        @Override
+        public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+            PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
+            System.out.println(instance.totalBetter);
+            System.out.print(instance.totalMax);
+            return instance;
+        }
+
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+            req.bindParameters(this);
+            save();
+            return super.configure(req, formData);
+        }
+
+        public DescriptorImpl() {
+            super(PRQANotifier.class);
+            load();
+        }
+     
+    }
 }
+

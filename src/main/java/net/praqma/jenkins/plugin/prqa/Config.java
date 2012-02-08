@@ -29,7 +29,7 @@ package net.praqma.jenkins.plugin.prqa;
  */
 public class Config {
     
-    public static final int maxMessages = 300;
-    public static final boolean betterThanLast = true;
+    public static final int resultMessages = 300;
+
     
 }
