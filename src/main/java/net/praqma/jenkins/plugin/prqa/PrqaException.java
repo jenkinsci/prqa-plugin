@@ -23,26 +23,14 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
-import net.praqma.prqa.PRQAContext.*;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  *
  * @author jes
  */
-public class Config {
+public class PrqaException extends Exception {
 
-    public static final int resultMessages = 300;
-
-    public static List<String> getReports() {
-        List<String> list = new ArrayList<String>();
-        for (QARReportType report : QARReportType.values()) {
-            if (report.equals(QARReportType.Compliance)) {
-                list.add(report.toString());
-            }
-        }
-        return list;
+    public PrqaException(String string) {
+        super(string);
     }
-    public static final String COMPLIANCE_REPORT_PATH = "E:\\repos\\praqma\\PRQA-plugin\\Compliance_Report.xhtml";
+
 }

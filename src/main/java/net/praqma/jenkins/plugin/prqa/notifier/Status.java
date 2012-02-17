@@ -21,28 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.praqma.jenkins.plugin.prqa;
+package net.praqma.jenkins.plugin.prqa.notifier;
 
-import net.praqma.prqa.PRQAContext.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
 
 /**
  *
  * @author jes
  */
-public class Config {
+public class Status implements Serializable {
 
-    public static final int resultMessages = 300;
+    private int messages;
 
-    public static List<String> getReports() {
-        List<String> list = new ArrayList<String>();
-        for (QARReportType report : QARReportType.values()) {
-            if (report.equals(QARReportType.Compliance)) {
-                list.add(report.toString());
-            }
-        }
-        return list;
+    public Status() {
+        
     }
-    public static final String COMPLIANCE_REPORT_PATH = "E:\\repos\\praqma\\PRQA-plugin\\Compliance_Report.xhtml";
+
+    public int getMessages() {
+        return messages;
+    }
+
+    public void setMessages(int messages) {
+        this.messages = messages;
+    }
 }

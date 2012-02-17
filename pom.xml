@@ -68,15 +68,15 @@
     
     <dependencies>
         <dependency>
-            <groupId>net.praqma</groupId>
-            <artifactId>praqmajutils</artifactId>
-            <version>0.1.18</version>  
-        </dependency>
-        <dependency>
             <groupId>org.jenkins-ci.main</groupId>
             <artifactId>jenkins-core</artifactId>
             <version>1.450</version>
             <type>jar</type>
         </dependency>
-    </dependencies> 
+        <dependency>
+            <groupId>net.praqma.</groupId>
+            <artifactId>prqa</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 </project>
