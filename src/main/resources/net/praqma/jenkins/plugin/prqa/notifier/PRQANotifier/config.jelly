@@ -21,17 +21,37 @@
             <j:forEach var="l" items="${levels}">
                 <f:option selected="${PRQA.type==l}" value="${l}">${l}</f:option>
             </j:forEach>
-            <!--f:option selected="0" value="qac">QAC</f:option>
-            <f:option selected="0" value="qacpp">QACpp</f:option-->
         </select>
     </f:entry>
     
+    <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <f:section title="Threshold">
-        <f:entry title="Max messages" help="/plugin/prqa-plugin/config/help-configTotal.html">
+        <f:entry title="Max messages" field="totalMax">           
             <f:textbox name="prqa.totalMax" value="${instance.totalMax}" />
+            <select class="setting-input" name="settingMaxMessages">               
+                <j:forEach var="cSetting" items="${comparisonSettings}">
+                    <f:option selected="${instance.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
+                </j:forEach>
+            </select>
         </f:entry>
-        <f:entry title="Better than last build" help="/plugin/prqa-plugin/config/help-configBetter.html">
-            <f:checkbox name="prqa.totalBetter" checked="${instance.totalBetter}"/>
+    
+        <f:entry title="File Compliance Index" field="fileComplianceIndex">
+            <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}"/>
+            <select class="setting-input" name="settingFileCompliance">               
+                <j:forEach var="fcSetting" items="${comparisonSettings}">
+                    <f:option selected="${instance.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
+                </j:forEach>
+            </select>
         </f:entry>
+        
+        <f:entry title="Project Compliance Index" field="projectComplianceIndex">
+            <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}"/>
+            <select class="setting-input" name="settingProjectCompliance">               
+                <j:forEach var="pcSetting" items="${comparisonSettings}">
+                    <f:option selected="${instance.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
+                </j:forEach>
+            </select>
+        </f:entry>
+
     </f:section>
 </j:jelly>

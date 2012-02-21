@@ -33,8 +33,6 @@ import java.util.List;
  */
 public class Config {
 
-    public static final int resultMessages = 300;
-
     public static List<String> getReports() {
         List<String> list = new ArrayList<String>();
         for (QARReportType report : QARReportType.values()) {
@@ -44,5 +42,5 @@ public class Config {
         }
         return list;
     }
-    public static final String COMPLIANCE_REPORT_PATH = "E:\\repos\\praqma\\PRQA-plugin\\Compliance_Report.xhtml";
+    public static final String COMPLIANCE_REPORT_PATH = "C:\\Projects\\PRQA-plugin\\Compliance_Report.xhtml";
 }

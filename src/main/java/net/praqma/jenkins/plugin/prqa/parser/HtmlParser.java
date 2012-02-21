@@ -1,12 +1,7 @@
 package net.praqma.jenkins.plugin.prqa.parser;
 
+import java.io.*;
 import net.praqma.jenkins.plugin.prqa.PrqaException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.*;
@@ -35,14 +30,14 @@ public class HtmlParser {
         String report = "";
         try {
             while ((sourceLine = source.readLine()) != null) {
-                report += sourceLine+"\n";
+                report += sourceLine + "\n";
             }
         } catch (IOException ex) {
             throw new PrqaException("Could not read the line after :\n" + sourceLine);
         }
         Matcher match = pattern.matcher(report);
-        while (match.find()) {
-            result.add(match.group());
+       while (match.find()) {
+            result.add(match.group(1));
             System.out.println(match.group());
         }
 
