@@ -1,0 +1,29 @@
+<l:dependencies xmlns:l='licenses'>
+  <l:dependency name='PRQA plugin' groupId='net.praqma' artifactId='prqa-plugin' version='0.1-SNAPSHOT' url='www.noname.com'>
+    <l:description>Integrates PRQA static analasys with Jenkins</l:description>
+    <l:license name='MIT' url='http://www.opensource.org/licenses/mit-license.php' />
+  </l:dependency>
+  <l:dependency name='Guava: Google Core Libraries for Java' groupId='com.google.guava' artifactId='guava' version='10.0.1' url='http://code.google.com/p/guava-libraries/guava'>
+    <l:description>Guava is a suite of core and expanded libraries that include
+    utility classes, google's collections, io classes, and much
+    much more.
+
+    This project is a complete packaging of all the Guava libraries
+    into a single jar.  Individual portions of Guava can be used
+    by downloading the appropriate module and its dependencies.
+
+    Guava (complete) has only one code dependency - javax.annotation,
+    per the JSR-305 spec.</l:description>
+    <l:license name='The Apache Software License, Version 2.0' url='http://www.apache.org/licenses/LICENSE-2.0.txt' />
+  </l:dependency>
+  <l:dependency name='prqa' groupId='net.praqma' artifactId='prqa' version='0.1-SNAPSHOT' url='http://maven.apache.org'>
+    <l:description />
+  </l:dependency>
+  <l:dependency name='FindBugs-jsr305' groupId='com.google.code.findbugs' artifactId='jsr305' version='1.3.9' url='http://findbugs.sourceforge.net/'>
+    <l:description>JSR305 Annotations for Findbugs</l:description>
+    <l:license name='The Apache Software License, Version 2.0' url='http://www.apache.org/licenses/LICENSE-2.0.txt' />
+  </l:dependency>
+  <l:dependency name='Praqma Java Utils' groupId='net.praqma' artifactId='praqmajutils' version='0.1.18' url='http://maven.apache.org'>
+    <l:description />
+  </l:dependency>
+</l:dependencies>

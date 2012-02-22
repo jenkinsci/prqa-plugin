@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.scm.NullSCM"/>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers class="vector"/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders/>
+  <publishers>
+    <net.praqma.jenkins.plugin.prqa.notifier.PRQANotifier>
+      <totalBetter>false</totalBetter>
+      <totalMax>12000</totalMax>
+      <product>QAC</product>
+      <reportType>Compliance</reportType>
+      <command></command>
+      <settingFileCompliance>None</settingFileCompliance>
+      <settingMaxMessages>Threshold</settingMaxMessages>
+      <settingProjectCompliance>None</settingProjectCompliance>
+      <fileComplianceIndex>0.0</fileComplianceIndex>
+      <projectComplianceIndex>0.0</projectComplianceIndex>
+    </net.praqma.jenkins.plugin.prqa.notifier.PRQANotifier>
+  </publishers>
+  <buildWrappers/>
+</project>

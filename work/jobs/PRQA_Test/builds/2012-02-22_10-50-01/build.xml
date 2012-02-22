@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<build>
+  <actions>
+    <hudson.model.CauseAction>
+      <causes>
+        <hudson.model.Cause_-UserIdCause/>
+      </causes>
+    </hudson.model.CauseAction>
+    <net.praqma.jenkins.plugin.prqa.notifier.PRQABuildAction>
+      <build class="build" reference="../../.."/>
+      <publisher class="net.praqma.jenkins.plugin.prqa.notifier.PRQANotifier">
+        <out>
+          <autoFlush>false</autoFlush>
+          <trouble>false</trouble>
+          <formatter>
+            <a class="java.io.PrintStream" reference="../.."/>
+            <l>da_DK</l>
+            <zero>0</zero>
+          </formatter>
+          <closing>true</closing>
+        </out>
+        <status>
+          <messages>11068</messages>
+          <fileCompliance>90.24</fileCompliance>
+          <projectCompliance>53.8</projectCompliance>
+        </status>
+        <totalBetter>false</totalBetter>
+        <totalMax>14000</totalMax>
+        <product>QAC</product>
+        <reportType>Compliance</reportType>
+        <command></command>
+        <settingFileCompliance>Threshold</settingFileCompliance>
+        <settingMaxMessages>Threshold</settingMaxMessages>
+        <settingProjectCompliance>Threshold</settingProjectCompliance>
+        <fileComplianceIndex>80.0</fileComplianceIndex>
+        <projectComplianceIndex>80.0</projectComplianceIndex>
+      </publisher>
+    </net.praqma.jenkins.plugin.prqa.notifier.PRQABuildAction>
+  </actions>
+  <number>49</number>
+  <result>FAILURE</result>
+  <duration>13481</duration>
+  <charset>windows-1252</charset>
+  <keepLog>false</keepLog>
+  <builtOn></builtOn>
+  <workspace>C:\Projects\PRQA-plugin\work\jobs\PRQA_Test\workspace</workspace>
+  <hudsonVersion>1.450</hudsonVersion>
+  <scm class="hudson.scm.NullChangeLogParser"/>
+  <culprits/>
+</build>

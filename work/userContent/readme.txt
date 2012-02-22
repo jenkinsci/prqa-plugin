@@ -1,0 +1,1 @@
+Filer i dette direktorie vil blive serveret under http://server/hudson/userContent/

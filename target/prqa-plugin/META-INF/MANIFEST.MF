@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Built-By: Praqma
+Created-By: Apache Maven
+Build-Jdk: 1.6.0_31
+Extension-Name: prqa-plugin
+Specification-Title: Integrates PRQA static analasys with Jenkins
+Implementation-Title: prqa-plugin
+Implementation-Version: 0.1-SNAPSHOT
+Group-Id: net.praqma
+Short-Name: prqa-plugin
+Long-Name: PRQA plugin
+Url: www.noname.com
+Plugin-Version: 0.1-SNAPSHOT (private-02/21/2012 11:41-Praqma)
+Hudson-Version: 1.450
+Jenkins-Version: 1.450
+Plugin-Developers: Jes Struck:jstruck:coolers@praqma.net
+
