@@ -14,10 +14,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import net.sf.json.JSONObject;
 
 import hudson.Launcher;
-import hudson.model.BuildListener;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
@@ -71,6 +68,12 @@ public class PRQANotifier extends Publisher {
         this.settingFileCompliance = settingFileCompliance;
         
     }
+    
+    @Override
+    public Action getProjectAction(AbstractProject<?, ?> project) {
+        return new PRQAProjectAction(project);
+    }
+    
     
     /*
      *Small utility to handle illegal values. Defaults to null if string is unparsable. 
@@ -132,7 +135,6 @@ public class PRQANotifier extends Publisher {
             if(!HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, totalMessagesPattern).isEmpty()) {
                 Integer tmp = Integer.parseInt(HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, totalMessagesPattern).get(0)); 
                 status.setMessages(tmp);
-                
             }
             
             if(!HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, fileCompliancePattern).isEmpty()) {
@@ -189,12 +191,12 @@ public class PRQANotifier extends Publisher {
         }
         
         if(fileCompliance.equals(ComparisonSettings.Threshold) && status.getFileCompliance() < fileComplianceIndex ) {
-            status.addNotication(String.format("File Compliance Index not met, was %s and the require index is %s ",status.getFileCompliance(),fileComplianceIndex));
+            status.addNotication(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getFileCompliance(),fileComplianceIndex));
             res = false;
         }
         
         if(projCompliance.equals(ComparisonSettings.Threshold) && status.getProjectCompliance() < projectComplianceIndex) {
-            status.addNotication(String.format("Project Compliance Index not met, was %s and the require index is %s ",status.getProjectCompliance(),projectComplianceIndex));
+            status.addNotication(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getProjectCompliance(),projectComplianceIndex));
             res = false;
         }
         
@@ -205,6 +207,10 @@ public class PRQANotifier extends Publisher {
         
         out.println("Scanned the following values:");
         out.println(status);
+        
+        final PRQABuildAction action = new PRQABuildAction(build);
+        action.setPublisher(this);
+        build.getActions().add(action);
         
         return res;
     }
@@ -336,6 +342,13 @@ public class PRQANotifier extends Publisher {
     public void setSettingMaxMessages(String settingMaxMessages) {
         this.settingMaxMessages = settingMaxMessages;
     }
+
+    @Override
+    public String toString() {
+        return status.toString();
+    }
+    
+    
     
     /**
      * This class is used by Jenkins to define the plugin.

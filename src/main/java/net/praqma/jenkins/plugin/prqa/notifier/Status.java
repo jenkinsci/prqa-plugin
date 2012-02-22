@@ -85,7 +85,7 @@ public class Status implements Serializable, Comparable<Status> {
     
     
     /***
-     * Implemented this to decide which one is 'better than last'. We might want to later
+     * Implemented this to decide which one is 'better than last'.
      * @param o
      * @return 
      */
