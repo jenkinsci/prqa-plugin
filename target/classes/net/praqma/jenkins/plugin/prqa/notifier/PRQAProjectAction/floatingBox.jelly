@@ -1,12 +1,15 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
 
-    <j:set var="lastAction" value="${from.lastActionInProject}"/>
-    <j:if test="${lastAction != null}">
+    <j:set var="latestAction" value="${from.latestActionInProject}"/>
+    <j:if test="${latestAction != null}">
         <j:choose>
-            <j:when>
-                <div style="border: 1px solid #eee; ">
-                    ${%No data}
+            <j:when test="${latestAction.previousAction != null}">
+
+                <div style="border: 1px solid #eee;">
+                 <j:forEach var="cat" items="${latestAction.getComplianceCategories()}">                    
+                        <img style="margin-left:20px;" src="${from.urlName}/complianceStatistics?width=400&amp;height=233&amp;category=${cat}"/>
+	         </j:forEach>
                 </div>
             </j:when>
             <j:otherwise>

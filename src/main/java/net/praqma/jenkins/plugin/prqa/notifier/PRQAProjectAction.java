@@ -26,6 +26,7 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 import hudson.model.AbstractProject;
 import hudson.model.Actionable;
 import hudson.model.ProminentProjectAction;
+import java.io.IOException;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -53,7 +54,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 
     @Override
     public String getIconFileName() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException("There is no icon for this project");
     }
 
     @Override
@@ -61,14 +62,18 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
         return "PRQA";
     }
     
-    public PRQABuildAction getLastActionInProject() {        
+    public PRQABuildAction getLatestActionInProject() {
         return project.getLastBuild().getAction(PRQABuildAction.class);     
     }
     
     public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) {
-        PRQABuildAction action = getLastActionInProject();
+        PRQABuildAction action = getLatestActionInProject();
         if(action != null)
-            action.doComplianceStatistics(req, rsp);
+            try {
+                action.doComplianceStatistics(req, rsp);
+            } catch (IOException exception) {
+                
+            }           
     }
  
 }

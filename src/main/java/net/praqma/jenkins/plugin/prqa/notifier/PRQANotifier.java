@@ -4,6 +4,7 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
+import net.praqma.prqa.PRQAComplianceStatus;
 import hudson.Extension;
 import java.io.*;
 import java.util.logging.Level;
@@ -21,7 +22,6 @@ import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
 import hudson.util.FormValidation;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
 import net.praqma.jenkins.plugin.prqa.Config;
@@ -31,19 +31,24 @@ import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.products.QAC;
 import net.praqma.prqa.products.QACpp;
+import org.apache.tools.ant.types.resources.Files;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {    
     private PrintStream out;
-    private Status status;
+    private PRQAComplianceStatus status;
     private Boolean totalBetter;
     private Integer totalMax;
     private String product;
     private QARReportType reportType;
     private String command;
-    private String prqaHome;
+    
+    private String qacHome;
+    private String qacppHome;
+    private String qarHome;
+    
     
     //Strings indicating the selected options.
     private String settingFileCompliance;
@@ -55,7 +60,7 @@ public class PRQANotifier extends Publisher {
 
     @DataBoundConstructor
     public PRQANotifier(String command, String reportType, String product,
-            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance) {
+            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome) {
         this.reportType = QARReportType.valueOf(reportType);
         this.product = product;
         this.totalBetter = totalBetter;
@@ -66,7 +71,8 @@ public class PRQANotifier extends Publisher {
         this.settingProjectCompliance = settingProjectCompliance;
         this.settingMaxMessages = settingMaxMessages;
         this.settingFileCompliance = settingFileCompliance;
-        
+        this.qacppHome = qacppHome;
+        this.qacHome = qacHome;        
     }
     
     @Override
@@ -114,17 +120,15 @@ public class PRQANotifier extends Publisher {
     }
 
     @Override
-    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
-            throws InterruptedException, IOException {
-        boolean result = false;
-
+    public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
+        
         //This is where we exectuate the report generation. 
         executed();
         
         //Next up. Let us parse the output.
 
-        status = new Status();
+        status = new PRQAComplianceStatus();
         Pattern totalMessagesPattern = Pattern.compile("<td align=\"left\">Total Number of Messages</td>\n<td align=\"right\">(\\d*)</td>");
         Pattern fileCompliancePattern = Pattern.compile("<td align=\"left\">File Compliance Index</td>\n<td align=\"right\">(\\S*)%</td>");
         Pattern projectCompliancePattern = Pattern.compile("<td align=\"left\">Project Compliance Index</td>\n<td align=\"right\">(\\S*)%</td>");
@@ -172,22 +176,25 @@ public class PRQANotifier extends Publisher {
             if(fileCompliance.equals(ComparisonSettings.Improvement)) {
 
                 if(publisher.getStatus().getFileCompliance() > status.getFileCompliance()) {
+                    status.addNotication(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getFileCompliance(),publisher.getStatus().getFileCompliance()));
                     res = false;
                 }
             }
 
             if(projCompliance.equals(ComparisonSettings.Improvement)) {
-                if(publisher.getStatus().getFileCompliance() > status.getProjectCompliance()) {
+                if(publisher.getStatus().getProjectCompliance() > status.getProjectCompliance()) {
+                    status.addNotication(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getProjectCompliance(),publisher.getStatus().getProjectCompliance()));
                     res = false;
                 }
             }
 
             if(maxMsg.equals(ComparisonSettings.Improvement)) {
                 if(publisher.getStatus().getMessages() < status.getMessages()) {
+                    status.addNotication(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getMessages(),publisher.getStatus().getMessages()));
                     res = false;
-                }    
+                }
             }
-            
+                             
         }
         
         if(fileCompliance.equals(ComparisonSettings.Threshold) && status.getFileCompliance() < fileComplianceIndex ) {
@@ -212,17 +219,17 @@ public class PRQANotifier extends Publisher {
         action.setPublisher(this);
         build.getActions().add(action);
         
-        return res;
+        return res;      
     }
 
     private void executed() {
 
         switch (AnalyseTypes.valueOf(product)) {
             case QAC:
-                new QAC().execute(command);
+                new QAC(qacHome).execute(command);
                 break;
             case QACpp:
-                new QACpp().execute(command);
+                new QACpp(qacppHome).execute(command);
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -231,12 +238,42 @@ public class PRQANotifier extends Publisher {
 
     @Exported
     public String getPrqaHome() {
-        return prqaHome;
+        return qacHome;
     }
 
     @Exported
     public void setPrqaHome(String prqaHome) {
-        this.prqaHome = prqaHome;
+        this.qacHome = prqaHome;
+    }
+    
+    @Exported
+    public String getQarHome() {
+        return qarHome;
+    }
+
+    @Exported
+    public void setQarHome(String qarHome) {
+        this.qarHome = qarHome;
+    }
+    
+    @Exported
+    public String getQacHome() {
+        return qacHome;
+    }
+
+    @Exported
+    public void setQacHome(String qacHome) {
+        this.qacHome = qacHome;
+    }
+    
+    @Exported
+    public String getQacppHome() {
+        return qacppHome;
+    }
+
+    @Exported
+    public void setQacppHome(String qacppHome) {
+        this.qacppHome = qacppHome;
     }
 
     @Exported
@@ -309,7 +346,7 @@ public class PRQANotifier extends Publisher {
         this.projectComplianceIndex = index;
     }
 
-    public Status getStatus() {
+    public PRQAComplianceStatus getStatus() {
         return this.status;
     }
     
@@ -394,8 +431,18 @@ public class PRQANotifier extends Publisher {
             }
             return FormValidation.ok();
         }
-                
+        
+        
+        //TODO: Does not work? (WHY)
+        public FormValidation doCheckQacHome(@QueryParameter String value) {
+            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
+        }
 
+        //TODO: Does not work? (WHY)
+        public FormValidation doCheckQacppHome(@QueryParameter String value) {         
+            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
+        }
+        
         @Override
         public String getDisplayName() {
             return "Programming Research Report";

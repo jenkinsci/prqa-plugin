@@ -25,7 +25,28 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
 import hudson.tasks.Publisher;
-import java.util.Iterator;
+import hudson.util.ChartUtil;
+import hudson.util.ColorPalette;
+import hudson.util.DataSetBuilder;
+import hudson.util.ShiftedCategoryAxis;
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.io.IOException;
+import java.util.ArrayList;
+import net.praqma.prqa.PRQAComplianceStatus;
+import net.praqma.prqa.PRQAComplianceStatusCollection;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.CategoryAxis;
+import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
+import org.jfree.data.category.CategoryDataset;
+import org.jfree.ui.RectangleEdge;
+import org.jfree.ui.RectangleInsets;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -44,7 +65,7 @@ public class PRQABuildAction implements Action {
 
     @Override
     public String getIconFileName() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return "prqa_logo.png";
     }
 
     @Override
@@ -91,8 +112,12 @@ public class PRQABuildAction implements Action {
         }
     }
     
-    public Status getBuildActionStatus() {
+    public PRQAComplianceStatus getBuildActionStatus() {
         return ((PRQANotifier)publisher).getStatus();
+    }
+    
+    public PRQAComplianceStatusCollection.ComplianceCategory[] getComplianceCategories() {
+        return PRQAComplianceStatusCollection.ComplianceCategory.values();
     }
     
     /**
@@ -100,10 +125,89 @@ public class PRQABuildAction implements Action {
      * @param req
      * @param rsp 
      */
-    public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) {
-        for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-            
+    public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        
+        DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
+        int width = Integer.parseInt(req.getParameter("width"));
+        int height = Integer.parseInt(req.getParameter("height"));
+        String category = req.getParameter("category");
+        String scale = null;
+        
+        Integer max = null;
+        Integer min = null;
+        
+        //Gather relevant statistics.
+        PRQAComplianceStatusCollection observations = new PRQAComplianceStatusCollection(new ArrayList<PRQAComplianceStatus>());
+          
+        //Get the minimum and maximum observations from the collected observations.
+        for(PRQAComplianceStatusCollection.ComplianceCategory ccat : PRQAComplianceStatusCollection.ComplianceCategory.values()) {
+            if(ccat.equals(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category))) {
+               
+                for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
+                    ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
+                    PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
+                    dsb.add(stat.getComplianceReadout(ccat), ccat.toString(), label);
+                    observations.add(stat);         
+                }
+                
+                max = observations.getMax(ccat);
+                min = observations.getMin(ccat);
+            }
         }
+        
+        
+        
+        ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), category, scale, max, min ), width, height );
     }
+    
+    
+    
+    	private JFreeChart createChart( CategoryDataset dataset, String title, String yaxis, int max, int min ) {
+
+		final JFreeChart chart = ChartFactory.createLineChart( title, // chart
+																		// title
+				null, // unused
+				yaxis, // range axis label
+				dataset, // data
+				PlotOrientation.VERTICAL, // orientation
+				true, // include legend
+				true, // tooltips
+				false // urls
+		);
+
+		final LegendTitle legend = chart.getLegend();
+		
+                legend.setPosition( RectangleEdge.BOTTOM );
+		
+
+		chart.setBackgroundPaint( Color.white );
+
+		final CategoryPlot plot = chart.getCategoryPlot();
+
+		plot.setBackgroundPaint( Color.WHITE );
+		plot.setOutlinePaint( null );
+		plot.setRangeGridlinesVisible( true );
+		plot.setRangeGridlinePaint( Color.black );
+
+		CategoryAxis domainAxis = new ShiftedCategoryAxis( null );
+		plot.setDomainAxis( domainAxis );
+		domainAxis.setCategoryLabelPositions( CategoryLabelPositions.UP_90 );
+		domainAxis.setLowerMargin( 0.0 );
+		domainAxis.setUpperMargin( 0.0 );
+		domainAxis.setCategoryMargin( 0.0 );
+
+		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+		rangeAxis.setStandardTickUnits( NumberAxis.createIntegerTickUnits() );
+		rangeAxis.setUpperBound( max );
+		rangeAxis.setLowerBound( min );
+
+		final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+		renderer.setBaseStroke( new BasicStroke( 2.0f ) );
+		ColorPalette.apply( renderer );
+
+		plot.setInsets( new RectangleInsets( 5.0, 0, 0, 5.0 ) );
+
+		return chart;
+	}
 
 }
