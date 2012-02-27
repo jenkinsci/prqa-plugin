@@ -1,5 +1,5 @@
 <l:dependencies xmlns:l='licenses'>
-  <l:dependency name='PRQA plugin' groupId='net.praqma' artifactId='prqa-plugin' version='0.1-SNAPSHOT' url='www.noname.com'>
+  <l:dependency name='PRQA plugin' groupId='net.praqma' artifactId='prqa-plugin' version='0.1.1-SNAPSHOT' url='www.noname.com'>
     <l:description>Integrates PRQA static analasys with Jenkins</l:description>
     <l:license name='MIT' url='http://www.opensource.org/licenses/mit-license.php' />
   </l:dependency>

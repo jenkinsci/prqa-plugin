@@ -1,0 +1,24 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:u="/util">
+<j:set var="latestAction" value="${from.getBuildActionStatus()}"/>
+
+
+<table style="border:solid;border-width:1px;padding:15px;margin:10px;">
+    <h2>Compliance readout</h2>
+    <thead>
+    <tr>
+        <th>Max Messages</th>
+        <th>Project Compliance</th>
+        <th>File Compliance</th>
+    </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>${latestAction.getMessages()}</td>
+            <td>${latestAction.getProjectCompliance()} %</td>
+            <td>${latestAction.getFileCompliance()} %</td>
+        </tr>
+    </tbody>    
+</table>
+</j:jelly>

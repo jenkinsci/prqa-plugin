@@ -7,8 +7,10 @@
             <j:when test="${latestAction.previousAction != null}">
 
                 <div style="border: 1px solid #eee;">
-                 <j:forEach var="cat" items="${latestAction.getComplianceCategories()}">                    
-                        <img style="margin-left:20px;" src="${from.urlName}/complianceStatistics?width=400&amp;height=233&amp;category=${cat}"/>
+                 <j:forEach var="cat" items="${latestAction.getComplianceCategories()}">
+                     <j:if test="${latestAction.getBuildActionStatus().isDisabled(cat) == false}">
+                         <img style="margin-left:20px;" src="${from.urlName}/complianceStatistics?width=400&amp;height=233&amp;category=${cat}"/>
+                    </j:if> 
 	         </j:forEach>
                 </div>
             </j:when>

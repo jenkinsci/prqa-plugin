@@ -2,8 +2,20 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
+    <f:entry title="QACpp Home">
+        <f:textbox name="prqa.qacppHome" value ="${instance.qacppHome}"/>
+    </f:entry>
+    
+    <f:entry title="QAC Home">
+        <f:textbox name="prqa.qacHome" value ="${instance.qacHome}"/>
+    </f:entry>
+    
+    <f:entry title="QAR Home">
+        <f:textbox name="prqa.qarHome" value ="${instance.qarHome}"/>
+    </f:entry>
+    
     <f:entry title="QAC/QACpp command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
-        <f:textbox  name="prqa.command" value="${instance.command}" />
+        <f:textbox name="prqa.command" value="${instance.command}" />
     </f:entry>
 
     <j:set var="levels" value="${descriptor.getReports()}"/>
@@ -26,31 +38,37 @@
     
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <f:section title="Threshold">
-        <f:entry title="Max messages">           
-            <f:textbox name="prqa.totalMax" value="${instance.totalMax}" />
-            <f:dropdownList name="settingMaxMessages">               
-                <j:forEach var="cSetting" items="${comparisonSettings}">
-                    <f:option selected="${PRQA.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
-                </j:forEach>
-            </f:dropdownList>
+        <f:entry title="Max messages" field="totalMax">
+            <div id="m_div" style="width:200px;">
+                <f:textbox name="prqa.totalMax" value="${instance.totalMax}" />
+                <select class="setting-input" name="settingMaxMessages">               
+                    <j:forEach var="cSetting" items="${comparisonSettings}">
+                        <f:option selected="${instance.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
+                    </j:forEach>
+                </select>
+            </div>
         </f:entry>
     
-        <f:entry title="File Compliance Index">
-            <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}"/>
-            <f:dropdownList name="settingFileCompliance">               
-                <j:forEach var="fcSetting" items="${comparisonSettings}">
-                    <f:option selected="${PRQA.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
-                </j:forEach>
-            </f:dropdownList>
+        <f:entry title="File Compliance Index" field="fileComplianceIndex">
+            <div id="f_div" style="width:200px;">
+                <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}"/>
+                <select class="setting-input" name="settingFileCompliance">               
+                    <j:forEach var="fcSetting" items="${comparisonSettings}">
+                        <f:option selected="${instance.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
+                    </j:forEach>
+                </select>
+            </div>
         </f:entry>
         
-        <f:entry title="Project Compliance Index">
-            <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}"/>
-            <f:dropdownList name="settingProjectCompliance">               
-                <j:forEach var="pcSetting" items="${comparisonSettings}">
-                    <f:option selected="${PRQA.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
-                </j:forEach>
-            </f:dropdownList>
+        <f:entry title="Project Compliance Index" field="projectComplianceIndex">
+            <div id="p_div" style="width:200px; float:left;">
+                <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}"/>
+                <select class="setting-input" name="settingProjectCompliance">               
+                    <j:forEach var="pcSetting" items="${comparisonSettings}">
+                        <f:option selected="${instance.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
+                    </j:forEach>
+                </select>
+            </div>
         </f:entry>
 
     </f:section>
