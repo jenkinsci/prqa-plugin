@@ -10,6 +10,10 @@
         <f:textbox name="prqa.qacHome" value ="${instance.qacHome}"/>
     </f:entry>
     
+    <f:entry title="QAR Home">
+        <f:textbox name="prqa.qarHome" value ="${instance.qarHome}"/>
+    </f:entry>
+    
     <f:entry title="QAC/QACpp command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
         <f:textbox name="prqa.command" value="${instance.command}" />
     </f:entry>
