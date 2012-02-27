@@ -4,16 +4,7 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-import net.praqma.prqa.PRQAComplianceStatus;
 import hudson.Extension;
-import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import net.praqma.jenkins.plugin.prqa.PrqaException;
-import org.kohsuke.stapler.StaplerRequest;
-
-import net.sf.json.JSONObject;
-
 import hudson.Launcher;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
@@ -21,19 +12,26 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
 import hudson.util.FormValidation;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import net.praqma.jenkins.plugin.prqa.Config;
-import net.praqma.jenkins.plugin.prqa.parser.HtmlParser;
+import net.praqma.prqa.PRQAComplianceStatus;
+import net.praqma.prqa.PRQAComplianceStatusCollection;
 import net.praqma.prqa.PRQAContext.AnalyseTypes;
-import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
+import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.products.QAC;
 import net.praqma.prqa.products.QACpp;
-import org.apache.tools.ant.types.resources.Files;
+import net.praqma.prqa.products.QAR;
+import net.praqma.prqa.reports.PRQAComplianceReport;
+import net.sf.json.JSONObject;
+import org.apache.commons.lang.NotImplementedException;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {    
@@ -60,7 +58,7 @@ public class PRQANotifier extends Publisher {
 
     @DataBoundConstructor
     public PRQANotifier(String command, String reportType, String product,
-            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome) {
+            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome, String qarHome) {
         this.reportType = QARReportType.valueOf(reportType);
         this.product = product;
         this.totalBetter = totalBetter;
@@ -72,7 +70,8 @@ public class PRQANotifier extends Publisher {
         this.settingMaxMessages = settingMaxMessages;
         this.settingFileCompliance = settingFileCompliance;
         this.qacppHome = qacppHome;
-        this.qacHome = qacHome;        
+        this.qacHome = qacHome;
+        this.qarHome = qarHome;
     }
     
     @Override
@@ -122,37 +121,35 @@ public class PRQANotifier extends Publisher {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
+                
+        //First. Run the analysis tool. Depending on which product is selected. This should produce a project file.
+        switch (AnalyseTypes.valueOf(product)) {
+            case QAC:
+                new QAC(qacHome).execute(command);
+                break;
+            case QACpp:
+                new QACpp(qacppHome).execute(command);
+                break;
+            default:
+                throw new IllegalArgumentException();
+        }
         
-        //This is where we exectuate the report generation. 
-        executed();
+        //This is where we exectuate the report generation. Currently only the compliance report is available.
+        QAR qar = new QAR(qarHome,command);
         
-        //Next up. Let us parse the output.
-
-        status = new PRQAComplianceStatus();
-        Pattern totalMessagesPattern = Pattern.compile("<td align=\"left\">Total Number of Messages</td>\n<td align=\"right\">(\\d*)</td>");
-        Pattern fileCompliancePattern = Pattern.compile("<td align=\"left\">File Compliance Index</td>\n<td align=\"right\">(\\S*)%</td>");
-        Pattern projectCompliancePattern = Pattern.compile("<td align=\"left\">Project Compliance Index</td>\n<td align=\"right\">(\\S*)%</td>");
-                      
-
-        try {
-            out.println("Compliance report path: " + Config.COMPLIANCE_REPORT_PATH);
-            if(!HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, totalMessagesPattern).isEmpty()) {
-                Integer tmp = Integer.parseInt(HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, totalMessagesPattern).get(0)); 
-                status.setMessages(tmp);
-            }
-            
-            if(!HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, fileCompliancePattern).isEmpty()) {
-                Double tmp = Double.parseDouble(HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, fileCompliancePattern).get(0));
-                status.setFileCompliance(tmp);
-            }
-            
-            if(!HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, projectCompliancePattern).isEmpty()) {
-                Double tmp = Double.parseDouble(HtmlParser.parse(Config.COMPLIANCE_REPORT_PATH, projectCompliancePattern).get(0));
-                status.setProjectCompliance(tmp);
-            }
-            
-        } catch (PrqaException ex) {
-            Logger.getLogger(PRQANotifier.class.getName()).log(Level.SEVERE, null, ex);
+        
+        //NEW SECTION:
+        switch(reportType) {
+            case Compliance:
+                PRQAComplianceReport rep = new PRQAComplianceReport(qar);
+                status = rep.completeTask(Config.COMPLIANCE_REPORT_PATH);
+                break;
+            case Quality:
+                throw new NotImplementedException("Not implemented yet");            
+            case CodeReview:
+                throw new NotImplementedException("Not implemented yet");
+            case Supression:
+                throw new NotImplementedException("Not implemented yet");
         }
 
         boolean res = true;
@@ -214,26 +211,19 @@ public class PRQANotifier extends Publisher {
         
         out.println("Scanned the following values:");
         out.println(status);
+        status.disable(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance);
         
         final PRQABuildAction action = new PRQABuildAction(build);
         action.setPublisher(this);
-        build.getActions().add(action);
         
-        return res;      
-    }
-
-    private void executed() {
-
-        switch (AnalyseTypes.valueOf(product)) {
-            case QAC:
-                new QAC(qacHome).execute(command);
-                break;
-            case QACpp:
-                new QACpp(qacppHome).execute(command);
-                break;
-            default:
-                throw new IllegalArgumentException();
-        }
+        //If 
+        if(!res)
+            build.setResult(Result.UNSTABLE);
+        
+        build.getActions().add(action);
+        out.println(build.getWorkspace());
+        
+        return true;      
     }
 
     @Exported
@@ -384,9 +374,6 @@ public class PRQANotifier extends Publisher {
     public String toString() {
         return status.toString();
     }
-    
-    
-    
     /**
      * This class is used by Jenkins to define the plugin.
      * 
