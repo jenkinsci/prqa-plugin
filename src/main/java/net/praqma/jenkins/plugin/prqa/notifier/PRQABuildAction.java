@@ -65,7 +65,7 @@ public class PRQABuildAction implements Action {
 
     @Override
     public String getIconFileName() {
-        return "prqa_logo.png";
+        throw new UnsupportedOperationException("No iconf file defined yet");
     }
 
     @Override
@@ -116,6 +116,8 @@ public class PRQABuildAction implements Action {
         return ((PRQANotifier)publisher).getStatus();
     }
     
+    
+    
     public PRQAComplianceStatusCollection.ComplianceCategory[] getComplianceCategories() {
         return PRQAComplianceStatusCollection.ComplianceCategory.values();
     }
@@ -133,13 +135,19 @@ public class PRQABuildAction implements Action {
         String category = req.getParameter("category");
         String scale = null;
         
-        Integer max = null;
-        Integer min = null;
+        Number max = null;
+        Number min = null;
         
         //Gather relevant statistics.
         PRQAComplianceStatusCollection observations = new PRQAComplianceStatusCollection(new ArrayList<PRQAComplianceStatus>());
+        observations.overrideMax(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance, 100);
+        observations.overrideMin(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance, 0);
+        
+        observations.overrideMax(PRQAComplianceStatusCollection.ComplianceCategory.ProjectCompliance, 100);
+        observations.overrideMin(PRQAComplianceStatusCollection.ComplianceCategory.ProjectCompliance, 0);
           
         //Get the minimum and maximum observations from the collected observations.
+        /*
         for(PRQAComplianceStatusCollection.ComplianceCategory ccat : PRQAComplianceStatusCollection.ComplianceCategory.values()) {
             if(ccat.equals(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category))) {
                
@@ -154,60 +162,82 @@ public class PRQABuildAction implements Action {
                 min = observations.getMin(ccat);
             }
         }
+        */
         
+        if(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).equals(PRQAComplianceStatusCollection.ComplianceCategory.Messages)) {
+            for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
+                    ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
+                    PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
+                    dsb.add(stat.getComplianceReadout(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category)), PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).toString(), label);
+                    observations.add(stat);         
+            }
+            max = observations.getMax(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category));
+            min = observations.getMin(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category));
+            ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), category, scale, max.intValue(), min.intValue()), width, height );
+        }
         
-        
-        ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), category, scale, max, min ), width, height );
+        if(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).equals(PRQAComplianceStatusCollection.ComplianceCategory.ProjectCompliance)) {
+            
+            for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
+                    ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
+                    PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
+                    dsb.add(stat.getComplianceReadout(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category)), PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).toString(), label);
+                    dsb.add(stat.getComplianceReadout(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance), PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance.toString(), label);
+                    observations.add(stat);         
+            }
+            
+            max = observations.getMax(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category));
+            min = observations.getMin(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category)); 
+            ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), "Project Compliance Levels", scale, max.intValue(), min.intValue()), width, height );
+        }             
     }
-    
-    
-    
-    	private JFreeChart createChart( CategoryDataset dataset, String title, String yaxis, int max, int min ) {
+      
+    private JFreeChart createChart( CategoryDataset dataset, String title, String yaxis, int max, int min ) {
 
-		final JFreeChart chart = ChartFactory.createLineChart( title, // chart
-																		// title
-				null, // unused
-				yaxis, // range axis label
-				dataset, // data
-				PlotOrientation.VERTICAL, // orientation
-				true, // include legend
-				true, // tooltips
-				false // urls
-		);
+            final JFreeChart chart = ChartFactory.createLineChart( title, // chart
+                                                                                                                                            // title
+                            null, // unused
+                            yaxis, // range axis label
+                            dataset, // data
+                            PlotOrientation.VERTICAL, // orientation
+                            true, // include legend
+                            true, // tooltips
+                            false // urls
+            );
 
-		final LegendTitle legend = chart.getLegend();
-		
-                legend.setPosition( RectangleEdge.BOTTOM );
-		
+            final LegendTitle legend = chart.getLegend();
 
-		chart.setBackgroundPaint( Color.white );
+            legend.setPosition( RectangleEdge.BOTTOM );
 
-		final CategoryPlot plot = chart.getCategoryPlot();
 
-		plot.setBackgroundPaint( Color.WHITE );
-		plot.setOutlinePaint( null );
-		plot.setRangeGridlinesVisible( true );
-		plot.setRangeGridlinePaint( Color.black );
+            chart.setBackgroundPaint( Color.white );
 
-		CategoryAxis domainAxis = new ShiftedCategoryAxis( null );
-		plot.setDomainAxis( domainAxis );
-		domainAxis.setCategoryLabelPositions( CategoryLabelPositions.UP_90 );
-		domainAxis.setLowerMargin( 0.0 );
-		domainAxis.setUpperMargin( 0.0 );
-		domainAxis.setCategoryMargin( 0.0 );
+            final CategoryPlot plot = chart.getCategoryPlot();
 
-		final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
-		rangeAxis.setStandardTickUnits( NumberAxis.createIntegerTickUnits() );
-		rangeAxis.setUpperBound( max );
-		rangeAxis.setLowerBound( min );
+            plot.setBackgroundPaint( Color.WHITE );
+            plot.setOutlinePaint( null );
+            plot.setRangeGridlinesVisible( true );
+            plot.setRangeGridlinePaint( Color.black );
 
-		final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-		renderer.setBaseStroke( new BasicStroke( 2.0f ) );
-		ColorPalette.apply( renderer );
+            CategoryAxis domainAxis = new ShiftedCategoryAxis( null );
+            plot.setDomainAxis( domainAxis );
+            domainAxis.setCategoryLabelPositions( CategoryLabelPositions.UP_90 );
+            domainAxis.setLowerMargin( 0.0 );
+            domainAxis.setUpperMargin( 0.0 );
+            domainAxis.setCategoryMargin( 0.0 );
 
-		plot.setInsets( new RectangleInsets( 5.0, 0, 0, 5.0 ) );
+            final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
+            rangeAxis.setStandardTickUnits( NumberAxis.createIntegerTickUnits() );
+            rangeAxis.setUpperBound( max );
+            rangeAxis.setLowerBound( min );
 
-		return chart;
-	}
+            final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
+            renderer.setBaseStroke( new BasicStroke( 2.0f ) );
+            ColorPalette.apply( renderer );
+
+            plot.setInsets( new RectangleInsets( 5.0, 0, 0, 5.0 ) );
+
+            return chart;
+    }
 
 }
