@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.SortedMap;
 import net.praqma.jenkins.plugin.prqa.Config;
 import net.praqma.prqa.PRQAComplianceStatus;
 import net.praqma.prqa.PRQAComplianceStatusCollection;
@@ -28,6 +29,7 @@ import net.praqma.prqa.products.QACpp;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.sf.json.JSONObject;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -213,16 +215,17 @@ public class PRQANotifier extends Publisher {
         out.println(status);
         status.disable(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance);
         
+        //Now. Copy the created compliance report to the build artifacts directory. Should work. 
+        String target = build.getArtifactsDir()+ "\\Compliance_Report.xhtml";        
+        FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(target));
+   
         final PRQABuildAction action = new PRQABuildAction(build);
         action.setPublisher(this);
         
-        //If 
+
         if(!res)
-            build.setResult(Result.UNSTABLE);
-        
-        build.getActions().add(action);
-        out.println(build.getWorkspace());
-        
+            build.setResult(Result.UNSTABLE);        
+        build.getActions().add(action);            
         return true;      
     }
 

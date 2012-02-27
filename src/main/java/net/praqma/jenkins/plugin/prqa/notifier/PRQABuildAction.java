@@ -58,7 +58,7 @@ public class PRQABuildAction implements Action {
     
     private final AbstractBuild<?,?> build;
     private Publisher publisher; 
-    
+     
     public PRQABuildAction(AbstractBuild<?,?> build) {
         this.build = build;
     }
