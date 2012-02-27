@@ -14,11 +14,13 @@
     </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>${latestAction.getMessages()}</td>
-            <td>${latestAction.getProjectCompliance()} %</td>
-            <td>${latestAction.getFileCompliance()} %</td>
-        </tr>
+        <j:test if="${latestAction != null}">
+            <tr>
+                <td>${latestAction.getMessages()}</td>
+                <td>${latestAction.getProjectCompliance()} %</td>
+                <td>${latestAction.getFileCompliance()} %</td>
+            </tr>
+        </j:test>
     </tbody>    
 </table>
 </j:jelly>
