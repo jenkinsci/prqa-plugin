@@ -1,5 +1,5 @@
 target/*
+work/*
 *.log
-work*
 *.class
 *.stapler
