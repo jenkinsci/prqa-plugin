@@ -2,15 +2,15 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
 
-    <f:entry title="QACpp Home">
+    <f:entry title="QACpp Home" field="qacppHome">
         <f:textbox name="prqa.qacppHome" value ="${instance.qacppHome}"/>
     </f:entry>
     
-    <f:entry title="QAC Home">
+    <f:entry title="QAC Home" field="qacHome">
         <f:textbox name="prqa.qacHome" value ="${instance.qacHome}"/>
     </f:entry>
     
-    <f:entry title="QAR Home">
+    <f:entry title="QAR Home" field="qarHome">
         <f:textbox name="prqa.qarHome" value ="${instance.qarHome}"/>
     </f:entry>
     
@@ -18,10 +18,10 @@
         <f:textbox name="prqa.command" value="${instance.command}" />
     </f:entry>
     
-    <f:entry title="QAR command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
-        <f:textbox name="prqa.qarCommand" value="${instance.qarCommand}" />
+    <f:entry title="Project file" field="projectFile">
+        <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
     </f:entry>
-
+   
     <j:set var="levels" value="${descriptor.getReports()}"/>
     <f:entry  title="Report Type" help="/plugin/prqa-plugin/config/help-configReportType.html">
         <select class="setting-input" name="PRQA.reportType">
@@ -38,6 +38,10 @@
                 <f:option selected="${PRQA.type==l}" value="${l}">${l}</f:option>
             </j:forEach>
         </select>
+    </f:entry>
+    
+    <f:entry title="QAR command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
+        <f:textbox name="prqa.qarCommand" value="${instance.qarCommand}" />
     </f:entry>
     
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>

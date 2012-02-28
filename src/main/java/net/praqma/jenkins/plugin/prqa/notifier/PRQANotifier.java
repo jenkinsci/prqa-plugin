@@ -21,7 +21,7 @@ import java.util.SortedMap;
 import net.praqma.jenkins.plugin.prqa.Config;
 import net.praqma.prqa.PRQAComplianceStatus;
 import net.praqma.prqa.PRQAComplianceStatusCollection;
-import net.praqma.prqa.PRQAContext.AnalyseTypes;
+import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.products.QAC;
@@ -59,10 +59,12 @@ public class PRQANotifier extends Publisher {
     
     private Double fileComplianceIndex;
     private Double projectComplianceIndex;
+    
+    private String projectFile;
 
     @DataBoundConstructor
     public PRQANotifier(String command, String reportType, String product,
-            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome, String qarHome, String qarCommand) {
+            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome, String qarHome, String qarCommand, String projectFile) {
         this.reportType = QARReportType.valueOf(reportType);
         this.product = product;
         this.totalBetter = totalBetter;
@@ -77,6 +79,8 @@ public class PRQANotifier extends Publisher {
         this.qacHome = qacHome;
         this.qarHome = qarHome;
         this.qarCommand = qarCommand;
+        
+        this.projectFile = projectFile;
     }
     
     @Override
@@ -128,7 +132,7 @@ public class PRQANotifier extends Publisher {
         out = listener.getLogger();
                 
         //First. Run the analysis tool. Depending on which product is selected. This should produce a project file.
-        switch (AnalyseTypes.valueOf(product)) {
+        switch (AnalysisTools.valueOf(product)) {
             case QAC:
                 new QAC(qacHome).execute(command);
                 break;
@@ -140,7 +144,14 @@ public class PRQANotifier extends Publisher {
         }
         
         //This is where we exectuate the report generation. Currently only the compliance report is available.
-        QAR qar = new QAR(qarHome,command);
+        String cmdReplaced = qarCommand;
+        cmdReplaced = cmdReplaced.replaceFirst("\\{%product}", product.toString());
+        cmdReplaced = cmdReplaced.replaceFirst("\\{%reportType}", reportType.toString());
+        cmdReplaced = cmdReplaced.replaceFirst("\\{%projectFile}", projectFile.toString());
+        out.println(cmdReplaced);
+        
+        
+        QAR qar = new QAR(qarHome, cmdReplaced);
         
         
         //NEW SECTION:
@@ -216,6 +227,7 @@ public class PRQANotifier extends Publisher {
         
         out.println("Scanned the following values:");
         out.println(status);
+        out.println(qarCommand);
         status.disable(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance);
         
         //Now. Copy the created compliance report to the build artifacts directory. Should work. 
@@ -231,16 +243,6 @@ public class PRQANotifier extends Publisher {
         return true;      
     }
 
-    @Exported
-    public String getPrqaHome() {
-        return qacHome;
-    }
-
-    @Exported
-    public void setPrqaHome(String prqaHome) {
-        this.qacHome = prqaHome;
-    }
-    
     @Exported
     public String getQarHome() {
         return qarHome;
@@ -384,6 +386,16 @@ public class PRQANotifier extends Publisher {
     public void setSettingMaxMessages(String settingMaxMessages) {
         this.settingMaxMessages = settingMaxMessages;
     }
+    
+    @Exported
+    public void setProjectFile(String projectFile) {
+        this.projectFile = projectFile;
+    }
+    
+    @Exported
+    public String getProjectFile() {
+        return this.projectFile;
+    }
 
     @Override
     public String toString() {
@@ -433,14 +445,21 @@ public class PRQANotifier extends Publisher {
         }
         
         
-        //TODO: Does not work? (WHY)
+
         public FormValidation doCheckQacHome(@QueryParameter String value) {
             return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
         }
 
-        //TODO: Does not work? (WHY)
         public FormValidation doCheckQacppHome(@QueryParameter String value) {         
             return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
+        }
+        
+        public FormValidation doCheckQarHome(@QueryParameter String value) {
+            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
+        }
+        
+        public FormValidation doCheckProjectFile(@QueryParameter String value) {
+            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No file found on the given path: %s", value));              
         }
         
         @Override
@@ -471,7 +490,7 @@ public class PRQANotifier extends Publisher {
 
         public List<String> getProducts() {
             List<String> s = new ArrayList<String>();
-            for (AnalyseTypes a : AnalyseTypes.values()) {
+            for (AnalysisTools a : AnalysisTools.values()) {
                 s.add(a.toString());
             }
             return s;
