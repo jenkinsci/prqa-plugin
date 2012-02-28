@@ -43,7 +43,9 @@ public class PRQANotifier extends Publisher {
     private Integer totalMax;
     private String product;
     private QARReportType reportType;
+    
     private String command;
+    private String qarCommand;
     
     private String qacHome;
     private String qacppHome;
@@ -60,7 +62,7 @@ public class PRQANotifier extends Publisher {
 
     @DataBoundConstructor
     public PRQANotifier(String command, String reportType, String product,
-            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome, String qarHome) {
+            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome, String qarHome, String qarCommand) {
         this.reportType = QARReportType.valueOf(reportType);
         this.product = product;
         this.totalBetter = totalBetter;
@@ -74,6 +76,7 @@ public class PRQANotifier extends Publisher {
         this.qacppHome = qacppHome;
         this.qacHome = qacHome;
         this.qarHome = qarHome;
+        this.qarCommand = qarCommand;
     }
     
     @Override
@@ -222,7 +225,6 @@ public class PRQANotifier extends Publisher {
         final PRQABuildAction action = new PRQABuildAction(build);
         action.setPublisher(this);
         
-
         if(!res)
             build.setResult(Result.UNSTABLE);        
         build.getActions().add(action);            
@@ -287,6 +289,16 @@ public class PRQANotifier extends Publisher {
     @Exported
     public void setCommand(String Command) {
         this.command = Command;
+    }
+    
+    @Exported
+    public void setQarCommand(String qarCommand) {
+        this.qarCommand = qarCommand;
+    }
+    
+    @Exported
+    public String getQarCommand() {
+        return this.qarCommand;
     }
 
     @Exported
@@ -384,8 +396,6 @@ public class PRQANotifier extends Publisher {
      */
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
-        private String prqaHome;
         
         public FormValidation doCheckFileComplianceIndex(@QueryParameter String value) {
             try {
@@ -441,10 +451,6 @@ public class PRQANotifier extends Publisher {
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> arg0) {
             return true;
-        }
-
-        String getPrqaHome() {
-            return prqaHome;
         }
 
         @Override

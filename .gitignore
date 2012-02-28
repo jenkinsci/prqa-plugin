@@ -1,5 +1,3 @@
-target/**/*
 *.log
 work*
-*.class
-*.stapler
+target\*

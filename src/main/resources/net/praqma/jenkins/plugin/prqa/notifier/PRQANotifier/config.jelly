@@ -17,6 +17,10 @@
     <f:entry title="QAC/QACpp command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
         <f:textbox name="prqa.command" value="${instance.command}" />
     </f:entry>
+    
+    <f:entry title="QAR command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
+        <f:textbox name="prqa.qarCommand" value="${instance.qarCommand}" />
+    </f:entry>
 
     <j:set var="levels" value="${descriptor.getReports()}"/>
     <f:entry  title="Report Type" help="/plugin/prqa-plugin/config/help-configReportType.html">
