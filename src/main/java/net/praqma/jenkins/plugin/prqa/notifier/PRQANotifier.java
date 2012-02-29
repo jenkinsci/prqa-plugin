@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 import net.praqma.jenkins.plugin.prqa.Config;
+import net.praqma.jenkins.plugin.prqa.PrqaException;
 import net.praqma.prqa.PRQAComplianceStatus;
 import net.praqma.prqa.PRQAComplianceStatusCollection;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
@@ -148,26 +149,40 @@ public class PRQANotifier extends Publisher {
         cmdReplaced = cmdReplaced.replaceFirst("\\{%product}", product.toString());
         cmdReplaced = cmdReplaced.replaceFirst("\\{%reportType}", reportType.toString());
         cmdReplaced = cmdReplaced.replaceFirst("\\{%projectFile}", projectFile.toString());
+        cmdReplaced = cmdReplaced.replaceFirst("\\{%outpath}",build.getArtifactsDir().getPath());
         out.println(cmdReplaced);
         
-        
+        //Create a QAR command line instance.
         QAR qar = new QAR(qarHome, cmdReplaced);
+        qar.setReportOutputPath(build.getArtifactsDir().getPath());
+        
         
         
         //NEW SECTION:
-        switch(reportType) {
-            case Compliance:
-                PRQAComplianceReport rep = new PRQAComplianceReport(qar);
-                status = rep.completeTask(Config.COMPLIANCE_REPORT_PATH);
-                break;
-            case Quality:
-                throw new NotImplementedException("Not implemented yet");            
-            case CodeReview:
-                throw new NotImplementedException("Not implemented yet");
-            case Supression:
-                throw new NotImplementedException("Not implemented yet");
+        try {
+            switch(reportType) {
+                case Compliance:
+                    PRQAComplianceReport rep = new PRQAComplianceReport(qar);
+                    out.println(rep.getFullReportPath());
+                    //TODO: Remove this after report generation 
+                    FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(rep.getFullReportPath()));
+                    status = rep.completeTask();
+                    break;
+                case Quality:
+                    throw new NotImplementedException("Not implemented yet");            
+                case CodeReview:
+                    throw new NotImplementedException("Not implemented yet");
+                case Supression:
+                    throw new NotImplementedException("Not implemented yet");
+            }
+        } catch (PrqaException.PrqaCommandLineException ex) {
+            out.println(ex.toString());
+            return false;
+        } catch (PrqaException prqaex) {
+            out.println(prqaex.getMessage());
+            return false;
         }
-
+       
         boolean res = true;
         
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
@@ -209,7 +224,7 @@ public class PRQANotifier extends Publisher {
             }
                              
         }
-        
+       
         if(fileCompliance.equals(ComparisonSettings.Threshold) && status.getFileCompliance() < fileComplianceIndex ) {
             status.addNotication(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getFileCompliance(),fileComplianceIndex));
             res = false;
@@ -231,8 +246,8 @@ public class PRQANotifier extends Publisher {
         status.disable(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance);
         
         //Now. Copy the created compliance report to the build artifacts directory. Should work. 
-        String target = build.getArtifactsDir()+ "\\Compliance_Report.xhtml";        
-        FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(target));
+        String target = build.getArtifactsDir()+ "\\"+""+" Report.xhtml";        
+        //FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(target));
    
         final PRQABuildAction action = new PRQABuildAction(build);
         action.setPublisher(this);
@@ -399,7 +414,7 @@ public class PRQANotifier extends Publisher {
 
     @Override
     public String toString() {
-        return status.toString();
+        return status != null ? status.toString() : "No results have been generated";
     }
     /**
      * This class is used by Jenkins to define the plugin.

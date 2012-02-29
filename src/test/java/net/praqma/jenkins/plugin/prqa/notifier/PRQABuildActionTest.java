@@ -23,8 +23,12 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-import hudson.model.FreeStyleProject;
+import hudson.Launcher;
+import hudson.cli.CreateJobCommand;
+import hudson.model.*;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+import org.apache.maven.wagon.observers.Debug;
 import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
 
@@ -33,7 +37,7 @@ import org.jvnet.hudson.test.HudsonTestCase;
  * @author Praqma
  */
 public class PRQABuildActionTest extends HudsonTestCase {
-    
+
     @Test public void testGetDisplayName() {
         PRQABuildAction action = new PRQABuildAction();
         assertEquals(action.getDisplayName(), PRQABuildAction.DISPLAY_NAME);       
@@ -44,7 +48,34 @@ public class PRQABuildActionTest extends HudsonTestCase {
         assertEquals(action.getUrlName(), PRQABuildAction.URL_NAME);
     }
     
-    @Test public void testCreatePRQAFresstyleProject() throws IOException {
-        FreeStyleProject fsp = createFreeStyleProject("PRQA Test");        
+    @Test public void testCreatePRQAFreestyleProject() throws IOException, Exception {
+        FreeStyleProject fsp = createFreeStyleProject("PRQA Test");
+           
+        System.out.println(String.format("About to schedule job on port %s",localPort));
+        
+        FreeStyleBuild fsb = fsp.scheduleBuild2(0).get(60, TimeUnit.SECONDS);
+        Result res = fsp.getLastBuild().getResult();
+        System.out.println(String.format("Result : %s", res));
+        assertBuildStatus(Result.SUCCESS, fsp.getLastBuild());    
+        
+        assertNotNull(fsp);
+        assertNotNull(fsb);
+        
+        fsb.deleteArtifacts();
+        fsb.delete();
+        fsp.delete();
+        
+    }
+    
+    //TODO: implement this
+    //We need to enable "Programming Research Report" element in project configuraion
+    @Test public void testCreatePRQAJobConfiguration() {
+        assertTrue(true);
+    }
+    
+    //TODO: implement this
+    //We need to figure out a way to test 
+    @Test public void testExpectedBuildResults() {
+        assertTrue(true);
     }
 }
