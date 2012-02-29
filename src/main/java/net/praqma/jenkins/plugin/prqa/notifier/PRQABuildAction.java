@@ -57,25 +57,29 @@ import org.kohsuke.stapler.StaplerResponse;
 public class PRQABuildAction implements Action {
     
     private final AbstractBuild<?,?> build;
-    private Publisher publisher; 
+    private Publisher publisher;
+    public static final String DISPLAY_NAME = "PRQA";
+    public static final String URL_NAME = "PRQA";
+    
+    public PRQABuildAction() { this.build = null; }
      
     public PRQABuildAction(AbstractBuild<?,?> build) {
         this.build = build;
     }
-
+    
     @Override
     public String getIconFileName() {
-        throw new UnsupportedOperationException("No iconf file defined yet");
+        throw new UnsupportedOperationException("No icon file defined yet");
     }
 
     @Override
     public String getDisplayName() {
-        return "PRQA";
+        return DISPLAY_NAME;
     }
 
     @Override
     public String getUrlName() {
-        return "PRQA";
+        return URL_NAME;
     }
 
     /**
