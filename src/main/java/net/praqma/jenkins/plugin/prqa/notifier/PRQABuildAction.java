@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import net.praqma.prqa.PRQAComplianceStatus;
 import net.praqma.prqa.PRQAComplianceStatusCollection;
+import net.praqma.prqa.PRQAComplianceStatusCollection.ComplianceCategory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -122,8 +123,8 @@ public class PRQABuildAction implements Action {
     
     
     
-    public PRQAComplianceStatusCollection.ComplianceCategory[] getComplianceCategories() {
-        return PRQAComplianceStatusCollection.ComplianceCategory.values();
+    public ComplianceCategory[] getComplianceCategories() {
+        return ComplianceCategory.values();
     }
     
     /**
@@ -168,30 +169,30 @@ public class PRQABuildAction implements Action {
         }
         */
         
-        if(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).equals(PRQAComplianceStatusCollection.ComplianceCategory.Messages)) {
+        if(ComplianceCategory.valueOf(category).equals(ComplianceCategory.Messages)) {
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                     ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
                     PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
-                    dsb.add(stat.getComplianceReadout(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category)), PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).toString(), label);
+                    dsb.add(stat.getComplianceReadout(ComplianceCategory.valueOf(category)), ComplianceCategory.valueOf(category).toString(), label);
                     observations.add(stat);         
             }
-            max = observations.getMax(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category));
-            min = observations.getMin(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category));
+            max = observations.getMax(ComplianceCategory.valueOf(category));
+            min = observations.getMin(ComplianceCategory.valueOf(category));
             ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), category, scale, max.intValue(), min.intValue()), width, height );
         }
         
-        if(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).equals(PRQAComplianceStatusCollection.ComplianceCategory.ProjectCompliance)) {
+        if(ComplianceCategory.valueOf(category).equals(ComplianceCategory.ProjectCompliance)) {
             
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                     ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
                     PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
-                    dsb.add(stat.getComplianceReadout(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category)), PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category).toString(), label);
-                    dsb.add(stat.getComplianceReadout(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance), PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance.toString(), label);
+                    dsb.add(stat.getComplianceReadout(ComplianceCategory.valueOf(category)), ComplianceCategory.valueOf(category).toString(), label);
+                    dsb.add(stat.getComplianceReadout(ComplianceCategory.FileCompliance), ComplianceCategory.FileCompliance.toString(), label);
                     observations.add(stat);         
             }
             
-            max = observations.getMax(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category));
-            min = observations.getMin(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category)); 
+            max = observations.getMax(ComplianceCategory.valueOf(category));
+            min = observations.getMin(ComplianceCategory.valueOf(category)); 
             ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), "Project Compliance Levels", scale, max.intValue(), min.intValue()), width, height );
         }             
     }

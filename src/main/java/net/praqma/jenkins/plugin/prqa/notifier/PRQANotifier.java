@@ -5,6 +5,7 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
@@ -18,7 +19,10 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.regex.Matcher;
 import net.praqma.jenkins.plugin.prqa.Config;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteAnalysis;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteReporting;
 import net.praqma.jenkins.plugin.prqa.PrqaException;
 import net.praqma.prqa.PRQAComplianceStatus;
 import net.praqma.prqa.PRQAComplianceStatusCollection;
@@ -127,46 +131,51 @@ public class PRQANotifier extends Publisher {
         //TODO copied from CCUCM NOTIFIER ask chw why this is like this????
         return BuildStepMonitor.NONE;
     }
+    
 
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
+        //We need to do this on
+        //build.getWorkspace().act(new PRQARemoteAnalysis(projectFile, qarHome, listener));
                 
         //First. Run the analysis tool. Depending on which product is selected. This should produce a project file.
         switch (AnalysisTools.valueOf(product)) {
             case QAC:
-                new QAC(qacHome).execute(command);
+                //new QAC(qacHome).execute(command);
+                QAC qac = new QAC(qacHome, command);
+                //Do some execution...?                
+                build.getWorkspace().act(new PRQARemoteAnalysis(qac, listener));
                 break;
             case QACpp:
-                new QACpp(qacppHome).execute(command);
+                //new QACpp(qacppHome).execute(command);
+                QACpp qacpp = new QACpp(qacppHome,command);
+                build.getWorkspace().act(new PRQARemoteAnalysis(qacpp, listener));
                 break;
             default:
                 throw new IllegalArgumentException();
         }
         
         //This is where we exectuate the report generation. Currently only the compliance report is available.
-        String cmdReplaced = qarCommand;
-        cmdReplaced = cmdReplaced.replaceFirst("\\{%product}", product.toString());
-        cmdReplaced = cmdReplaced.replaceFirst("\\{%reportType}", reportType.toString());
-        cmdReplaced = cmdReplaced.replaceFirst("\\{%projectFile}", projectFile.toString());
-        cmdReplaced = cmdReplaced.replaceFirst("\\{%outpath}",build.getArtifactsDir().getPath());
-        out.println(cmdReplaced);
+        String qarCommandSubstituted = qarCommand;
+        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%product}", product.toString());
+        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%reportType}", reportType.toString());       
+        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%projectFile}", projectFile.toString());      
+        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%outpath}","\""+Matcher.quoteReplacement(build.getArtifactsDir().getPath())+"\"");
+        out.println(qarCommandSubstituted);
         
         //Create a QAR command line instance.
-        QAR qar = new QAR(qarHome, cmdReplaced);
-        qar.setReportOutputPath(build.getArtifactsDir().getPath());
-        
-        
-        
-        //NEW SECTION:
+        QAR qar = new QAR(qarHome, qarCommandSubstituted); 
         try {
             switch(reportType) {
                 case Compliance:
-                    PRQAComplianceReport rep = new PRQAComplianceReport(qar);
-                    out.println(rep.getFullReportPath());
+
+                    status = build.getWorkspace().act(new PRQARemoteReporting(qar, listener));
+                    //PRQAComplianceReport rep = new PRQAComplianceReport(qar);
+                    //out.println(rep.getFullReportPath());
                     //TODO: Remove this after report generation 
-                    FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(rep.getFullReportPath()));
-                    status = rep.completeTask();
+                    //FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(rep.getFullReportPath()));
+                    //status = rep.completeTask();
                     break;
                 case Quality:
                     throw new NotImplementedException("Not implemented yet");            
@@ -175,14 +184,23 @@ public class PRQANotifier extends Publisher {
                 case Supression:
                     throw new NotImplementedException("Not implemented yet");
             }
+        } catch (IOException ex) {
+            out.println(ex.toString());
+        } 
+/*        
+        catch (PrqaException.PrqaParserException pex) {
+            out.println(pex.getMessage());
+            out.println(pex.getRootCause().getMessage());
+            return false;
         } catch (PrqaException.PrqaCommandLineException ex) {
             out.println(ex.toString());
+            out.println(ex.getRootCause().toString());
             return false;
         } catch (PrqaException prqaex) {
             out.println(prqaex.getMessage());
             return false;
         }
-       
+*/       
         boolean res = true;
         
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
@@ -241,13 +259,10 @@ public class PRQANotifier extends Publisher {
         }
         
         out.println("Scanned the following values:");
+        out.println(String.format("Workspace? : %s",build.getEnvironment(listener).get("WORKSPACE")));
         out.println(status);
         out.println(qarCommand);
         status.disable(PRQAComplianceStatusCollection.ComplianceCategory.FileCompliance);
-        
-        //Now. Copy the created compliance report to the build artifacts directory. Should work. 
-        String target = build.getArtifactsDir()+ "\\"+""+" Report.xhtml";        
-        //FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(target));
    
         final PRQABuildAction action = new PRQABuildAction(build);
         action.setPublisher(this);
@@ -460,7 +475,7 @@ public class PRQANotifier extends Publisher {
         }
         
         
-
+        /*
         public FormValidation doCheckQacHome(@QueryParameter String value) {
             return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
         }
@@ -476,6 +491,7 @@ public class PRQANotifier extends Publisher {
         public FormValidation doCheckProjectFile(@QueryParameter String value) {
             return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No file found on the given path: %s", value));              
         }
+        */
         
         @Override
         public String getDisplayName() {
