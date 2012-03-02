@@ -25,12 +25,9 @@ package net.praqma.jenkins.plugin.prqa;
 
 import hudson.FilePath;
 import hudson.model.BuildListener;
-import hudson.remoting.Channel;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.praqma.prqa.PRQAComplianceStatus;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQAComplianceReport;
@@ -45,13 +42,18 @@ public class PRQARemoteReporting implements FilePath.FileCallable<PRQACompliance
     private QAR qar;
     private BuildListener listener;
     
+    /**
+     * 
+     * @param qar The command line wrapper for the Programming Reseach QAR tool
+     * @param listener Jenkins build listener, for writing console putut.  
+     */
     public PRQARemoteReporting(QAR qar, BuildListener listener) {
         this.qar = qar;
         this.listener = listener;
     }
     
     public PRQARemoteReporting(String command, String productHomeDir, BuildListener listener) {
-        qar = new QAR(productHomeDir, command);
+        this.qar = new QAR(productHomeDir, command);
         this.listener = listener;
     }
 
@@ -62,7 +64,7 @@ public class PRQARemoteReporting implements FilePath.FileCallable<PRQACompliance
             qar.setReportOutputPath(file.getPath());
             PRQAComplianceReport prreport = new PRQAComplianceReport<PRQAComplianceStatus,String>(qar);
             
-            //TODO:Emulating the output
+            //TODO:Emulating the output(THIS SHOULD HAVE BEEN DONE BEFOREHAND BY QAC/QACPP
             FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(prreport.getFullReportPath()));
             //REMOVE
             

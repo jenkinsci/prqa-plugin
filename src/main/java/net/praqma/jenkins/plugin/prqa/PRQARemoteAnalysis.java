@@ -24,10 +24,15 @@
 package net.praqma.jenkins.plugin.prqa;
 
 import hudson.FilePath;
+import hudson.Launcher;
+import hudson.Launcher.ProcStarter;
+import hudson.Proc;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.products.QAC;
 
@@ -39,26 +44,34 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
     
     private BuildListener listener;
     private PRQA prqa;
+    private Launcher launcher;
       
-    /*
-     * Construct a prqa reporting job. 
+    /**
+     * Class representing a remote ananlysis job.  
+     * 
+     * @param prqa Command line application wrapper for Programming Research Applications
+     * @param listener Jenkins build listener used for debugging purposes and writing to result log. 
      */
-    public PRQARemoteAnalysis(PRQA prqa, BuildListener listener) {
+    public PRQARemoteAnalysis(PRQA prqa, BuildListener listener, Launcher launcher) {
         this.listener = listener;
-        this.prqa = prqa;                
+        this.launcher = launcher;
+        this.prqa = prqa;
     }
     
-    public PRQARemoteAnalysis(String productHomeDir, String command, BuildListener listener) {
-        this.listener = listener;
-        //TODO: Extract interface
-        this.prqa = new QAC(productHomeDir,command);
+    public PRQARemoteAnalysis(String productExecutable, String command, BuildListener listener, Launcher launcher) {
+        this.listener = listener;        
+        this.prqa = new QAC(productExecutable,command);
+        this.launcher = launcher;
     }
 
     @Override
     public Boolean invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         listener.getLogger().println("Remote file: "+file.getAbsolutePath());
-        //Command line interfacing
-        //prqa.execute("dingdong");
+        launcher.launch().cmdAsSingleString(prqa.getProductExecutable() + " " + prqa.getCommand()).start();
+        
+        
+        listener.getLogger().println("Execting command: "+prqa.getProductExecutable() + " " + prqa.getCommand() +"\n"+"In directory: "+file.getPath());
+        prqa.execute();
         return true;
     }
     
