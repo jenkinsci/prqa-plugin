@@ -35,6 +35,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.products.QAC;
+import net.praqma.util.execute.AbnormalProcessTerminationException;
+import net.praqma.util.execute.CmdResult;
+import net.praqma.util.execute.CommandLineException;
 
 /**
  *
@@ -44,7 +47,7 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
     
     private BuildListener listener;
     private PRQA prqa;
-    private Launcher launcher;
+    //private Launcher launcher;
       
     /**
      * Class representing a remote ananlysis job.  
@@ -52,26 +55,36 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
      * @param prqa Command line application wrapper for Programming Research Applications
      * @param listener Jenkins build listener used for debugging purposes and writing to result log. 
      */
-    public PRQARemoteAnalysis(PRQA prqa, BuildListener listener, Launcher launcher) {
+    public PRQARemoteAnalysis(PRQA prqa, BuildListener listener) {
         this.listener = listener;
-        this.launcher = launcher;
         this.prqa = prqa;
     }
     
-    public PRQARemoteAnalysis(String productExecutable, String command, BuildListener listener, Launcher launcher) {
+    public PRQARemoteAnalysis(String productExecutable, String command, BuildListener listener) {
         this.listener = listener;        
         this.prqa = new QAC(productExecutable,command);
-        this.launcher = launcher;
     }
 
     @Override
     public Boolean invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
-        listener.getLogger().println("Remote file: "+file.getAbsolutePath());
-        launcher.launch().cmdAsSingleString(prqa.getProductExecutable() + " " + prqa.getCommand()).start();
-        
         
         listener.getLogger().println("Execting command: "+prqa.getProductExecutable() + " " + prqa.getCommand() +"\n"+"In directory: "+file.getPath());
-        prqa.execute();
+        
+        try 
+        {
+            CmdResult res = prqa.execute();
+            if(res.stdoutList != null) {
+                for(String s : res.stdoutList) {
+                    listener.getLogger().println(s);
+                }
+            }
+        } catch (AbnormalProcessTerminationException aex) {
+            listener.getLogger().println(aex.getMessage());
+            return false;
+        } catch (CommandLineException cle) {
+            listener.getLogger().println(cle.getMessage());
+            return false;
+        } 
         return true;
     }
     

@@ -138,12 +138,12 @@ public class PRQANotifier extends Publisher {
             case QAC:
                 //new QAC(qacHome).execute(command);
                 QAC qac = new QAC(qacHome, command);
-                build.getWorkspace().act(new PRQARemoteAnalysis(qac, listener, launcher));
+                build.getWorkspace().act(new PRQARemoteAnalysis(qac, listener));
                 break;
             case QACpp:
                 //new QACpp(qacppHome).execute(command);
                 QACpp qacpp = new QACpp(qacppHome,command);
-                build.getWorkspace().act(new PRQARemoteAnalysis(qacpp, listener, launcher));
+                build.getWorkspace().act(new PRQARemoteAnalysis(qacpp, listener));
                 break;
             default:
                 throw new IllegalArgumentException();
