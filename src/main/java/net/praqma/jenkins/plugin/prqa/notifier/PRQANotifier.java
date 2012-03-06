@@ -5,6 +5,7 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
@@ -12,22 +13,25 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
 import hudson.util.FormValidation;
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
 import net.praqma.jenkins.plugin.prqa.Config;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteAnalysis;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteReporting;
+import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAComplianceStatus;
 import net.praqma.prqa.PRQAComplianceStatusCollection;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
+import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.products.QAC;
 import net.praqma.prqa.products.QACpp;
 import net.praqma.prqa.products.QAR;
+import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.NotImplementedException;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -37,7 +41,7 @@ import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {    
     private PrintStream out;
-    private PRQAComplianceStatus status = new PRQAComplianceStatus();
+    private PRQAComplianceStatus status = null;
     private Boolean totalBetter;
     private Integer totalMax;
     private String product;
@@ -130,47 +134,52 @@ public class PRQANotifier extends Publisher {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
-        //We need to do this on
-        //build.getWorkspace().act(new PRQARemoteAnalysis(projectFile, qarHome, listener));                
-        //First. Run the analysis tool. Depending on which product is selected. This should produce a project file.
+        
+        PRQA analysisTool;
         
         switch (AnalysisTools.valueOf(product)) {
             case QAC:
                 //new QAC(qacHome).execute(command);
-                QAC qac = new QAC(qacHome, command);
-                build.getWorkspace().act(new PRQARemoteAnalysis(qac, listener));
+                //QAC qac = new QAC(qacHome, command);
+                analysisTool = new QAC(qacHome, command);
+                build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             case QACpp:
                 //new QACpp(qacppHome).execute(command);
-                QACpp qacpp = new QACpp(qacppHome,command);
-                build.getWorkspace().act(new PRQARemoteAnalysis(qacpp, listener));
+                //QACpp qacpp = new QACpp(qacppHome,command);
+                analysisTool = new QACpp(qacHome,command);
+                build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             default:
                 throw new IllegalArgumentException();
         }
         
-        //This is where we exectuate the report generation. Currently only the compliance report is available.
-        String qarCommandSubstituted = qarCommand;
-        
-        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%product}", product.toString());
-        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%reportType}", reportType.toString());       
-        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%projectFile}", projectFile.toString());      
-        qarCommandSubstituted = qarCommandSubstituted.replaceFirst("\\{%outpath}","\""+Matcher.quoteReplacement(build.getArtifactsDir().getPath())+"\"");
-        out.println(qarCommandSubstituted);
-        
-        
         //Create a QAR command line instance.
-        QAR qar = new QAR(qarHome); 
+        QAR qar = new QAR(qarHome);
+        
+        qar.getBuilder().prependArgument(PRQACommandBuilder.getProduct(product.toString()));
+        qar.getBuilder().appendArgument(PRQACommandBuilder.getReportTypeParameter(reportType.toString()));
+        qar.getBuilder().appendArgument(PRQACommandBuilder.getListReportFiles(projectFile.toString()));
+        
+
         try {
             switch(reportType) {
-                case Compliance:
-
+                case Compliance:                    
                     status = build.getWorkspace().act(new PRQARemoteReporting(qar, listener));
-                    //PRQAComplianceReport rep = new PRQAComplianceReport(qar);
-                    //out.println(rep.getFullReportPath());
-                    //TODO: Remove this after report generation 
-                    //FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(rep.getFullReportPath()));
-                    //status = rep.completeTask();
+                    /**
+                     * Check to see if the report exists. If it does. Copy it to the artifacts
+                     */
+                    FilePath[] files = build.getWorkspace().list("**/"+PRQAComplianceReport.getNamingTemplate());
+                    if(files.length >= 1) {
+                        out.println("Found report. Attempting to copy "+PRQAComplianceReport.getNamingTemplate()+" to artifacts directory: "+build.getArtifactsDir().getPath());
+                        out.println("Report found :"+files[0].getName());
+                        String artifactDir = build.getArtifactsDir().getPath();
+                        out.println("Local artifact dir: "+artifactDir);
+                        FilePath targetDir = new FilePath(new File(artifactDir+"/"+PRQAComplianceReport.getNamingTemplate()));
+                        out.println("Target dir name : "+targetDir.getName());
+                                               
+                        build.getWorkspace().list("**/"+PRQAComplianceReport.getNamingTemplate())[0].copyTo(targetDir);
+                    }
                     break;
                 case Quality:
                     throw new NotImplementedException("Not implemented yet");            
@@ -180,29 +189,21 @@ public class PRQANotifier extends Publisher {
                     throw new NotImplementedException("Not implemented yet");
             }
         } catch (IOException ex) {
-            out.println(ex.toString());
-        } 
-/*        
-        catch (PrqaException.PrqaParserException pex) {
-            out.println(pex.getMessage());
-            out.println(pex.getRootCause().getMessage());
-            return false;
-        } catch (PrqaException.PrqaCommandLineException ex) {
-            out.println(ex.toString());
-            out.println(ex.getRootCause().toString());
-            return false;
-        } catch (PrqaException prqaex) {
-            out.println(prqaex.getMessage());
+            out.println("Caught IOExcetion with cause: ");
+            out.println(ex.getCause().getCause().toString());
+        }
+        
+        if(status == null) {
+            out.println("Failed getting results");
             return false;
         }
-*/       
+                 
         boolean res = true;
         
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
         ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
-        
-        
+     
         //Check to see if any of the options include previous build comparisons. If it does instantiate last build
         if(fileCompliance.equals(ComparisonSettings.Improvement) || projCompliance.equals(ComparisonSettings.Improvement) || maxMsg.equals(ComparisonSettings.Improvement)) {
             
@@ -260,6 +261,7 @@ public class PRQANotifier extends Publisher {
    
         final PRQABuildAction action = new PRQABuildAction(build);
         action.setPublisher(this);
+        
         
         if(!res)
             build.setResult(Result.UNSTABLE);        

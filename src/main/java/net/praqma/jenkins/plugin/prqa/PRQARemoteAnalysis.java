@@ -68,11 +68,13 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
     @Override
     public Boolean invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         
-        listener.getLogger().println("Execting command: "+prqa.getProductExecutable() + " " + prqa.getCommand() +"\n"+"In directory: "+file.getPath());
-        
+        prqa.setCommandBase(file.getPath());
+
         try 
         {
-            CmdResult res = prqa.execute();
+            CmdResult res = ((QAC)prqa).execute(prqa.getCommand(), file);
+            
+            
             if(res.stdoutList != null) {
                 for(String s : res.stdoutList) {
                     listener.getLogger().println(s);

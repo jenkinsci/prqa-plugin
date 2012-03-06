@@ -27,10 +27,16 @@ import hudson.FilePath;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import net.praqma.prqa.PRQAComplianceStatus;
+import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQAComplianceReport;
+import net.praqma.util.debug.Logger;
+import net.praqma.util.debug.PraqmaLogger;
+import net.praqma.util.debug.appenders.StreamAppender;
 import org.apache.commons.io.FileUtils;
 
 /**
@@ -51,7 +57,7 @@ public class PRQARemoteReporting implements FilePath.FileCallable<PRQACompliance
         this.qar = qar;
         this.listener = listener;
     }
-    
+       
     public PRQARemoteReporting(String command, String productHomeDir, BuildListener listener) {
         this.qar = new QAR(productHomeDir, command);
         this.listener = listener;
@@ -59,24 +65,48 @@ public class PRQARemoteReporting implements FilePath.FileCallable<PRQACompliance
 
     @Override
     public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
+        File tmpCommand = null;
+        StreamAppender sa = new StreamAppender(this.listener.getLogger());
+        Logger.addAppender(sa);
         try {
-            
             qar.setReportOutputPath(file.getPath());
+            qar.setCommandBase(file.getPath());
+            qar.getBuilder().appendArgument(PRQACommandBuilder.getOutputPathParameter(file.getPath()));
+            qar.getBuilder().appendArgument(PRQACommandBuilder.getCmaf(file.getPath()+"\\qar_out"));
+            
+            //Create a temorary file holding the command. We did this because otherwise the command line interpreter won't accept quotes in commands. 
+            tmpCommand = File.createTempFile("tempQAR", ".bat");
+            FileWriter fw = new FileWriter(tmpCommand);
+            PrintWriter pw = new PrintWriter(fw);
+            
+            pw.println("call \"C:\\Program Files (x86)\\PRQA\\QAC-8.0-R\\bin\\QACCONF.BAT\"");
+            pw.println("call "+qar.getBuilder().getCommand());
+            pw.close();
+            
+            
+ 
+            qar.setCommand(tmpCommand.getPath());
+            
+            
+            
+            listener.getLogger().println(qar.getBuilder().getCommand());
+            listener.getLogger().println(tmpCommand.getPath());
+                        
             PRQAComplianceReport prreport = new PRQAComplianceReport<PRQAComplianceStatus,String>(qar);
             
             //TODO:Emulating the output(THIS SHOULD HAVE BEEN DONE BEFOREHAND BY QAC/QACPP
-            FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(prreport.getFullReportPath()));
+            //FileUtils.copyFile(new File(Config.COMPLIANCE_REPORT_PATH), new File(prreport.getFullReportPath()));
             //REMOVE
-            
-            listener.getLogger().println("Reporting remote dir: "+file.getPath());
-            
-            listener.getLogger().println("Report path specified as: "+prreport.getFullReportPath());
-            
+
             return prreport.completeTask();
         } catch (PrqaException ex) {
-            listener.getLogger().println(ex.toString());
+            
+            listener.getLogger().println("Failed executing command: "+qar.getCommand());
+            listener.getLogger().println("Commandbuilder: "+ qar.getBuilder().getCommand());
             throw new IOException(ex);
-        }
+        } finally {
+            Logger.removeAppender(sa);
+        } 
     }
     
 }
