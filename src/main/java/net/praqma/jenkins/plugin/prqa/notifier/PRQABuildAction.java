@@ -171,10 +171,12 @@ public class PRQABuildAction implements Action {
         
         if(ComplianceCategory.valueOf(category).equals(ComplianceCategory.Messages)) {
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
-                    PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
-                    dsb.add(stat.getComplianceReadout(ComplianceCategory.valueOf(category)), ComplianceCategory.valueOf(category).toString(), label);
-                    observations.add(stat);         
+                    if(prqabuild.getBuildActionStatus().isValid()) {
+                        ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
+                        PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
+                        dsb.add(stat.getComplianceReadout(ComplianceCategory.valueOf(category)), ComplianceCategory.valueOf(category).toString(), label);
+                        observations.add(stat);
+                    }
             }
             max = observations.getMax(ComplianceCategory.valueOf(category));
             min = observations.getMin(ComplianceCategory.valueOf(category));
@@ -184,11 +186,13 @@ public class PRQABuildAction implements Action {
         if(ComplianceCategory.valueOf(category).equals(ComplianceCategory.ProjectCompliance)) {
             
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
-                    PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
-                    dsb.add(stat.getComplianceReadout(ComplianceCategory.valueOf(category)), ComplianceCategory.valueOf(category).toString(), label);
-                    dsb.add(stat.getComplianceReadout(ComplianceCategory.FileCompliance), ComplianceCategory.FileCompliance.toString(), label);
-                    observations.add(stat);         
+                    if(prqabuild.getBuildActionStatus().isValid()) {
+                        ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
+                        PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
+                        dsb.add(stat.getComplianceReadout(ComplianceCategory.valueOf(category)), ComplianceCategory.valueOf(category).toString(), label);
+                        dsb.add(stat.getComplianceReadout(ComplianceCategory.FileCompliance), ComplianceCategory.FileCompliance.toString(), label);
+                        observations.add(stat);
+                    }
             }
             
             max = observations.getMax(ComplianceCategory.valueOf(category));

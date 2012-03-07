@@ -63,11 +63,11 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
     }
     
     public PRQABuildAction getLatestActionInProject() {
-        return project.getLastBuild().getAction(PRQABuildAction.class);     
+        return project.getLastSuccessfulBuild().getAction(PRQABuildAction.class);     
     }
     
     public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) {
-        PRQABuildAction action = getLatestActionInProject();
+        PRQABuildAction action = getLatestActionInProject();       
         if(action != null)
             try {
                 action.doComplianceStatistics(req, rsp);

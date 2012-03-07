@@ -39,7 +39,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
-public class PRQANotifier extends Publisher {    
+public class PRQANotifier extends Publisher {
     private PrintStream out;
     private PRQAComplianceStatus status = null;
     private Boolean totalBetter;
@@ -47,13 +47,13 @@ public class PRQANotifier extends Publisher {
     private String product;
     private QARReportType reportType;
     
-    private String command;
-    private String qarCommand;
+    private String analysisCommand;
     
+    /*
     private String qacHome;
     private String qacppHome;
     private String qarHome;
-    
+    */
     
     //Strings indicating the selected options.
     private String settingFileCompliance;
@@ -66,23 +66,23 @@ public class PRQANotifier extends Publisher {
     private String projectFile;
 
     @DataBoundConstructor
-    public PRQANotifier(String command, String reportType, String product,
-            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String qacppHome, String qacHome, String qarHome, String qarCommand, String projectFile) {
+    public PRQANotifier(String analysisCommand, String reportType, String product,
+            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile) {
         this.reportType = QARReportType.valueOf(reportType);
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
-        this.command = command;       
+        this.analysisCommand = analysisCommand;       
         this.fileComplianceIndex = parseDoubleNullDefault(fileComplianceIndex);
         this.projectComplianceIndex = parseDoubleNullDefault(projectComplianceIndex);
         this.settingProjectCompliance = settingProjectCompliance;
         this.settingMaxMessages = settingMaxMessages;
         this.settingFileCompliance = settingFileCompliance;
+        /*
         this.qacppHome = qacppHome;
         this.qacHome = qacHome;
-        this.qarHome = qarHome;
-        this.qarCommand = qarCommand;
-        
+        this.qarHome = qarHome
+        */   
         this.projectFile = projectFile;
     }
     
@@ -134,20 +134,16 @@ public class PRQANotifier extends Publisher {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
-        
+        out.println("Preparing to run the following analysis: "+analysisCommand);
         PRQA analysisTool;
         
         switch (AnalysisTools.valueOf(product)) {
             case QAC:
-                //new QAC(qacHome).execute(command);
-                //QAC qac = new QAC(qacHome, command);
-                analysisTool = new QAC(qacHome, command);
+                analysisTool = new QAC(analysisCommand);
                 build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             case QACpp:
-                //new QACpp(qacppHome).execute(command);
-                //QACpp qacpp = new QACpp(qacppHome,command);
-                analysisTool = new QACpp(qacHome,command);
+                analysisTool = new QACpp(analysisCommand);
                 build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             default:
@@ -155,13 +151,12 @@ public class PRQANotifier extends Publisher {
         }
         
         //Create a QAR command line instance.
-        QAR qar = new QAR(qarHome);
+        QAR qar = new QAR();
         
         qar.getBuilder().prependArgument(PRQACommandBuilder.getProduct(product.toString()));
         qar.getBuilder().appendArgument(PRQACommandBuilder.getReportTypeParameter(reportType.toString()));
         qar.getBuilder().appendArgument(PRQACommandBuilder.getListReportFiles(projectFile.toString()));
-        
-
+ 
         try {
             switch(reportType) {
                 case Compliance:                    
@@ -222,7 +217,7 @@ public class PRQANotifier extends Publisher {
                     res = false;
                 }
             }
-
+            
             if(projCompliance.equals(ComparisonSettings.Improvement)) {
                 if(publisher.getStatus().getProjectCompliance() > status.getProjectCompliance()) {
                     status.addNotication(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getProjectCompliance(),publisher.getStatus().getProjectCompliance()));
@@ -268,10 +263,12 @@ public class PRQANotifier extends Publisher {
         build.getActions().add(action);            
         return true;      
     }
-
+    
+    /*
     @Exported
     public String getQarHome() {
-        return qarHome;
+        PRQANotifier.DescriptorImpl.find(this.getClass().toString());
+        return "";
     }
 
     @Exported
@@ -298,10 +295,16 @@ public class PRQANotifier extends Publisher {
     public void setQacppHome(String qacppHome) {
         this.qacppHome = qacppHome;
     }
-
+    */
+    
     @Exported
-    public String getCommand() {
-        return command;
+    public String getAnalysisCommand() {        
+        return this.analysisCommand;
+    }
+    
+    @Exported
+    public void setAnalysisCommand(String analysisCommand) {
+        this.analysisCommand = analysisCommand;
     }
 
     @Exported
@@ -313,22 +316,7 @@ public class PRQANotifier extends Publisher {
     public void setTotalMax(Integer totalMax) {
         this.totalMax = totalMax;
     }
-
-    @Exported
-    public void setCommand(String Command) {
-        this.command = Command;
-    }
     
-    @Exported
-    public void setQarCommand(String qarCommand) {
-        this.qarCommand = qarCommand;
-    }
-    
-    @Exported
-    public String getQarCommand() {
-        return this.qarCommand;
-    }
-
     @Exported
     public String getProduct() {
         return product;
@@ -438,7 +426,7 @@ public class PRQANotifier extends Publisher {
      */
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-        
+
         public FormValidation doCheckFileComplianceIndex(@QueryParameter String value) {
             try {
                 Double parsedValue = Double.parseDouble(value);
@@ -474,25 +462,6 @@ public class PRQANotifier extends Publisher {
             return FormValidation.ok();
         }
         
-        
-        /*
-        public FormValidation doCheckQacHome(@QueryParameter String value) {
-            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
-        }
-
-        public FormValidation doCheckQacppHome(@QueryParameter String value) {         
-            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
-        }
-        
-        public FormValidation doCheckQarHome(@QueryParameter String value) {
-            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No executable or directory found with specified path: %s",value));
-        }
-        
-        public FormValidation doCheckProjectFile(@QueryParameter String value) {
-            return new File(value).exists() ? FormValidation.ok() : FormValidation.error(String.format("No file found on the given path: %s", value));              
-        }
-        */
-        
         @Override
         public String getDisplayName() {
             return "Programming Research Report";
@@ -501,15 +470,20 @@ public class PRQANotifier extends Publisher {
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> arg0) {
             return true;
-        }
-
+        }        
+            
         @Override
-        public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            super.configure(req, formData);
+        public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws FormException {           
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
             return instance;
         }
 
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+            save();
+            return true;
+        }
+               
         public DescriptorImpl() {
             super(PRQANotifier.class);
             load();
@@ -533,6 +507,6 @@ public class PRQANotifier extends Publisher {
                 settings.add(setting.toString());
             }
             return settings;
-        }
+        }       
     }
 }

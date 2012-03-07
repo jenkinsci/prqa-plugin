@@ -24,15 +24,10 @@
 package net.praqma.jenkins.plugin.prqa;
 
 import hudson.FilePath;
-import hudson.Launcher;
-import hudson.Launcher.ProcStarter;
-import hudson.Proc;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.products.QAC;
 import net.praqma.util.execute.AbnormalProcessTerminationException;
@@ -60,11 +55,6 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
         this.prqa = prqa;
     }
     
-    public PRQARemoteAnalysis(String productExecutable, String command, BuildListener listener) {
-        this.listener = listener;        
-        this.prqa = new QAC(productExecutable,command);
-    }
-
     @Override
     public Boolean invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         
@@ -72,14 +62,18 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
 
         try 
         {
-            CmdResult res = ((QAC)prqa).execute(prqa.getCommand(), file);
-            
-            
+            CmdResult res = prqa.execute();            
             if(res.stdoutList != null) {
                 for(String s : res.stdoutList) {
                     listener.getLogger().println(s);
                 }
             }
+            if(res.errorList != null) {
+                for(String error : res.stdoutList) {
+                    listener.getLogger().println(error);
+                }
+            }
+            
         } catch (AbnormalProcessTerminationException aex) {
             listener.getLogger().println(aex.getMessage());
             return false;

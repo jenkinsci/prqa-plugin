@@ -1,0 +1,16 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<!--
+    <f:section title="Programming Research">
+        <f:entry title="QAC Home">
+            <f:textbox name="qacHome" value="${descriptor.qacHome}"/>
+        </f:entry>
+        <f:entry title="QACpp Home">
+            <f:textbox name="qacppHome" value="${descriptor.qacppHome}"/>
+        </f:entry>        
+        <f:entry title="QAR Home">
+            <f:textbox name="qarHome" value="${descriptor.qarHome}"/>
+        </f:entry>
+    </f:section>
+-->
+</j:jelly>

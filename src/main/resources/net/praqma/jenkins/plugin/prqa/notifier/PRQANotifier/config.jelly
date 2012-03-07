@@ -1,7 +1,7 @@
 
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-
+    <!--
     <f:entry title="QACpp Executable" field="qacppHome">
         <f:textbox name="prqa.qacppHome" value ="${instance.qacppHome}"/>
     </f:entry>
@@ -13,9 +13,9 @@
     <f:entry title="QAR Executable" field="qarHome">
         <f:textbox name="prqa.qarHome" value ="${instance.qarHome}"/>
     </f:entry>
-    
-    <f:entry title="QAC/QACpp command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
-        <f:textbox name="prqa.command" value="${instance.command}" />
+    -->
+    <f:entry title="Analysis command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
+        <f:textbox name="prqa.analysisCommand" value="${instance.analysisCommand}" />
     </f:entry>
     
     <f:entry title="Project file" field="projectFile">
@@ -39,11 +39,11 @@
             </j:forEach>
         </select>
     </f:entry>
-    
+    <!--
     <f:entry title="QAR command" help="/plugin/prqa-plugin/config/help-configProductCommand.html" >
         <f:textbox name="prqa.qarCommand" value="${instance.qarCommand}" />
     </f:entry>
-    
+    -->
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <f:section title="Threshold">
         <f:entry title="Max messages" field="totalMax">
