@@ -12,15 +12,13 @@ import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAReport;
 
 /**
- *
+
  * @author Praqma
  */
 public class PRQARemoteReporting implements FilePath.FileCallable<PRQAComplianceStatus> {
     
     private QAR qar;
     private BuildListener listener;
-    
-    //Silent mode for 
     private boolean silentMode;
     
     /**
