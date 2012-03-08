@@ -106,7 +106,7 @@ public class PRQANotifier extends Publisher {
             Integer parsed = Integer.parseInt(value);
             return parsed;
         
-        } catch (NullPointerException nex) {
+        } catch (NumberFormatException nex) {
             return null;
         }
     }
@@ -126,7 +126,6 @@ public class PRQANotifier extends Publisher {
 
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
-        //TODO copied from CCUCM NOTIFIER ask chw why this is like this????
         return BuildStepMonitor.NONE;
     }
     

@@ -1,3 +1,4 @@
+
 package net.praqma.jenkins.plugin.prqa;
 
 import hudson.FilePath;
@@ -44,7 +45,7 @@ public class PRQARemoteReporting implements FilePath.FileCallable<PRQACompliance
             qar.setReportOutputPath(file.getPath());
             qar.setCommandBase(file.getPath());
             qar.getBuilder().appendArgument(PRQACommandBuilder.getOutputPathParameter(file.getPath()));
-            qar.getBuilder().appendArgument(PRQACommandBuilder.getCmaf(file.getPath()+"\\qar_out"));
+            qar.getBuilder().appendArgument(PRQACommandBuilder.getCmaf(file.getPath()));
             
             qar.setCommand(qar.getBuilder().getCommand());
             listener.getLogger().println(qar.getBuilder().getCommand());

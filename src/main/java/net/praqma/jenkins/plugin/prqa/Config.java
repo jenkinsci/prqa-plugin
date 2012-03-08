@@ -19,7 +19,5 @@ public class Config {
         }
         return list;
     }
-    
-    //TODO: Remove this when generating the report is in place!
-    public static final String COMPLIANCE_REPORT_PATH = "C:\\Projects\\PRQA-plugin\\Compliance_Report.xhtml";
+ 
 }
