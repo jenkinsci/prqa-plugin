@@ -52,9 +52,11 @@ public class PRQARemoteReporting implements FilePath.FileCallable<PRQACompliance
             
             qar.getBuilder().appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));           
             qar.setCommand(qar.getBuilder().getCommand());
-                                   
-            PRQAComplianceReport prreport = new PRQAComplianceReport<PRQAComplianceStatus,String>(qar);
+           
+            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",qar.getCommand()));
             
+            PRQAComplianceReport prreport = new PRQAComplianceReport<PRQAComplianceStatus,String>(qar);
+           
             return prreport.completeTask();
         } catch (PrqaException ex) {
             listener.getLogger().println("Failed executing command: "+qar.getBuilder().getCommand());
