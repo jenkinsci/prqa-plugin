@@ -36,13 +36,7 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
     
     @Override
     public Boolean invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
-        listener.getLogger().println("Started analysis.");
         prqa.setCommandBase(file.getPath());
-        Logger.setMinLogLevel(Logger.LogLevel.DEBUG);
-        StreamAppender appender = new StreamAppender(listener.getLogger());
-       
-        Logger.addAppender(appender);
-
         try 
         {
             CmdResult res = prqa.execute();            
@@ -64,7 +58,7 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
             listener.getLogger().println(cle.getMessage());
             return false;
         } finally  {
-            Logger.removeAppender(appender);
+            listener.getLogger().println("Finshed analysis.");
         }
             
         return true;

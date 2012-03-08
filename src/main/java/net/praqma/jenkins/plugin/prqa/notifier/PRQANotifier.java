@@ -19,7 +19,6 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import net.praqma.jenkins.plugin.prqa.Config;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteAnalysis;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteReporting;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAComplianceStatus;
@@ -28,8 +27,6 @@ import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.products.PRQACommandBuilder;
-import net.praqma.prqa.products.QAC;
-import net.praqma.prqa.products.QACpp;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.sf.json.JSONObject;
@@ -46,16 +43,7 @@ public class PRQANotifier extends Publisher {
     private Integer totalMax;
     private String product;
     private QARReportType reportType;
-    
-    private String analysisCommand;
-    
-    /*
-    private String qacHome;
-    private String qacppHome;
-    private String qarHome;
-    */
-    
-    //Strings indicating the selected options.
+ 
     private String settingFileCompliance;
     private String settingMaxMessages;
     private String settingProjectCompliance;
@@ -66,23 +54,16 @@ public class PRQANotifier extends Publisher {
     private String projectFile;
 
     @DataBoundConstructor
-    public PRQANotifier(String analysisCommand, String reportType, String product,
-            boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile) {
+    public PRQANotifier(String reportType, String product, boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile) {
         this.reportType = QARReportType.valueOf(reportType);
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
-        this.analysisCommand = analysisCommand;       
         this.fileComplianceIndex = parseDoubleNullDefault(fileComplianceIndex);
         this.projectComplianceIndex = parseDoubleNullDefault(projectComplianceIndex);
         this.settingProjectCompliance = settingProjectCompliance;
         this.settingMaxMessages = settingMaxMessages;
         this.settingFileCompliance = settingFileCompliance;
-        /*
-        this.qacppHome = qacppHome;
-        this.qacHome = qacHome;
-        this.qarHome = qarHome
-        */   
         this.projectFile = projectFile;
     }
     
@@ -133,17 +114,16 @@ public class PRQANotifier extends Publisher {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
-        out.println("Preparing to run the following analysis: "+analysisCommand);
         PRQA analysisTool;
         
         switch (AnalysisTools.valueOf(product)) {
             case QAC:
-                analysisTool = new QAC(analysisCommand);
-                build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
+                //analysisTool = new QAC(analysisCommand);
+                //build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             case QACpp:
-                analysisTool = new QACpp(analysisCommand);
-                build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
+                //analysisTool = new QACpp(analysisCommand);
+                //build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -151,28 +131,28 @@ public class PRQANotifier extends Publisher {
         
         //Create a QAR command line instance.
         QAR qar = new QAR();
-        
+        qar.setType(reportType);
         qar.getBuilder().prependArgument(PRQACommandBuilder.getProduct(product.toString()));
-        qar.getBuilder().appendArgument(PRQACommandBuilder.getReportTypeParameter(reportType.toString()));
-        qar.getBuilder().appendArgument(PRQACommandBuilder.getListReportFiles(projectFile.toString()));
- 
+        qar.getBuilder().appendArgument(PRQACommandBuilder.getProjectFile(projectFile));
+        
         try {
             switch(reportType) {
-                case Compliance:                    
-                    status = build.getWorkspace().act(new PRQARemoteReporting(qar, listener));
+                case Compliance:
+                    
+                    status = build.getWorkspace().act(new PRQARemoteReporting(qar, listener, false));
                     /**
                      * Check to see if the report exists. If it does. Copy it to the artifacts
                      */
                     FilePath[] files = build.getWorkspace().list("**/"+PRQAComplianceReport.getNamingTemplate());
                     if(files.length >= 1) {
                         out.println("Found report. Attempting to copy "+PRQAComplianceReport.getNamingTemplate()+" to artifacts directory: "+build.getArtifactsDir().getPath());
-                        out.println("Report found :"+files[0].getName());
                         String artifactDir = build.getArtifactsDir().getPath();
-                        out.println("Local artifact dir: "+artifactDir);
+                        
                         FilePath targetDir = new FilePath(new File(artifactDir+"/"+PRQAComplianceReport.getNamingTemplate()));
-                        out.println("Target dir name : "+targetDir.getName());
+                        out.println("Attempting to copy report to following target: "+targetDir.getName());
                                                
                         build.getWorkspace().list("**/"+PRQAComplianceReport.getNamingTemplate())[0].copyTo(targetDir);
+                        out.println("Succesfully copied report");
                     }
                     break;
                 case Quality:
@@ -263,49 +243,6 @@ public class PRQANotifier extends Publisher {
         return true;      
     }
     
-    /*
-    @Exported
-    public String getQarHome() {
-        PRQANotifier.DescriptorImpl.find(this.getClass().toString());
-        return "";
-    }
-
-    @Exported
-    public void setQarHome(String qarHome) {
-        this.qarHome = qarHome;
-    }
-    
-    @Exported
-    public String getQacHome() {
-        return qacHome;
-    }
-
-    @Exported
-    public void setQacHome(String qacHome) {
-        this.qacHome = qacHome;
-    }
-    
-    @Exported
-    public String getQacppHome() {
-        return qacppHome;
-    }
-
-    @Exported
-    public void setQacppHome(String qacppHome) {
-        this.qacppHome = qacppHome;
-    }
-    */
-    
-    @Exported
-    public String getAnalysisCommand() {        
-        return this.analysisCommand;
-    }
-    
-    @Exported
-    public void setAnalysisCommand(String analysisCommand) {
-        this.analysisCommand = analysisCommand;
-    }
-
     @Exported
     public Integer getTotalMax() {
         return this.totalMax;

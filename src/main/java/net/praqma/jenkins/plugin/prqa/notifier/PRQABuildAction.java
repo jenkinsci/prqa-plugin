@@ -150,24 +150,6 @@ public class PRQABuildAction implements Action {
         
         observations.overrideMax(PRQAComplianceStatusCollection.ComplianceCategory.ProjectCompliance, 100);
         observations.overrideMin(PRQAComplianceStatusCollection.ComplianceCategory.ProjectCompliance, 0);
-          
-        //Get the minimum and maximum observations from the collected observations.
-        /*
-        for(PRQAComplianceStatusCollection.ComplianceCategory ccat : PRQAComplianceStatusCollection.ComplianceCategory.values()) {
-            if(ccat.equals(PRQAComplianceStatusCollection.ComplianceCategory.valueOf(category))) {
-               
-                for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
-                    PRQAComplianceStatus stat = prqabuild.getBuildActionStatus();
-                    dsb.add(stat.getComplianceReadout(ccat), ccat.toString(), label);
-                    observations.add(stat);         
-                }
-                
-                max = observations.getMax(ccat);
-                min = observations.getMin(ccat);
-            }
-        }
-        */
         
         if(ComplianceCategory.valueOf(category).equals(ComplianceCategory.Messages)) {
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
