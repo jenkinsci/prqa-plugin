@@ -114,16 +114,11 @@ public class PRQANotifier extends Publisher {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
-        PRQA analysisTool;
-        
+
         switch (AnalysisTools.valueOf(product)) {
             case QAC:
-                //analysisTool = new QAC(analysisCommand);
-                //build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             case QACpp:
-                //analysisTool = new QACpp(analysisCommand);
-                //build.getWorkspace().act(new PRQARemoteAnalysis(analysisTool, listener));
                 break;
             default:
                 throw new IllegalArgumentException();
@@ -132,14 +127,16 @@ public class PRQANotifier extends Publisher {
         //Create a QAR command line instance.
         QAR qar = new QAR();
         qar.setType(reportType);
+        
         qar.getBuilder().prependArgument(PRQACommandBuilder.getProduct(product.toString()));
         qar.getBuilder().appendArgument(PRQACommandBuilder.getProjectFile(projectFile));
-        
+                
         try {
             switch(reportType) {
                 case Compliance:
                     
-                    status = build.getWorkspace().act(new PRQARemoteReporting(qar, listener, false));
+                    status = build.getWorkspace().act(new PRQARemoteReporting(qar, listener, false, Config.LOGO_PATH));
+                    build.getProject().getAbsoluteUrl();
                     /**
                      * Check to see if the report exists. If it does. Copy it to the artifacts
                      */
@@ -235,7 +232,6 @@ public class PRQANotifier extends Publisher {
    
         final PRQABuildAction action = new PRQABuildAction(build);
         action.setPublisher(this);
-        
         
         if(!res)
             build.setResult(Result.UNSTABLE);        

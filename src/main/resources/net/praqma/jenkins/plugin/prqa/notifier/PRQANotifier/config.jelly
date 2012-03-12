@@ -19,7 +19,6 @@
     <f:entry title="Product type" help="/plugin/prqa-plugin/config/help-configProductType.html">
         <select class="product" name="PRQA.product">
             <j:forEach var="l" items="${levels}">
-                <!-- <f:option selected="${PRQA.type==l}" value="${l}">${l}</f:option> -->
                 <f:option selected="${instance.product.equals(l)}" value="${l}">${l}</f:option>
             </j:forEach>
         </select>

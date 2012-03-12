@@ -19,5 +19,6 @@ public class Config {
         }
         return list;
     }
- 
+    
+    public static final String LOGO_PATH = "/plugins/prqa-plugin/prqa_logo.png";
 }
