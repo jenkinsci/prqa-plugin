@@ -13,7 +13,7 @@ public class Config {
     public static List<String> getReports() {
         List<String> list = new ArrayList<String>();
         for (QARReportType report : QARReportType.values()) {
-            if (report.equals(QARReportType.Compliance)) {
+            if (report.equals(QARReportType.Compliance) || report.equals(QARReportType.Quality)) {
                 list.add(report.toString());
             }
         }

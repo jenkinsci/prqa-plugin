@@ -63,8 +63,19 @@
                 <role>developer</role> 
             </roles> 
             <timezone>+1</timezone> 
-        </developer> 
+        </developer>
+        <developer>
+            <id>MadsNielsen</id>
+            <name>Mads Nielsen</name>
+            <email>man@praqma.net</email>
+            <organization>Praqma A/S</organization>
+            <roles>
+                <role>delveoper</role>
+            </roles>
+            <timezone>+1</timezone>               
+        </developer>
     </developers>
+    
     
     <dependencies>
         <dependency>
