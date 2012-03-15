@@ -76,7 +76,6 @@
         </developer>
     </developers>
     
-    
     <dependencies>
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
