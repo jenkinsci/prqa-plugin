@@ -40,9 +40,7 @@ import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
     private PrintStream out;
-    
-    private PRQAReading status = null;
-    
+        
     private Boolean totalBetter;
     private Integer totalMax;
     private String product;
@@ -131,7 +129,7 @@ public class PRQANotifier extends Publisher {
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
-        
+        PRQAReading status = null;
         //Create a QAR command line instance.
         QAR qar = new QAR();
         qar.setType(reportType);
@@ -176,33 +174,25 @@ public class PRQANotifier extends Publisher {
 
             //Check to see if any of the options include previous build comparisons. If it does instantiate last build
             if(fileCompliance.equals(ComparisonSettings.Improvement) || projCompliance.equals(ComparisonSettings.Improvement) || maxMsg.equals(ComparisonSettings.Improvement)) {
-
-                AbstractBuild<?, ?> prevBuild = build.getPreviousBuild();
-                DescribableList<Publisher, Descriptor<Publisher>> publishers = prevBuild.getProject().getPublishersList();
-                PRQANotifier publisher = (PRQANotifier) publishers.get(PRQANotifier.class);
-
-                if (publisher == null) {
-                    throw new IOException();
-                }
+                PRQAReading lastAction = build.getPreviousBuild().getAction(PRQABuildAction.class).getResult();
 
                 if(fileCompliance.equals(ComparisonSettings.Improvement)) {
-
-                    if(publisher.getStatus().getReadout(ComplianceCategory.FileCompliance).doubleValue() > status.getReadout(ComplianceCategory.FileCompliance).doubleValue()) {
-                        status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.FileCompliance),publisher.getStatus().getReadout(ComplianceCategory.FileCompliance)));
+                    if(lastAction.getReadout(ComplianceCategory.FileCompliance).doubleValue() > status.getReadout(ComplianceCategory.FileCompliance).doubleValue()) {
+                        status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.FileCompliance),lastAction.getReadout(ComplianceCategory.FileCompliance)));
                         res = false;
                     }
                 }
 
                 if(projCompliance.equals(ComparisonSettings.Improvement)) {
-                    if(publisher.getStatus().getReadout(ComplianceCategory.ProjectCompliance).doubleValue() > status.getReadout(ComplianceCategory.ProjectCompliance).doubleValue()) {
-                        status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.ProjectCompliance),publisher.getStatus().getReadout(ComplianceCategory.ProjectCompliance)));
+                    if(lastAction.getReadout(ComplianceCategory.ProjectCompliance).doubleValue() > status.getReadout(ComplianceCategory.ProjectCompliance).doubleValue()) {
+                        status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.ProjectCompliance),lastAction.getReadout(ComplianceCategory.ProjectCompliance)));
                         res = false;
                     }
                 }
 
                 if(maxMsg.equals(ComparisonSettings.Improvement)) {
-                    if(publisher.getStatus().getReadout(ComplianceCategory.Messages).intValue() < status.getReadout(ComplianceCategory.Messages).intValue()) {
-                        status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(ComplianceCategory.Messages),publisher.getStatus().getReadout(ComplianceCategory.Messages)));
+                    if(lastAction.getReadout(ComplianceCategory.Messages).intValue() < status.getReadout(ComplianceCategory.Messages).intValue()) {
+                        status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(ComplianceCategory.Messages),lastAction.getReadout(ComplianceCategory.Messages)));
                         res = false;
                     }
                 }
@@ -232,12 +222,14 @@ public class PRQANotifier extends Publisher {
 
         }
         
-        final PRQABuildAction action = new PRQABuildAction(build);
+        PRQABuildAction action = new PRQABuildAction(build);
+        action.setResult(status);
         action.setPublisher(this);  
+        
         
         if(!res)
             build.setResult(Result.UNSTABLE);        
-        build.getActions().add(action);            
+        build.getActions().add(action);        
         return true;      
     }
     
@@ -300,15 +292,7 @@ public class PRQANotifier extends Publisher {
     public void setProjectComplianceIndex(Double index) {
         this.projectComplianceIndex = index;
     }
-
-    public PRQAReading getStatus() {
-        return this.status;
-    }
-   
-    public void setStatus(PRQAComplianceStatus status) {
-        this.status = status;
-    }
-    
+      
     @Exported 
     public void setSettingFileCompliance(String settingFileCompliance) {
         this.settingFileCompliance = settingFileCompliance;
@@ -348,11 +332,7 @@ public class PRQANotifier extends Publisher {
     public String getProjectFile() {
         return this.projectFile;
     }
-
-    @Override
-    public String toString() {
-        return status != null ? status.toString() : "No results have been generated";
-    }
+    
     /**
      * This class is used by Jenkins to define the plugin.
      * 

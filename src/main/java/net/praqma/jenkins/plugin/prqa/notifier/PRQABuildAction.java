@@ -61,6 +61,7 @@ public class PRQABuildAction implements Action {
     
     private final AbstractBuild<?,?> build;
     private Publisher publisher;
+    private PRQAReading result;
     public static final String DISPLAY_NAME = "PRQA";
     public static final String URL_NAME = "PRQA";
     
@@ -91,6 +92,18 @@ public class PRQABuildAction implements Action {
     public Publisher getPublisher() {
         return publisher;
     }
+    
+    public PRQAReading getResult() {
+        return this.result;
+    }
+    
+    public <T extends PRQAStatus> T getResult(Class<T> clazz) {
+        return (T)this.result;
+    }
+        
+    public void setResult(PRQAReading result) {
+        this.result = result;
+    }
 
     /**
      * @param publisher the publisher to set
@@ -119,14 +132,14 @@ public class PRQABuildAction implements Action {
         }
     }
     
+    
+    
     public PRQAReading getBuildActionStatus() {
-        return ((PRQANotifier)publisher).getStatus();
+        return this.result;
     }
     
     public <T extends PRQAStatus> T getBuildActionStatus(Class<T> clazz) {
-        PRQANotifier notifier = ((PRQANotifier)publisher);
-        
-        return (T)notifier.getStatus();
+        return (T)this.result;
     }
     
     
@@ -160,9 +173,9 @@ public class PRQABuildAction implements Action {
         
         if(category.equals(ComplianceCategory.Messages)) {
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    if(prqabuild.getBuildActionStatus(PRQAComplianceStatus.class).isValid()) {
+                    if(prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
                         ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
-                        PRQAReading stat = prqabuild.getBuildActionStatus();
+                        PRQAReading stat = prqabuild.getResult();
                         dsb.add(stat.getReadout(category), category.toString(), label);
                         observations.add(stat);
                     }
@@ -175,9 +188,9 @@ public class PRQABuildAction implements Action {
         if(category.equals(ComplianceCategory.ProjectCompliance)) {
             
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    if(prqabuild.getBuildActionStatus(PRQAComplianceStatus.class).isValid()) {
+                    if(prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
                         ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
-                        PRQAReading stat = prqabuild.getBuildActionStatus();
+                        PRQAReading stat = prqabuild.getResult();
                         dsb.add(stat.getReadout(category), category.toString(), label);
                         dsb.add(stat.getReadout(ComplianceCategory.FileCompliance), ComplianceCategory.FileCompliance.toString(), label);
                         observations.add(stat);
