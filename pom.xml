@@ -13,7 +13,7 @@
     <version>0.1.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
-    <description>Integrates PRQA static analasys with Jenkins</description>
+    <description>Integrates PRQA static analysis with Jenkins</description>
     <url>www.noname.com</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -86,7 +86,7 @@
         <dependency>
             <groupId>net.praqma.</groupId>
             <artifactId>prqa</artifactId>
-            <version>0.2-SNAPSHOT</version>
+            <version>0.2</version>
         </dependency>
     </dependencies>
 </project>
