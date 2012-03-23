@@ -14,6 +14,7 @@ import org.kohsuke.stapler.StaplerResponse;
 public class PRQAProjectAction extends Actionable implements ProminentProjectAction {
 
     private final AbstractProject<?,?> project;
+    public static final String PROJECT_WIKI = "https://wiki.jenkins-ci.org/display/JENKINS/PRQA+Plugin";
     
     public PRQAProjectAction(AbstractProject<?,?> project) {
         this.project = project;
@@ -26,12 +27,12 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 
     @Override
     public String getSearchUrl() {
-        return getUrlName();
+        return "PRQA";
     }
 
     @Override
     public String getIconFileName() {
-        throw new UnsupportedOperationException("There is no icon for this project");
+        return PRQABuildAction.ICON_NAME;
     }
 
     @Override
@@ -44,7 +45,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
     }
     
     public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) {
-        PRQABuildAction action = getLatestActionInProject();       
+        PRQABuildAction action = getLatestActionInProject();
         if(action != null) { 
             try {
                 action.doComplianceStatistics(req, rsp);

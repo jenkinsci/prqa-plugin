@@ -17,19 +17,19 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import net.praqma.jenkins.plugin.prqa.Config;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
+import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
-import net.praqma.prqa.PRQAStatus.ComplianceCategory;
+import net.praqma.prqa.status.PRQAStatus.StatusCategory;
 import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQACodeReviewReport;
 import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAQualityReport;
-import net.praqma.prqa.reports.PRQASupressionReport;
+import net.praqma.prqa.reports.PRQASuppressionReport;
+import net.praqma.prqa.status.PRQAStatus;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -128,28 +128,33 @@ public class PRQANotifier extends Publisher {
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
         PRQAReading status = null;
-        //Create a QAR command line instance.
-        QAR qar = new QAR();
-        qar.setType(reportType);
         
-        qar.getBuilder().prependArgument(PRQACommandBuilder.getProduct(product.toString()));
-        qar.getBuilder().appendArgument(PRQACommandBuilder.getProjectFile(projectFile));
-                
+        //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.
+        QAR qar = new QAR(product, projectFile, reportType);
+        out.println("This job will try to create a report with the following selected parameters:");
+        out.println(qar);
+
         try {
             switch(reportType) {
                 case Compliance:
                     PRQAComplianceReport testReport = new PRQAComplianceReport(qar);                  
                     status = build.getWorkspace().act(new PRQARemoteComplianceReport(testReport,listener,false));
-                    copyReportToArtifactsDir(PRQAComplianceReport.getNamingTemplate(), build);
+                    copyReportToArtifactsDir(testReport.getNamingTemplate(), build);
                     break;
                 case Quality:
-                    copyReportToArtifactsDir(PRQAQualityReport.getNamingTemplate(), build);
+                    PRQAQualityReport qreport = new PRQAQualityReport(qar);
+                    status = build.getWorkspace().act(new PRQARemoteQualityReport(qreport,listener,false));
+                    copyReportToArtifactsDir(qreport.getNamingTemplate(), build);             
                     break;
                 case CodeReview:
-                    copyReportToArtifactsDir(PRQACodeReviewReport.getNamingTemplate(), build);
+                    PRQACodeReviewReport prqacodereview = new PRQACodeReviewReport(qar);
+                    status = build.getWorkspace().act(new PRQARemoteCodeReviewReport(prqacodereview, listener, false));
+                    copyReportToArtifactsDir(prqacodereview.getNamingTemplate(), build);
                     break;
-                case Supression:
-                    copyReportToArtifactsDir(PRQASupressionReport.getNamingTemplate(), build);
+                case Suppression:
+                    PRQASuppressionReport prqasupreport = new PRQASuppressionReport(qar);
+                    status = build.getWorkspace().act(new PRQARemoteSuppressionReport(prqasupreport, listener, false));
+                    copyReportToArtifactsDir(prqasupreport.getNamingTemplate(), build);
                     break;
             }
         } catch (IOException ex) {
@@ -161,7 +166,17 @@ public class PRQANotifier extends Publisher {
             out.println("Failed getting results");
             return false;
         }
-                 
+        
+        //Disable. Remove this with final iteration:
+        status.disable(StatusCategory.NumberOfFileMetrics);
+        status.disable(StatusCategory.LinesOfCode);
+        status.disable(StatusCategory.NumberOfFunctionMetrics);
+        status.disable(StatusCategory.NumberOfFunctions);
+        status.disable(StatusCategory.NumberOfSourceFiles);
+        status.disable(StatusCategory.TotalNumberOfFiles);          
+        status.disable(StatusCategory.FileCompliance);
+        
+        out.println("Disabled: "+((PRQAStatus)status).getDisabledCategories().size());
         boolean res = true;
         
         if(reportType.equals(QARReportType.Compliance)) {
@@ -175,49 +190,52 @@ public class PRQANotifier extends Publisher {
                 PRQAReading lastAction = build.getPreviousBuild().getAction(PRQABuildAction.class).getResult();
 
                 if(fileCompliance.equals(ComparisonSettings.Improvement)) {
-                    if(lastAction.getReadout(ComplianceCategory.FileCompliance).doubleValue() > status.getReadout(ComplianceCategory.FileCompliance).doubleValue()) {
-                        status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.FileCompliance),lastAction.getReadout(ComplianceCategory.FileCompliance)));
+                    if(lastAction.getReadout(StatusCategory.FileCompliance).doubleValue() > status.getReadout(StatusCategory.FileCompliance).doubleValue()) {
+                        status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.FileCompliance),lastAction.getReadout(StatusCategory.FileCompliance)));
                         res = false;
                     }
                 }
 
                 if(projCompliance.equals(ComparisonSettings.Improvement)) {
-                    if(lastAction.getReadout(ComplianceCategory.ProjectCompliance).doubleValue() > status.getReadout(ComplianceCategory.ProjectCompliance).doubleValue()) {
-                        status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.ProjectCompliance),lastAction.getReadout(ComplianceCategory.ProjectCompliance)));
+                    if(lastAction.getReadout(StatusCategory.ProjectCompliance).doubleValue() > status.getReadout(StatusCategory.ProjectCompliance).doubleValue()) {
+                        status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),lastAction.getReadout(StatusCategory.ProjectCompliance)));
                         res = false;
                     }
                 }
 
                 if(maxMsg.equals(ComparisonSettings.Improvement)) {
-                    if(lastAction.getReadout(ComplianceCategory.Messages).intValue() < status.getReadout(ComplianceCategory.Messages).intValue()) {
-                        status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(ComplianceCategory.Messages),lastAction.getReadout(ComplianceCategory.Messages)));
+                    if(lastAction.getReadout(StatusCategory.Messages).intValue() < status.getReadout(StatusCategory.Messages).intValue()) {
+                        status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(StatusCategory.Messages),lastAction.getReadout(StatusCategory.Messages)));
                         res = false;
                     }
                 }
 
             }
 
-            if(fileCompliance.equals(ComparisonSettings.Threshold) && status.getReadout(ComplianceCategory.FileCompliance).doubleValue() < fileComplianceIndex ) {
-                status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.FileCompliance),fileComplianceIndex));
+            if(fileCompliance.equals(ComparisonSettings.Threshold) && status.getReadout(StatusCategory.FileCompliance).doubleValue() < fileComplianceIndex ) {
+                status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.FileCompliance),fileComplianceIndex));
                 res = false;
             }
 
-            if(projCompliance.equals(ComparisonSettings.Threshold) && status.getReadout(ComplianceCategory.ProjectCompliance).doubleValue() < projectComplianceIndex) {
-                status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(ComplianceCategory.ProjectCompliance),projectComplianceIndex));
+            if(projCompliance.equals(ComparisonSettings.Threshold) && status.getReadout(StatusCategory.ProjectCompliance).doubleValue() < projectComplianceIndex) {
+                status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),projectComplianceIndex));
                 res = false;
             }
 
-            if(maxMsg.equals(ComparisonSettings.Threshold) && status.getReadout(ComplianceCategory.Messages).intValue() > totalMax) {
-                status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(ComplianceCategory.Messages),totalMax));
+            if(maxMsg.equals(ComparisonSettings.Threshold) && status.getReadout(StatusCategory.Messages).intValue() > totalMax) {
+                status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(StatusCategory.Messages),totalMax));
                 res = false;
             }
 
             out.println("Scanned the following values:");        
             out.println(status);
-
-            status.disable(ComplianceCategory.FileCompliance);
-
-
+           
+        } else if(reportType.equals(QARReportType.Quality)) {
+            out.println(status);
+        } else if(reportType.equals(QARReportType.CodeReview)) {
+            out.println(status);
+        } else if (reportType.equals(QARReportType.Suppression)) {
+            out.println(status);
         }
         
         PRQABuildAction action = new PRQABuildAction(build);
@@ -401,8 +419,8 @@ public class PRQANotifier extends Publisher {
             load();
         }
 
-        public List<String> getReports() {
-            return Config.getReports();
+        public QARReportType[] getReports() {
+            return QARReportType.values();
         }
 
         public List<String> getProducts() {

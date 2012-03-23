@@ -9,8 +9,8 @@
     <j:set var="levels" value="${descriptor.getReports()}"/>
     <f:entry  title="Report Type" help="/plugin/prqa-plugin/config/help-configReportType.html">
         <select class="setting-input" name="PRQA.reportType">
-            <j:forEach var="l" items="${levels}">
-                <f:option selected="${PRQA.type==l}" value="${l}">${l}</f:option>
+            <j:forEach var="l" items="${levels}">                    
+                <f:option selected="${instance.reportType.equals(l)}" value="${l}">${l}</f:option>
             </j:forEach>
         </select>
     </f:entry>

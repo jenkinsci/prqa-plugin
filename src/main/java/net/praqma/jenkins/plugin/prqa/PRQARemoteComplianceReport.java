@@ -4,10 +4,9 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import net.praqma.prqa.PRQAComplianceStatus;
-import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAReport;
+import net.praqma.prqa.status.PRQAComplianceStatus;
 
 /**
  * The compliance report. 
@@ -22,18 +21,7 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
     @Override
     public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {        
         try {
-            report.getQar().setReportOutputPath(file.getPath());
-            report.getQar().setCommandBase(file.getPath());
-
-            String qarEmbedded = "qar %Q %P+ %L+ "+ PRQACommandBuilder.getReportTypeParameter(report.getQar().getType().toString()) + " " +
-            PRQACommandBuilder.getProjectName() + " " + PRQACommandBuilder.getOutputPathParameter(file.getPath(),true) + " " + PRQACommandBuilder.getViewingProgram("dummy") 
-            + " " + PRQACommandBuilder.getReportFormatParameter(PRQAReport.XHTML, false);
-        
-            if(!silentMode)
-                report.getQar().getBuilder().appendArgument("-plog");
-            report.getQar().getBuilder().appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));           
-            report.getQar().setCommand(report.getQar().getBuilder().getCommand());
-           
+            setup(file.getPath(), PRQAReport.XHTML);
             listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
             return report.completeTask();
         } catch (PrqaException ex) {

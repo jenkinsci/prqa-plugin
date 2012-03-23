@@ -33,11 +33,11 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import net.praqma.prqa.PRQAComplianceStatus;
-import net.praqma.prqa.PRQAComplianceStatusCollection;
+import net.praqma.prqa.status.PRQAComplianceStatus;
+import net.praqma.prqa.PRQAStatusCollection;
 import net.praqma.prqa.PRQAReading;
-import net.praqma.prqa.PRQAStatus;
-import net.praqma.prqa.PRQAStatus.ComplianceCategory;
+import net.praqma.prqa.status.PRQAStatus;
+import net.praqma.prqa.status.PRQAStatus.StatusCategory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -64,6 +64,7 @@ public class PRQABuildAction implements Action {
     private PRQAReading result;
     public static final String DISPLAY_NAME = "PRQA";
     public static final String URL_NAME = "PRQA";
+    public static final String ICON_NAME="/plugin/prqa-plugin/images/32x32/prqa.ico";
     
     public PRQABuildAction() { this.build = null; }
      
@@ -73,9 +74,9 @@ public class PRQABuildAction implements Action {
     
     @Override
     public String getIconFileName() {
-        throw new UnsupportedOperationException("No icon file defined yet");
+        return ICON_NAME;
     }
-
+   
     @Override
     public String getDisplayName() {
         return DISPLAY_NAME;
@@ -97,8 +98,25 @@ public class PRQABuildAction implements Action {
         return this.result;
     }
     
+    /**
+     * Converts the result of the interface to a concrete implementation. Returns null in cases where it is not possible.
+     * 
+     * This check is needed if you for some reason decide to switch report type on the same job, since each report has it's own implementation
+     * of a status. We need to do a check on all the collecte results to get those that fits the current job profile. 
+     * @param <T>
+     * @param clazz
+     * @return 
+     */
     public <T extends PRQAStatus> T getResult(Class<T> clazz) {
-        return (T)this.result;
+        try {
+            if(this.result.getClass().isAssignableFrom(clazz)) {
+                return (T)this.result;
+            } else {
+                return null;
+            }
+        } catch (NullPointerException nex) {
+            return null;
+        }      
     }
         
     public void setResult(PRQAReading result) {
@@ -141,11 +159,9 @@ public class PRQABuildAction implements Action {
     public <T extends PRQAStatus> T getBuildActionStatus(Class<T> clazz) {
         return (T)this.result;
     }
-    
-    
-    
-    public ComplianceCategory[] getComplianceCategories() {
-        return ComplianceCategory.values();
+      
+    public StatusCategory[] getComplianceCategories() {
+        return StatusCategory.values();
     }
     
     /**
@@ -157,23 +173,23 @@ public class PRQABuildAction implements Action {
         DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
         int width = Integer.parseInt(req.getParameter("width"));
         int height = Integer.parseInt(req.getParameter("height"));
-        ComplianceCategory category = ComplianceCategory.valueOf(req.getParameter("category"));
+        StatusCategory category = StatusCategory.valueOf(req.getParameter("category"));
         String scale = null;
         
         Number max = null;
         Number min = null;
         
         //Gather relevant statistics.
-        PRQAComplianceStatusCollection observations = new PRQAComplianceStatusCollection(new ArrayList<PRQAComplianceStatus>());
-        observations.overrideMax(ComplianceCategory.FileCompliance, 100);
-        observations.overrideMin(ComplianceCategory.FileCompliance, 0);
+        PRQAStatusCollection observations = new PRQAStatusCollection(new ArrayList<PRQAReading>());
+        observations.overrideMax(StatusCategory.FileCompliance, 100);
+        observations.overrideMin(StatusCategory.FileCompliance, 0);
         
-        observations.overrideMax(ComplianceCategory.ProjectCompliance, 100);
-        observations.overrideMin(ComplianceCategory.ProjectCompliance, 0);
+        observations.overrideMax(StatusCategory.ProjectCompliance, 100);
+        observations.overrideMin(StatusCategory.ProjectCompliance, 0);
         
-        if(category.equals(ComplianceCategory.Messages)) {
+        if(category.equals(StatusCategory.Messages)) {
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    if(prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
+                    if(prqabuild.getResult(PRQAComplianceStatus.class) != null && prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
                         ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
                         PRQAReading stat = prqabuild.getResult();
                         dsb.add(stat.getReadout(category), category.toString(), label);
@@ -185,14 +201,14 @@ public class PRQABuildAction implements Action {
             ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), category.toString(), scale, max.intValue(), min.intValue()), width, height );
         }
         
-        if(category.equals(ComplianceCategory.ProjectCompliance)) {
+        if(category.equals(StatusCategory.ProjectCompliance)) {
             
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    if(prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
+                    if(prqabuild.getResult(PRQAComplianceStatus.class) != null && prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
                         ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
                         PRQAReading stat = prqabuild.getResult();
                         dsb.add(stat.getReadout(category), category.toString(), label);
-                        dsb.add(stat.getReadout(ComplianceCategory.FileCompliance), ComplianceCategory.FileCompliance.toString(), label);
+                        dsb.add(stat.getReadout(StatusCategory.FileCompliance), StatusCategory.FileCompliance.toString(), label);
                         observations.add(stat);
                     }
             }
