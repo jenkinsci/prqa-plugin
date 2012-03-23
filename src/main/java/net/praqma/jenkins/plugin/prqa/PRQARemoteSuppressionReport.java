@@ -43,8 +43,8 @@ public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppres
     @Override
     public PRQASuppressionStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         try {
-            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
             setup(file.getPath(), PRQAReport.XHTML);
+            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
             return report.completeTask();
         } catch (PrqaException ex) {
             listener.getLogger().println("Failed executing command: "+report.getQar().getBuilder().getCommand());

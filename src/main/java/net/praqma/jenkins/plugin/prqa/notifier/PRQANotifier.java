@@ -23,7 +23,6 @@ import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.status.PRQAStatus.StatusCategory;
-import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQACodeReviewReport;
 import net.praqma.prqa.reports.PRQAComplianceReport;
