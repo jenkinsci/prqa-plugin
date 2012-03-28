@@ -59,9 +59,7 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public abstract class PRQAGraph implements Serializable {
     protected List<StatusCategory> categories;
-    //protected ChartUtil.NumberOnlyBuildLabel label;
     protected PRQAStatusCollection data;
-    //protected DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
     protected String title;
     protected PRQAContext.QARReportType type;
    
@@ -88,19 +86,7 @@ public abstract class PRQAGraph implements Serializable {
     public void setData(PRQAStatusCollection data) {
         this.data = data;
     }
-    
-//    public DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> getDataSetBuilder() {
-//        return dsb;
-//    }
-//    
-//    public void setDataSetBuilder(DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb) {
-//        this.dsb = dsb;
-//    }
-//    
-//    public void setLabel(ChartUtil.NumberOnlyBuildLabel label) {
-//        this.label = label;
-//    }
-    
+      
     public boolean containsStatus(StatusCategory cat) {
         return categories.contains(cat);
     }

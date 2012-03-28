@@ -47,22 +47,6 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
         return null;
     }
     
-//    /**
-//     * Old one. About to get refacotred.
-//     * @param req
-//     * @param rsp 
-//     */
-//    public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) {
-//        PRQABuildAction action = getLatestActionInProject();
-//        if(action != null) { 
-//            try {
-//                action.doComplianceStatistics(req, rsp);
-//            } catch (IOException exception) {
-//                
-//            }
-//        }
-//    }
-    
     /**
      * New one.  
      * @param req
