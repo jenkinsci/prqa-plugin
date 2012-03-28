@@ -41,12 +41,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
-    //private static List<PRQAGraph> graphs; 
     private PrintStream out;
-    //public HashMap<QARReportType,List<PRQAGraph>> graphTypes;
     public List<PRQAGraph> graphTypes;
-    
-        
+           
     private Boolean totalBetter;
     private Integer totalMax;
     private String product;

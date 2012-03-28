@@ -18,7 +18,6 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
     
     private BuildListener listener;
     private PRQA prqa;
-    //private Launcher launcher;
       
     /**
      * Class representing a remote ananlysis job.  

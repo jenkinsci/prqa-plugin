@@ -161,8 +161,6 @@ public class PRQABuildAction implements Action {
                         dsb.add(res, cat.toString(), label);
                         collection.add(stat);
                     }                   
-                    
-
                 }
             }
             
