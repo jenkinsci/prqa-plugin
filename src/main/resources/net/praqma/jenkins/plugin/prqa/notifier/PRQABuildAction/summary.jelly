@@ -2,9 +2,9 @@
 	xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson"
 	xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:u="/util">
 <j:set var="latestAction" value="${from.getBuildActionStatus()}"/>
-
-
-<table style="border:solid;border-width:1px;padding:15px;margin:10px;">
+<h1>Test</h1>
+${latestAction.toHtml()}
+<!--<table style="border:solid;border-width:1px;padding:15px;margin:10px;">
     <h2>Compliance readout</h2>
     <thead>
     <tr>
@@ -23,4 +23,5 @@
         </j:test>
     </tbody>    
 </table>
+-->
 </j:jelly>

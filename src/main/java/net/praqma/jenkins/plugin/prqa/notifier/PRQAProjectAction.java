@@ -41,17 +41,41 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
     }
     
     public PRQABuildAction getLatestActionInProject() {
-        return project.getLastSuccessfulBuild().getAction(PRQABuildAction.class);     
+        if(project.getLastSuccessfulBuild() != null) {
+            return project.getLastSuccessfulBuild().getAction(PRQABuildAction.class);     
+        }
+        return null;
     }
     
-    public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) {
+//    /**
+//     * Old one. About to get refacotred.
+//     * @param req
+//     * @param rsp 
+//     */
+//    public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) {
+//        PRQABuildAction action = getLatestActionInProject();
+//        if(action != null) { 
+//            try {
+//                action.doComplianceStatistics(req, rsp);
+//            } catch (IOException exception) {
+//                
+//            }
+//        }
+//    }
+    
+    /**
+     * New one.  
+     * @param req
+     * @param rsp 
+     */
+    public void doReportGraphs(StaplerRequest req, StaplerResponse rsp) {
         PRQABuildAction action = getLatestActionInProject();
         if(action != null) { 
             try {
-                action.doComplianceStatistics(req, rsp);
+                action.doReportGraphs(req, rsp);
             } catch (IOException exception) {
                 
             }
         }
-    } 
+    }
 }

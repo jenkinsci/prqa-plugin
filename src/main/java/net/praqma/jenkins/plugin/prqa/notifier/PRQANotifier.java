@@ -17,18 +17,23 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import net.praqma.jenkins.plugin.prqa.*;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteCodeReviewReport;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteQualityReport;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteSuppressionReport;
+import net.praqma.jenkins.plugin.prqa.PrqaException;
+import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
-import net.praqma.prqa.status.PRQAStatus.StatusCategory;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQACodeReviewReport;
 import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAQualityReport;
 import net.praqma.prqa.reports.PRQASuppressionReport;
 import net.praqma.prqa.status.PRQAStatus;
+import net.praqma.prqa.status.StatusCategory;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -36,7 +41,11 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
+    //private static List<PRQAGraph> graphs; 
     private PrintStream out;
+    //public HashMap<QARReportType,List<PRQAGraph>> graphTypes;
+    public List<PRQAGraph> graphTypes;
+    
         
     private Boolean totalBetter;
     private Integer totalMax;
@@ -54,7 +63,7 @@ public class PRQANotifier extends Publisher {
 
     @DataBoundConstructor
     public PRQANotifier(String reportType, String product, boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile) {
-        this.reportType = QARReportType.valueOf(reportType);
+        this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -122,7 +131,36 @@ public class PRQANotifier extends Publisher {
             out.println("Succesfully copied report");
         }
     }
-
+    
+    public List<PRQAGraph> getSupportedGraphs(QARReportType type) {
+        ArrayList<PRQAGraph> graphs = new ArrayList<PRQAGraph>();
+        for(PRQAGraph g : graphTypes) {
+            if(g.getType().equals(type)) {
+                graphs.add(g);
+            }
+        }
+        
+        return graphs;
+    }
+    
+    public PRQAGraph getGraph(String simpleClassName) {
+        for(PRQAGraph p : getSupportedGraphs(reportType)) {
+            if(p.getClass().getSimpleName().equals(simpleClassName)) {
+                return p;
+            }
+        }            
+        return null;
+    }
+    
+    public PRQAGraph getGraph(Class clazz, List<PRQAGraph> graphs) {
+        for(PRQAGraph p : graphs) {
+            if(p.getClass().equals(clazz)) {
+                return p;
+            }
+        }            
+        return null;
+    }
+   
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
@@ -158,77 +196,49 @@ public class PRQANotifier extends Publisher {
             }
         } catch (IOException ex) {
             out.println("Caught IOExcetion with cause: ");
-            out.println(ex.getCause().toString());
+            out.println(ex.getCause().toString());            
         }
         
         if(status == null) {
             out.println("Failed getting results");
             return false;
         }
-        
-        //Disable. Remove this with final iteration:
-        status.disable(StatusCategory.NumberOfFileMetrics);
-        status.disable(StatusCategory.LinesOfCode);
-        status.disable(StatusCategory.NumberOfFunctionMetrics);
-        status.disable(StatusCategory.NumberOfFunctions);
-        status.disable(StatusCategory.NumberOfSourceFiles);
-        status.disable(StatusCategory.TotalNumberOfFiles);          
-        status.disable(StatusCategory.FileCompliance);
-        
-        out.println("Disabled: "+((PRQAStatus)status).getDisabledCategories().size());
+       
         boolean res = true;
         
-        if(reportType.equals(QARReportType.Compliance)) {
+        PRQAReading lac = build.getPreviousBuild().getAction(PRQABuildAction.class).getResult();
+        ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
+        ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
+        ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
         
-            ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
-            ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
-            ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
+        if(reportType.equals(QARReportType.Compliance)) {
 
-            //Check to see if any of the options include previous build comparisons. If it does instantiate last build
-            if(fileCompliance.equals(ComparisonSettings.Improvement) || projCompliance.equals(ComparisonSettings.Improvement) || maxMsg.equals(ComparisonSettings.Improvement)) {
-                PRQAReading lastAction = build.getPreviousBuild().getAction(PRQABuildAction.class).getResult();
+            try {
+                PRQAStatus.PRQAComparisonMatrix max_msg = status.createComparison(maxMsg, StatusCategory.Messages, lac);                
+                PRQAStatus.PRQAComparisonMatrix proj_comp = status.createComparison(projCompliance, StatusCategory.ProjectCompliance, lac);
+                PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lac);
 
-                if(fileCompliance.equals(ComparisonSettings.Improvement)) {
-                    if(lastAction.getReadout(StatusCategory.FileCompliance).doubleValue() > status.getReadout(StatusCategory.FileCompliance).doubleValue()) {
-                        status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.FileCompliance),lastAction.getReadout(StatusCategory.FileCompliance)));
-                        res = false;
-                    }
+                if(!max_msg.compareIsLower(totalMax)) {
+                    status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),file_comp.getCompareValue()));
+                    res = false;
                 }
-
-                if(projCompliance.equals(ComparisonSettings.Improvement)) {
-                    if(lastAction.getReadout(StatusCategory.ProjectCompliance).doubleValue() > status.getReadout(StatusCategory.ProjectCompliance).doubleValue()) {
-                        status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),lastAction.getReadout(StatusCategory.ProjectCompliance)));
-                        res = false;
-                    }
+                
+                if(!proj_comp.compareIsEqualOrHigher(projectComplianceIndex)) {
+                    status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),file_comp.getCompareValue()));
+                    res = false;
                 }
-
-                if(maxMsg.equals(ComparisonSettings.Improvement)) {
-                    if(lastAction.getReadout(StatusCategory.Messages).intValue() < status.getReadout(StatusCategory.Messages).intValue()) {
-                        status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(StatusCategory.Messages),lastAction.getReadout(StatusCategory.Messages)));
-                        res = false;
-                    }
+                
+                if(!file_comp.compareIsEqualOrHigher(fileComplianceIndex)) {
+                    status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.FileCompliance),file_comp.getCompareValue()));
+                    res = false;
                 }
-
+                
+            } catch (PrqaException.PrqaReadingException ex) {
+                out.println(ex);
             }
-
-            if(fileCompliance.equals(ComparisonSettings.Threshold) && status.getReadout(StatusCategory.FileCompliance).doubleValue() < fileComplianceIndex ) {
-                status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.FileCompliance),fileComplianceIndex));
-                res = false;
-            }
-
-            if(projCompliance.equals(ComparisonSettings.Threshold) && status.getReadout(StatusCategory.ProjectCompliance).doubleValue() < projectComplianceIndex) {
-                status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),projectComplianceIndex));
-                res = false;
-            }
-
-            if(maxMsg.equals(ComparisonSettings.Threshold) && status.getReadout(StatusCategory.Messages).intValue() > totalMax) {
-                status.addNotification(String.format("Number of messages exceeds the requiremnt, is %s, requirement is %s", status.getReadout(StatusCategory.Messages),totalMax));
-                res = false;
-            }
-
             out.println("Scanned the following values:");        
-            out.println(status);
-           
+            out.println(status);   
+
         } else if(reportType.equals(QARReportType.Quality)) {
             out.println(status);
         } else if(reportType.equals(QARReportType.CodeReview)) {
@@ -236,16 +246,16 @@ public class PRQANotifier extends Publisher {
         } else if (reportType.equals(QARReportType.Suppression)) {
             out.println(status);
         }
+    
+
         
         PRQABuildAction action = new PRQABuildAction(build);
         action.setResult(status);
-        action.setPublisher(this);  
-        
-        
+        action.setPublisher(this); 
         if(!res)
             build.setResult(Result.UNSTABLE);        
         build.getActions().add(action);        
-        return true;      
+        return true; 
     }
     
     @Exported
@@ -256,6 +266,16 @@ public class PRQANotifier extends Publisher {
     @Exported
     public void setTotalMax(Integer totalMax) {
         this.totalMax = totalMax;
+    }
+    
+    @Exported
+    public void setGraphTypes(List<PRQAGraph> graphTypes) {
+        this.graphTypes = graphTypes;
+    }
+    
+    @Exported
+    public List<PRQAGraph> getGraphTypes() {
+        return graphTypes;
     }
     
     @Exported
@@ -355,7 +375,7 @@ public class PRQANotifier extends Publisher {
      */
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
-
+        
         public FormValidation doCheckFileComplianceIndex(@QueryParameter String value) {
             try {
                 Double parsedValue = Double.parseDouble(value);
@@ -404,6 +424,26 @@ public class PRQANotifier extends Publisher {
         @Override
         public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws FormException {           
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
+            //List<PRQAGraph> graphs = req.bindParametersToList(PRQAGraph.class, "prqa.graph.");
+            if(instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
+                ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
+                
+                list.add(new ComplianceIndexGraphs());
+                list.add(new MessagesGraph());
+                list.add(new LinesOfCodeGraph());
+                list.add(new MsgSupressionGraph());
+                list.add(new NumberOfSourceFilesGraph());
+                list.add(new NumberOfFilesGraph(QARReportType.Quality));
+                list.add(new NumberOfFilesGraph(QARReportType.Suppression));
+                list.add(new PercentSuppressionGraph());
+                
+                list.add(new NumberOfFileMetricsGraph());
+                list.add(new NumberOfFunctionGraph());
+                list.add(new NumberOfFunctionMetricsGraph());
+                                
+                instance.setGraphTypes(list);
+            }
+            save();
             return instance;
         }
 

@@ -33,11 +33,18 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
-import net.praqma.prqa.status.PRQAComplianceStatus;
-import net.praqma.prqa.PRQAStatusCollection;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import net.praqma.jenkins.plugin.prqa.PrqaException;
+import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
+import net.praqma.prqa.PRQAContext;
+import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
+import net.praqma.prqa.PRQAStatusCollection;
+import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.PRQAStatus;
-import net.praqma.prqa.status.PRQAStatus.StatusCategory;
+import net.praqma.prqa.status.StatusCategory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.CategoryAxis;
@@ -163,60 +170,51 @@ public class PRQABuildAction implements Action {
     public StatusCategory[] getComplianceCategories() {
         return StatusCategory.values();
     }
-    
+       
     /**
-     * Do statistics based on the actions of the build.
+     * This function works in the following way:
+     * 
+     * Given is a grapclass, which it is up to the user to add. Currently this is done programatically, but given my design, it should be relatively simple to make
+     * thispossible to edit in the GUI.
+     * 
+     * This method catches the PrqaReadingException, when that exception is thrown it means that the we skip the reading and continue. 
      * @param req
-     * @param rsp 
+     * @param rsp
+     * @throws IOException 
      */
-    public void doComplianceStatistics(StaplerRequest req, StaplerResponse rsp) throws IOException {
-        DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
-        int width = Integer.parseInt(req.getParameter("width"));
-        int height = Integer.parseInt(req.getParameter("height"));
-        StatusCategory category = StatusCategory.valueOf(req.getParameter("category"));
-        String scale = null;
-        
-        Number max = null;
-        Number min = null;
-        
-        //Gather relevant statistics.
-        PRQAStatusCollection observations = new PRQAStatusCollection(new ArrayList<PRQAReading>());
-        observations.overrideMax(StatusCategory.FileCompliance, 100);
-        observations.overrideMin(StatusCategory.FileCompliance, 0);
-        
-        observations.overrideMax(StatusCategory.ProjectCompliance, 100);
-        observations.overrideMin(StatusCategory.ProjectCompliance, 0);
-        
-        if(category.equals(StatusCategory.Messages)) {
+    public void doReportGraphs(StaplerRequest req, StaplerResponse rsp) throws IOException {
+        PRQANotifier notifier = (PRQANotifier)getPublisher();
+        if(notifier != null) {
+            String className = req.getParameter("graph");
+            PRQAGraph graph =  notifier.getGraph(className);
+            PRQAStatusCollection collection = new PRQAStatusCollection();
+            DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
+            ChartUtil.NumberOnlyBuildLabel label = null;
+                        
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    if(prqabuild.getResult(PRQAComplianceStatus.class) != null && prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
-                        ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
-                        PRQAReading stat = prqabuild.getResult();
-                        dsb.add(stat.getReadout(category), category.toString(), label);
-                        observations.add(stat);
-                    }
+                if(prqabuild.getResult() != null) {
+                    label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build);
+                    PRQAReading stat = prqabuild.getResult();
+                    for(StatusCategory cat : graph.getCategories()) {
+                        Number res = null;
+                        try
+                        {
+                            res = stat.getReadout(cat);
+                        } catch (PrqaException.PrqaReadingException ex) {
+                            continue;
+                        }                        
+                        
+                        dsb.add(res, cat.toString(), label);
+                        collection.add(stat);
+                    }                   
+                    
+
+                }
             }
-            max = observations.getMax(category);
-            min = observations.getMin(category);
-            ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), category.toString(), scale, max.intValue(), min.intValue()), width, height );
+            
+            graph.setData(collection);
+            graph.drawGraph(req, rsp, dsb);
         }
-        
-        if(category.equals(StatusCategory.ProjectCompliance)) {
-            
-            for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
-                    if(prqabuild.getResult(PRQAComplianceStatus.class) != null && prqabuild.getResult(PRQAComplianceStatus.class).isValid()) {
-                        ChartUtil.NumberOnlyBuildLabel label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build );
-                        PRQAReading stat = prqabuild.getResult();
-                        dsb.add(stat.getReadout(category), category.toString(), label);
-                        dsb.add(stat.getReadout(StatusCategory.FileCompliance), StatusCategory.FileCompliance.toString(), label);
-                        observations.add(stat);
-                    }
-            }
-            
-            max = observations.getMax(category);
-            min = observations.getMin(category); 
-            ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), "Project Compliance Levels", scale, max.intValue(), min.intValue()), width, height );
-        }             
     }
       
     private JFreeChart createChart( CategoryDataset dataset, String title, String yaxis, int max, int min ) {

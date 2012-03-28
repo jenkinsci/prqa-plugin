@@ -21,36 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.praqma.jenkins.plugin.prqa;
+package net.praqma.jenkins.plugin.prqa.graphs;
 
-import hudson.model.BuildListener;
-import hudson.remoting.VirtualChannel;
-import java.io.File;
-import java.io.IOException;
-import net.praqma.prqa.reports.PRQAReport;
-import net.praqma.prqa.reports.PRQASuppressionReport;
-import net.praqma.prqa.status.PRQASuppressionStatus;
+import net.praqma.prqa.PRQAContext;
+import net.praqma.prqa.PRQAStatusCollection;
+import net.praqma.prqa.status.StatusCategory;
 
 /**
  *
  * @author Praqma
  */
-public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppressionStatus,PRQASuppressionReport>  {
+public class NumberOfSourceFilesGraph extends PRQAGraph {
+    public NumberOfSourceFilesGraph() {
+        super("Number of source files",PRQAContext.QARReportType.Quality, StatusCategory.NumberOfSourceFiles);
+    }
 
-    public PRQARemoteSuppressionReport(PRQASuppressionReport report, BuildListener listener, boolean silentMode) {
-        super(report,listener,silentMode);
-    }
-    
     @Override
-    public PRQASuppressionStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
-        try {
-            setup(file.getPath(), PRQAReport.XHTML);
-            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
-            return report.completeTask();
-        } catch (PrqaException ex) {
-            listener.getLogger().println("Failed executing command: "+report.getQar().getBuilder().getCommand());
-            throw new IOException(ex);
-        }
-    }
-    
+    public void setData(PRQAStatusCollection data) {
+        this.data = data;
+        this.data.overrideMin(StatusCategory.NumberOfSourceFiles, 0);
+    }    
 }

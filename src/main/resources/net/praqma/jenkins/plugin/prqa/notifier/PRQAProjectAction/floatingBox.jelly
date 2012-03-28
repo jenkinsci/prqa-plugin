@@ -1,21 +1,31 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
-
     <j:set var="latestAction" value="${from.latestActionInProject}"/>
     <j:if test="${latestAction != null}">
         <j:choose>
             <j:when test="${latestAction.previousAction != null}">
                 <div style="border: 1px solid #eee;">
+                <!--
                  <j:forEach var="cat" items="${latestAction.getComplianceCategories()}">
-                     <j:if test="${latestAction.getBuildActionStatus().isDisabled(cat) == false}">
+                     
+                    <j:if test="${latestAction.getBuildActionStatus().isDisabled(cat) == false}">
                          <img style="margin-left:20px;" src="${from.urlName}/complianceStatistics?width=400&amp;height=233&amp;category=${cat}"/>
                     </j:if> 
 	         </j:forEach>
+                 -->
+                </div>
+                <div>
+                    <j:set var="publisher" value="${from.getLatestActionInProject().getPublisher()}"></j:set>
+                    <j:set var="reportType" value="${publisher.getReportType()}"></j:set>
+                    <j:set var="cnt" value="${publisher.getSupportedGraphs(reportType)}"></j:set>
+                    <j:forEach var="pgraph" items="${publisher.getSupportedGraphs(reportType)}">
+                        <img style="margin-left:20px;" src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}"/>
+                    </j:forEach>
                 </div>
             </j:when>
             <j:otherwise>
-                <div style="border: 1px solid #eee; ">
-                    ${%No data}
+                <div style="border: 1px solid #eee; float:left; width:300px">
+                    <h3>${%Not enough data in project to generate graph}</h3>
                 </div>
             </j:otherwise>
         </j:choose>

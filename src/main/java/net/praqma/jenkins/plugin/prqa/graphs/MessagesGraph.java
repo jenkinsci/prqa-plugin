@@ -21,36 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.praqma.jenkins.plugin.prqa;
+package net.praqma.jenkins.plugin.prqa.graphs;
 
-import hudson.model.BuildListener;
-import hudson.remoting.VirtualChannel;
-import java.io.File;
+import hudson.util.ChartUtil;
+import hudson.util.DataSetBuilder;
 import java.io.IOException;
-import net.praqma.prqa.reports.PRQAReport;
-import net.praqma.prqa.reports.PRQASuppressionReport;
-import net.praqma.prqa.status.PRQASuppressionStatus;
+import net.praqma.prqa.PRQAContext;
+import net.praqma.prqa.status.StatusCategory;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
 /**
  *
  * @author Praqma
  */
-public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppressionStatus,PRQASuppressionReport>  {
-
-    public PRQARemoteSuppressionReport(PRQASuppressionReport report, BuildListener listener, boolean silentMode) {
-        super(report,listener,silentMode);
+public class MessagesGraph extends PRQAGraph {
+    public MessagesGraph() {
+        super("Number of messages", PRQAContext.QARReportType.Compliance, StatusCategory.Messages);
     }
     
     @Override
-    public PRQASuppressionStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
-        try {
-            setup(file.getPath(), PRQAReport.XHTML);
-            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
-            return report.completeTask();
-        } catch (PrqaException ex) {
-            listener.getLogger().println("Failed executing command: "+report.getQar().getBuilder().getCommand());
-            throw new IOException(ex);
-        }
+    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb) throws IOException {
+        super.drawGraph(req, rsp, dsb);
     }
-    
 }

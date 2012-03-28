@@ -31,7 +31,8 @@
             </plugin>
         </plugins>
     </build>
-    <repositories> 
+    <repositories>
+        
         <repository> 
             <id>m.g.o-public</id> 
             <url>http://maven.glassfish.org/content/groups/public/</url> 
@@ -40,13 +41,15 @@
             <id>praqma-repo</id> 
             <url>http://code.praqma.net/repo/maven/</url> 
         </repository> 
-    </repositories> 
+    </repositories>
+    
     <pluginRepositories> 
         <pluginRepository> 
             <id>m.g.o-public</id> 
             <url>http://maven.glassfish.org/content/groups/public/</url> 
         </pluginRepository> 
     </pluginRepositories> 
+    
     <licenses> 
         <license> 
             <name>MIT</name> 
