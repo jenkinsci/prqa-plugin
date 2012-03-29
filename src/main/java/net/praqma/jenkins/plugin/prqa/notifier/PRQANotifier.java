@@ -194,6 +194,8 @@ public class PRQANotifier extends Publisher {
         } catch (IOException ex) {
             out.println("Caught IOExcetion with cause: ");
             out.println(ex.getCause().toString());            
+        } catch (PrqaException ex) {
+            out.println(ex);
         }
         
         if(status == null) {
@@ -203,7 +205,7 @@ public class PRQANotifier extends Publisher {
        
         boolean res = true;
         
-        PRQAReading lac = build.getPreviousBuild().getAction(PRQABuildAction.class).getResult();
+        PRQAReading lac = build.getPreviousNotFailedBuild().getAction(PRQABuildAction.class).getResult();
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
         ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
