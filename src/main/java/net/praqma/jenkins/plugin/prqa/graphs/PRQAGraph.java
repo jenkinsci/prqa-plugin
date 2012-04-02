@@ -22,7 +22,9 @@ import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.AbstractRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.chart.renderer.xy.XYDotRenderer;
 import org.jfree.chart.title.LegendTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.ui.RectangleEdge;
@@ -123,20 +125,18 @@ public abstract class PRQAGraph implements Serializable {
         rangeAxis.setStandardTickUnits( NumberAxis.createIntegerTickUnits() );
         rangeAxis.setUpperBound( max );
         rangeAxis.setLowerBound( min );
-
+        
         final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
         renderer.setBaseStroke( new BasicStroke( 2.0f ) );
         ColorPalette.apply( renderer );
-
         plot.setInsets( new RectangleInsets( 5.0, 0, 0, 5.0 ) );
-
         return chart;
     }
    
     public PRQAGraph(String title, PRQAContext.QARReportType type, StatusCategory... category) {
-        data = new PRQAStatusCollection();
-        categories = new ArrayList<StatusCategory>();
-        categories.addAll(Arrays.asList(category));
+        this.data = new PRQAStatusCollection();
+        this.categories = new ArrayList<StatusCategory>();
+        this.categories.addAll(Arrays.asList(category));
         this.type = type;
         this.title = title;
     }

@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteCodeReviewReport;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
@@ -42,8 +43,9 @@ import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
     private PrintStream out;
-    public List<PRQAGraph> graphTypes;
-           
+    private List<PRQAGraph> graphTypes;
+    private HashMap<StatusCategory,Number> thresholds;
+          
     private Boolean totalBetter;
     private Integer totalMax;
     private String product;
@@ -70,6 +72,20 @@ public class PRQANotifier extends Publisher {
         this.settingMaxMessages = settingMaxMessages;
         this.settingFileCompliance = settingFileCompliance;
         this.projectFile = projectFile;
+        this.thresholds = new HashMap<StatusCategory, Number>();
+ 
+        if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
+            thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
+        }
+        
+        if(ComparisonSettings.valueOf(settingProjectCompliance).equals(ComparisonSettings.Threshold)) {
+            thresholds.put(StatusCategory.ProjectCompliance, this.projectComplianceIndex);
+        }
+        
+        if(ComparisonSettings.valueOf(settingMaxMessages).equals(ComparisonSettings.Threshold)) {
+            thresholds.put(StatusCategory.Messages, this.totalMax);
+        }
+        
     }
     
     @Override
@@ -149,6 +165,18 @@ public class PRQANotifier extends Publisher {
         return null;
     }
     
+    public Number getThreshold(StatusCategory cat) {
+        Number num = null;
+        if(thresholds.containsKey(cat)) {
+            num = thresholds.get(cat);
+        }
+        return num;
+    }
+    
+    public HashMap<StatusCategory, Number> getThresholds() {
+        return this.thresholds;
+    }
+    
     public PRQAGraph getGraph(Class clazz, List<PRQAGraph> graphs) {
         for(PRQAGraph p : graphs) {
             if(p.getClass().equals(clazz)) {
@@ -204,12 +232,12 @@ public class PRQANotifier extends Publisher {
         }
        
         boolean res = true;
-        
-        PRQAReading lac = build.getPreviousNotFailedBuild().getAction(PRQABuildAction.class).getResult();
+        Run lastRun = build.getPreviousNotFailedBuild();
+        PRQAReading lac = lastRun != null ? lastRun.getAction(PRQABuildAction.class).getResult() : null;
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
         ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
-        
+
         if(reportType.equals(QARReportType.Compliance)) {
 
             try {
@@ -221,17 +249,17 @@ public class PRQANotifier extends Publisher {
                     status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),file_comp.getCompareValue()));
                     res = false;
                 }
-                
+
                 if(!proj_comp.compareIsEqualOrHigher(projectComplianceIndex)) {
                     status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),file_comp.getCompareValue()));
                     res = false;
                 }
-                
+
                 if(!file_comp.compareIsEqualOrHigher(fileComplianceIndex)) {
                     status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.FileCompliance),file_comp.getCompareValue()));
                     res = false;
                 }
-                
+
             } catch (PrqaException.PrqaReadingException ex) {
                 out.println(ex);
             }
@@ -244,10 +272,8 @@ public class PRQANotifier extends Publisher {
             out.println(status);
         } else if (reportType.equals(QARReportType.Suppression)) {
             out.println(status);
-        }
-    
-
-        
+        }   
+              
         PRQABuildAction action = new PRQABuildAction(build);
         action.setResult(status);
         action.setPublisher(this); 
@@ -423,7 +449,6 @@ public class PRQANotifier extends Publisher {
         @Override
         public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws FormException {           
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
-            //List<PRQAGraph> graphs = req.bindParametersToList(PRQAGraph.class, "prqa.graph.");
             if(instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
                 
@@ -439,6 +464,10 @@ public class PRQANotifier extends Publisher {
                 list.add(new NumberOfFileMetricsGraph());
                 list.add(new NumberOfFunctionGraph());
                 list.add(new NumberOfFunctionMetricsGraph());
+                
+                //Added for Cpp reports:
+                list.add(new NumberOfClassMetricsGraph());
+                list.add(new NumberOfClassesGraph());
                                 
                 instance.setGraphTypes(list);
             }
@@ -458,7 +487,10 @@ public class PRQANotifier extends Publisher {
         }
 
         public QARReportType[] getReports() {
-            return QARReportType.values();
+            QARReportType[] types = new QARReportType[1];
+            types[0] = QARReportType.Compliance;
+            return types;
+            //return QARReportType.values();
         }
 
         public List<String> getProducts() {

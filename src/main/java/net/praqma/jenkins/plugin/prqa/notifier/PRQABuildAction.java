@@ -5,6 +5,7 @@ import hudson.tasks.Publisher;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import java.io.IOException;
+import net.praqma.jenkins.plugin.prqa.Config;
 import net.praqma.jenkins.plugin.prqa.PrqaException;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
@@ -25,8 +26,7 @@ public class PRQABuildAction implements Action {
     private PRQAReading result;
     public static final String DISPLAY_NAME = "PRQA";
     public static final String URL_NAME = "PRQA";
-    public static final String ICON_NAME="/plugin/prqa-plugin/images/32x32/prqa.ico";
-    
+       
     public PRQABuildAction() { this.build = null; }
      
     public PRQABuildAction(AbstractBuild<?,?> build) {
@@ -35,7 +35,7 @@ public class PRQABuildAction implements Action {
     
     @Override
     public String getIconFileName() {
-        return ICON_NAME;
+        return Config.ICON_NAME;
     }
    
     @Override
@@ -53,6 +53,10 @@ public class PRQABuildAction implements Action {
      */
     public Publisher getPublisher() {
         return publisher;
+    }
+    
+    public <T extends Publisher> T getPublisher(Class<T> clazz) {
+        return (T)publisher;
     }
     
     public PRQAReading getResult() {
@@ -128,8 +132,11 @@ public class PRQABuildAction implements Action {
     /**
      * This function works in the following way:
      * 
-     * Given is a grapclass, which it is up to the user to add. Currently this is done programatically, but given my design, it should be relatively simple to make
-     * thispossible to edit in the GUI.
+     * After choosing your report type, as set of supported graphs are given, which it is up to the user to add. Currently this is done programatically, but given my design, it should be relatively simple to make
+     * this possible to edit in the GUI.
+     * 
+     * If a result is fetched and it does not contain the property to draw the graphs the report demands we simply skip it. This means you can switch report type in a job. You don't need
+     * to create a new job if you just want to change reporting mode.
      * 
      * This method catches the PrqaReadingException, when that exception is thrown it means that the we skip the reading and continue. 
      * @param req
@@ -153,11 +160,16 @@ public class PRQABuildAction implements Action {
                         Number res = null;
                         try
                         {
-                            res = stat.getReadout(cat);
+                            res = stat.getReadout(cat);                           
                         } catch (PrqaException.PrqaReadingException ex) {
                             continue;
                         }                        
                         
+                        //Add threshold for category. If it exists.
+                        Number threshold = getPublisher(PRQANotifier.class).getThreshold(cat);
+                        if(threshold != null) {
+                            dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);
+                        }
                         dsb.add(res, cat.toString(), label);
                         collection.add(stat);
                     }                   

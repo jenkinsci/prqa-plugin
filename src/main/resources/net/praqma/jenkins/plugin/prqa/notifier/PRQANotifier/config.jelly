@@ -28,34 +28,34 @@
     <f:section title="Threshold">
         <f:entry title="Max messages" field="totalMax">
             <div id="m_div" style="width:200px;">
-                <f:textbox name="prqa.totalMax" value="${instance.totalMax}" />
                 <select class="setting-input" name="settingMaxMessages">               
                     <j:forEach var="cSetting" items="${comparisonSettings}">
                         <f:option selected="${instance.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
                     </j:forEach>
                 </select>
+                <f:textbox name="prqa.totalMax" value="${instance.totalMax}"/>
             </div>
         </f:entry>
     
         <f:entry title="File Compliance Index" field="fileComplianceIndex">
             <div id="f_div" style="width:200px;">
-                <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}"/>
                 <select class="setting-input" name="settingFileCompliance">               
                     <j:forEach var="fcSetting" items="${comparisonSettings}">
                         <f:option selected="${instance.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
                     </j:forEach>
                 </select>
+                <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}"/>
             </div>
         </f:entry>
         
         <f:entry title="Project Compliance Index" field="projectComplianceIndex">
             <div id="p_div" style="width:200px; float:left;">
-                <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}"/>
                 <select class="setting-input" name="settingProjectCompliance">               
                     <j:forEach var="pcSetting" items="${comparisonSettings}">
                         <f:option selected="${instance.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
                     </j:forEach>
                 </select>
+                <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}"/>
             </div>
         </f:entry>
 

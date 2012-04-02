@@ -23,34 +23,15 @@
  */
 package net.praqma.jenkins.plugin.prqa.graphs;
 
-import hudson.util.ChartUtil;
-import hudson.util.DataSetBuilder;
-import java.io.IOException;
 import net.praqma.prqa.PRQAContext;
-import net.praqma.prqa.PRQAStatusCollection;
 import net.praqma.prqa.status.StatusCategory;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 /**
  *
  * @author Praqma
  */
-public class MessagesGraph extends PRQAGraph {
-    public MessagesGraph() {
-        super("Number of messages", PRQAContext.QARReportType.Compliance, StatusCategory.Messages);
+public class NumberOfClassesGraph extends PRQAGraph {
+    public NumberOfClassesGraph() {
+        super("Number of Classes",PRQAContext.QARReportType.Quality,StatusCategory.NumberOfClasses);
     }
-    
-    @Override
-    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb) throws IOException {
-        super.drawGraph(req, rsp, dsb);
-    }
-
-    @Override
-    public void setData(PRQAStatusCollection data) {
-        super.setData(data);
-        data.overrideMin(StatusCategory.Messages, 0);
-    }
-    
-    
 }

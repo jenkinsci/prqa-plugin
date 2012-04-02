@@ -16,7 +16,7 @@ import org.kohsuke.stapler.StaplerResponse;
  */
 public class ComplianceIndexGraphs extends PRQAGraph {
     public ComplianceIndexGraphs() {
-        super("Compliance Indexes", PRQAContext.QARReportType.Compliance,  StatusCategory.FileCompliance, StatusCategory.ProjectCompliance);
+        super("Compliance Levels", PRQAContext.QARReportType.Compliance,  StatusCategory.FileCompliance, StatusCategory.ProjectCompliance);
     }
     
     @Override
