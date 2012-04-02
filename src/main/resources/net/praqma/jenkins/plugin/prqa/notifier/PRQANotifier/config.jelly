@@ -26,7 +26,7 @@
     
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <f:section title="Threshold">
-        <f:entry title="Max messages" field="totalMax">
+        <f:entry title="Max messages" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
             <div id="m_div" style="width:200px;">
                 <select class="setting-input" name="settingMaxMessages">               
                     <j:forEach var="cSetting" items="${comparisonSettings}">
@@ -37,7 +37,7 @@
             </div>
         </f:entry>
     
-        <f:entry title="File Compliance Index" field="fileComplianceIndex">
+        <f:entry title="File Compliance Index" field="fileComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
             <div id="f_div" style="width:200px;">
                 <select class="setting-input" name="settingFileCompliance">               
                     <j:forEach var="fcSetting" items="${comparisonSettings}">
@@ -48,7 +48,7 @@
             </div>
         </f:entry>
         
-        <f:entry title="Project Compliance Index" field="projectComplianceIndex">
+        <f:entry title="Project Compliance Index" field="projectComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
             <div id="p_div" style="width:200px; float:left;">
                 <select class="setting-input" name="settingProjectCompliance">               
                     <j:forEach var="pcSetting" items="${comparisonSettings}">
