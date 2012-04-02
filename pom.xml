@@ -90,7 +90,7 @@
     <scm>
         <connection>scm:git:ssh://github.com/jenkinsci/PRQA.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/PRQA.git</developerConnection>
-        <url>https://github.com/Praqma/PRQA</url>
+        <url>https://github.com/jenkinsci/PRQA</url>
     </scm>
     
 </project>
