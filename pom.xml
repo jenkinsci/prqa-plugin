@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>net.praqma</groupId>
-    <artifactId>prqa-plugin</artifactId>
+    <artifactId>prqa</artifactId>
     <version>0.2.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
@@ -91,6 +91,5 @@
         <connection>scm:git:ssh://github.com/jenkinsci/PRQA.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/PRQA.git</developerConnection>
         <url>https://github.com/jenkinsci/PRQA</url>
-    </scm>
-    
+    </scm>    
 </project>
