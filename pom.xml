@@ -32,12 +32,6 @@
         </plugins>
     </build>
     <repositories>
-        <!--
-        <repository> 
-            <id>m.g.o-public</id> 
-            <url>http://maven.glassfish.org/content/groups/public/</url> 
-        </repository> 
-        -->
         <repository>
           <id>repo.jenkins-ci.org</id>
             <url>http://repo.jenkins-ci.org/public/</url>
@@ -47,27 +41,21 @@
             <url>http://code.praqma.net/repo/maven/</url> 
         </repository> 
     </repositories>
-    <!--
-    <pluginRepositories> 
-        <pluginRepository> 
-            <id>m.g.o-public</id> 
-            <url>http://maven.glassfish.org/content/groups/public/</url> 
-        </pluginRepository> 
-    </pluginRepositories> 
-    -->
-    <distributionManagement>
-        <repository>
-            <id>maven.jenkins-ci.org</id>
-            <url>http://maven.jenkins-ci.org:8081/content/repositories/releases/</url>
-        </repository>
-    </distributionManagement>
     
+    <pluginRepositories>
+        <pluginRepository>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+       
     <licenses> 
         <license> 
             <name>MIT</name> 
             <url>http://www.opensource.org/licenses/mit-license.php</url> 
         </license> 
     </licenses>
+    
     <developers> 
         <developer> 
             <id>jstruck</id> 
@@ -93,15 +81,16 @@
     
     <dependencies>
         <dependency>
-            <groupId>org.jenkins-ci.main</groupId>
-            <artifactId>jenkins-core</artifactId>
-            <version>1.450</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>net.praqma.</groupId>
             <artifactId>prqa</artifactId>
             <version>0.3</version>
         </dependency>
     </dependencies>
+    
+    <scm>
+        <connection>scm:git:http://github.com/Praqma/PRQA.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/Praqma/PRQA.git</developerConnection>
+        <url>https://github.com/Praqma/PRQA</url>
+    </scm>
+    
 </project>
