@@ -14,7 +14,7 @@
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
-    <url>www.noname.com</url>
+    <url>https://wiki.jenkins-ci.org/display/JENKINS/PRQA+Plugin</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -32,24 +32,29 @@
         </plugins>
     </build>
     <repositories>
-        
+        <!--
         <repository> 
             <id>m.g.o-public</id> 
             <url>http://maven.glassfish.org/content/groups/public/</url> 
         </repository> 
+        -->
+        <repository>
+            <id>repo.jenkins-ci.org</id>
+            <url>http://repo.jenkins-ci.org/public/</url>
+        </repository>
         <repository> 
             <id>praqma-repo</id> 
             <url>http://code.praqma.net/repo/maven/</url> 
         </repository> 
     </repositories>
-    
+    <!--
     <pluginRepositories> 
         <pluginRepository> 
             <id>m.g.o-public</id> 
             <url>http://maven.glassfish.org/content/groups/public/</url> 
         </pluginRepository> 
     </pluginRepositories> 
-    
+    -->
     <licenses> 
         <license> 
             <name>MIT</name> 
