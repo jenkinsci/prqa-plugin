@@ -247,7 +247,7 @@ public class PRQANotifier extends Publisher {
                 PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lac);
 
                 if(!max_msg.compareIsLower(totalMax)) {
-                    status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
+                    status.addNotification(String.format("Max messages requirement not met, was %s and the requirement is %s",status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
                     res = false;
                 }
 
