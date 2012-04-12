@@ -10,7 +10,7 @@
 
     <groupId>net.praqma</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
