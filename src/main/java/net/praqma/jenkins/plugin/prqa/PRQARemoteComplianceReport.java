@@ -22,7 +22,7 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
     public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {        
         try {
             setup(file.getPath(), PRQAReport.XHTML);
-            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
+            listener.getLogger().println(String.format("Beginning report generation with the following command:\n %s",report.getQar().getCommand()));
             return report.completeTask();
         } catch (PrqaException ex) {
             listener.getLogger().println("Failed executing command: "+report.getQar().getBuilder().getCommand());

@@ -14,10 +14,17 @@
                 </div>
             </j:when>
             <j:otherwise>
-                <div style="border: 1px solid #eee; float:left; width:300px">
-                    <h3>${%Not enough data in project to generate graph}</h3>
-                </div>
+            <div id="marginme" style="margin-right:150px">
+                <h3>${%Not enough data}</h3>
+                <p>The project needs to have atleast two builds with data to generate a graph with results.</p>
+            </div>
             </j:otherwise>
         </j:choose>
     </j:if>
+    <j:if test="${latestAction eq null}">
+        <div id="marginme" style="margin-right:150px">
+            <h3>${%Not enough data}</h3>
+            <p>The project needs to have atleast two builds with data to generate a graph with results.</p>
+        </div>
+    </j:if>   
 </j:jelly>

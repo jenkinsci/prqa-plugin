@@ -3,10 +3,19 @@
         <j:set var="latestAction" value="${it.getLatestActionInProject()}"></j:set>
         <j:set var="publisher" value="${latestAction.getPublisher()}"></j:set>
         <j:set var="reportType" value="${publisher.getReportType()}"></j:set>
-
+        <j:set var="drawGraphs" value="${it.isDrawGraphs()}"></j:set>
         <div>
-            <j:forEach var="pgraph" items="${publisher.getSupportedGraphs(reportType)}">
-                <img style="margin-left:20px;" src="reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}"/>
-            </j:forEach>
+            <h3>PRQA Results</h3>
+            
+            <p>Visit <a href="http://www.programmingresearch.com/">Programming Research</a> website for additional product information</p>
+            <j:if test="${drawGraphs == true}">             
+                <j:forEach var="pgraph" items="${publisher.getSupportedGraphs(reportType)}">
+                    <img style="margin-left:20px;" src="reportGraphs?width=600&amp;height=340&amp;graph=${pgraph.getClass().getSimpleName()}"/>
+                </j:forEach>
+            </j:if>
+            <j:if test="${drawGraphs == false}">
+            <p>Currently there is not enough PRQA data to generate a result graph. You need to have at least 2 succesful builds in order for the graphs to be created</p>
+            </j:if> 
+            
         </div>
 </j:jelly>

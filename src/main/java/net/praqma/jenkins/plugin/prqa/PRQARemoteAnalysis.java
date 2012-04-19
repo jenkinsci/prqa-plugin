@@ -54,7 +54,7 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
             listener.getLogger().println(cle.getMessage());
             return false;
         } finally  {
-            listener.getLogger().println("Finshed analysis.");
+            listener.getLogger().println("Finished analysis.");
         }
             
         return true;

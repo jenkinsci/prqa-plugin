@@ -35,7 +35,7 @@ public class PRQABuildAction implements Action {
     
     @Override
     public String getIconFileName() {
-        return Config.ICON_NAME;
+        throw new UnsupportedOperationException("No need for icon in build");
     }
    
     @Override
@@ -61,6 +61,13 @@ public class PRQABuildAction implements Action {
     
     public PRQAReading getResult() {
         return this.result;
+    }
+    
+    public Number getThreshold(StatusCategory cat) {
+        if (this.result != null && this.result.getThresholds().containsKey(cat)) {
+            return result.getThresholds().get(cat);
+        }
+        return null;
     }
     
     /**
@@ -166,7 +173,8 @@ public class PRQABuildAction implements Action {
                         }                        
                         
                         //Add threshold for category. If it exists.
-                        Number threshold = getPublisher(PRQANotifier.class).getThreshold(cat);
+                        Number threshold = prqabuild.getThreshold(cat);//getPublisher(PRQANotifier.class).getThreshold(cat);
+                                
                         if(threshold != null) {
                             dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);
                         }

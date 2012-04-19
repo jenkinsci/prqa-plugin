@@ -2,6 +2,7 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.model.AbstractProject;
 import hudson.model.Actionable;
+import hudson.model.Fingerprint;
 import hudson.model.ProminentProjectAction;
 import java.io.IOException;
 import net.praqma.jenkins.plugin.prqa.Config;
@@ -22,7 +23,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
     
     @Override
     public String getDisplayName() {
-        return "PRQA Project";
+        return "PRQA Results";
     }
 
     @Override
@@ -40,11 +41,19 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
         return "PRQA";
     }
     
-    public PRQABuildAction getLatestActionInProject() {
+    public PRQABuildAction getLatestActionInProject() {       
         if(project.getLastSuccessfulBuild() != null) {
             return project.getLastSuccessfulBuild().getAction(PRQABuildAction.class);     
         }
         return null;
+    }
+    
+    /**
+     * Small method to determin whether to draw graphs or not.
+     * @return true when there are more than 2 or more builds available.
+     */
+    public boolean isDrawGraphs() {
+        return project.getBuilds().size() >= 2;
     }
     
     /**

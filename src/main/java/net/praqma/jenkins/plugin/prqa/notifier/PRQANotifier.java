@@ -18,11 +18,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteCodeReviewReport;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteQualityReport;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteSuppressionReport;
-import net.praqma.jenkins.plugin.prqa.PrqaException;
+import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
@@ -85,8 +81,7 @@ public class PRQANotifier extends Publisher {
         
         if(ComparisonSettings.valueOf(settingMaxMessages).equals(ComparisonSettings.Threshold)) {
             thresholds.put(StatusCategory.Messages, this.totalMax);
-        }
-        
+        }        
     }
     
     @Override
@@ -165,7 +160,11 @@ public class PRQANotifier extends Publisher {
         }            
         return null;
     }
-    
+    /**
+     * Use this method to get the threshold values associated with the current build.
+     * @param cat
+     * @return the threshold for any given category.
+     */
     public Number getThreshold(StatusCategory cat) {
         Number num = null;
         if(thresholds.containsKey(cat)) {
@@ -226,14 +225,18 @@ public class PRQANotifier extends Publisher {
         } catch (PrqaException ex) {
             out.println(ex);
         }
+				
+				
         
         if(status == null) {
             out.println("Failed getting results");
             return false;
         }
+        
+        status.setThresholds(thresholds);
        
         boolean res = true;
-        Run lastRun = build.getPreviousNotFailedBuild();
+        Run lastRun = build.getPreviousNotFailedBuild();        
         PRQAReading lac = lastRun != null ? lastRun.getAction(PRQABuildAction.class).getResult() : null;
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
@@ -246,7 +249,7 @@ public class PRQANotifier extends Publisher {
                 PRQAStatus.PRQAComparisonMatrix proj_comp = status.createComparison(projCompliance, StatusCategory.ProjectCompliance, lac);
                 PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lac);
 
-                if(!max_msg.compareIsLower(totalMax)) {
+                if(!max_msg.compareIsEqualOrLower(totalMax)) {
                     status.addNotification(String.format("Max messages requirement not met, was %s and the requirement is %s",status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
                     res = false;
                 }
@@ -491,7 +494,6 @@ public class PRQANotifier extends Publisher {
             QARReportType[] types = new QARReportType[1];
             types[0] = QARReportType.Compliance;
             return types;
-            //return QARReportType.values();
         }
 
         public List<String> getProducts() {

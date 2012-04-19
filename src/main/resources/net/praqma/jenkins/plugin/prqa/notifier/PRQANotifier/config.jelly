@@ -33,7 +33,7 @@
                         <f:option selected="${instance.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
                     </j:forEach>
                 </select>
-                <f:textbox name="prqa.totalMax" value="${instance.totalMax}"/>
+                <f:textbox name="prqa.totalMax" value="${instance.totalMax}" default="0"/>
             </div>
         </f:entry>
     
@@ -44,7 +44,7 @@
                         <f:option selected="${instance.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
                     </j:forEach>
                 </select>
-                <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}"/>
+                <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}" default="0"/>
             </div>
         </f:entry>
         
@@ -55,7 +55,7 @@
                         <f:option selected="${instance.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
                     </j:forEach>
                 </select>
-                <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}"/>
+                <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}" default="0"/>
             </div>
         </f:entry>
 
