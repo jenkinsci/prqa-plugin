@@ -1,5 +1,8 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+ <l:layout title="PRQA Results">
+     <l:main-panel>             
+             
         <j:set var="latestAction" value="${it.getLatestActionInProject()}"></j:set>
         <j:set var="publisher" value="${latestAction.getPublisher()}"></j:set>
         <j:set var="reportType" value="${publisher.getReportType()}"></j:set>
@@ -18,4 +21,6 @@
             </j:if> 
             
         </div>
+    </l:main-panel>
+</l:layout>
 </j:jelly>

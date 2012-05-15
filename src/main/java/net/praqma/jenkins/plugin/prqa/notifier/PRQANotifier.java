@@ -193,7 +193,7 @@ public class PRQANotifier extends Publisher {
         
         //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.
         QAR qar = new QAR(product, projectFile, reportType);
-        out.println("This job will try to create a report with the following selected parameters:");
+        out.println("This job will create a report with the following selected parameters:");
         out.println(qar);
 
         try {

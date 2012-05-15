@@ -24,7 +24,7 @@
     <j:if test="${latestAction eq null}">
         <div id="marginme" style="margin-right:150px">
             <h3>${%Not enough data}</h3>
-            <p>The project needs to have atleast two builds with data to generate a graph with results.</p>
+            <p>The project needs to have at least two builds with data to generate a graph with results.</p>
         </div>
     </j:if>   
 </j:jelly>

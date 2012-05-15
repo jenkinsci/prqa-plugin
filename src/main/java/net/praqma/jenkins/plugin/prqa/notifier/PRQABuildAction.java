@@ -35,7 +35,7 @@ public class PRQABuildAction implements Action {
     
     @Override
     public String getIconFileName() {
-        throw new UnsupportedOperationException("No need for icon in build");
+        return null;
     }
    
     @Override
