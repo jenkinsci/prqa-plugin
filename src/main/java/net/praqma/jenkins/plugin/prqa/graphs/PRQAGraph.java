@@ -63,6 +63,10 @@ public abstract class PRQAGraph implements Serializable {
     public void setData(PRQAStatusCollection data) {
         this.data = data;
     }
+    
+    public PRQAStatusCollection getData() {
+        return data;
+    }
       
     public boolean containsStatus(StatusCategory cat) {
         return categories.contains(cat);
