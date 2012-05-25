@@ -9,7 +9,7 @@
 
     <groupId>net.praqma</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
@@ -65,13 +65,13 @@
     
     <repositories>
         <repository>
-          <id>repo.jenkins-ci.org</id>
+            <id>repo.jenkins-ci.org</id>
             <url>http://repo.jenkins-ci.org/public/</url>
         </repository>
-        <repository> 
-            <id>praqma-repo</id> 
-            <url>http://code.praqma.net/repo/maven/</url> 
-        </repository> 
+        <repository>
+            <id>ubuntu</id>
+            <url>http://217.116.243.220:8081/artifactory/repo</url>
+        </repository>
     </repositories>
     
     <pluginRepositories>
@@ -80,6 +80,15 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+    
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ubuntu</id>
+            <name>ubuntu-snapshots</name>
+            <url>http://217.116.243.220:8081/artifactory/libs-snapshot-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+        
        
     <licenses> 
         <license> 

@@ -2,7 +2,6 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.model.AbstractProject;
 import hudson.model.Actionable;
-import hudson.model.Fingerprint;
 import hudson.model.ProminentProjectAction;
 import java.io.IOException;
 import net.praqma.jenkins.plugin.prqa.Config;

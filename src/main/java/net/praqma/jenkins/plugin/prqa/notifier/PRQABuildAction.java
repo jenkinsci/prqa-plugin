@@ -5,7 +5,6 @@ import hudson.tasks.Publisher;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import java.io.IOException;
-import net.praqma.jenkins.plugin.prqa.Config;
 import net.praqma.jenkins.plugin.prqa.PrqaException;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
@@ -16,7 +15,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 /**
- *
  * @author Praqma
  */
 public class PRQABuildAction implements Action {

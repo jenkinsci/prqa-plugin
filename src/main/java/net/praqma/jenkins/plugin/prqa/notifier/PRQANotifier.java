@@ -18,6 +18,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import jenkins.model.Jenkins;
 import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
@@ -31,6 +32,7 @@ import net.praqma.prqa.reports.PRQAQualityReport;
 import net.praqma.prqa.reports.PRQASuppressionReport;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
+import net.praqma.util.structure.Tuple;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -148,7 +150,6 @@ public class PRQANotifier extends Publisher {
                 graphs.add(g);
             }
         }
-        
         return graphs;
     }
     
@@ -191,6 +192,9 @@ public class PRQANotifier extends Publisher {
         out = listener.getLogger();
         PRQAReading status = null;
         
+        out.println(Config.getPluginVersion());
+        out.println("");
+        
         //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.
         QAR qar = new QAR(product, projectFile, reportType);
         out.println("This job will create a report with the following selected parameters:");
@@ -220,13 +224,11 @@ public class PRQANotifier extends Publisher {
                     break;
             }
         } catch (IOException ex) {
-            out.println("Caught IOExcetion with cause: ");
+            out.println("Caught IOExcetion with cause: "+ex.getCause().getMessage());
             out.println(ex.getCause().toString());            
         } catch (PrqaException ex) {
             out.println(ex);
         }
-				
-				
         
         if(status == null) {
             out.println("Failed getting results");
@@ -236,8 +238,17 @@ public class PRQANotifier extends Publisher {
         status.setThresholds(thresholds);
        
         boolean res = true;
-        Run lastRun = build.getPreviousNotFailedBuild();        
-        PRQAReading lac = lastRun != null ? lastRun.getAction(PRQABuildAction.class).getResult() : null;
+        Tuple<PRQAReading,AbstractBuild<?,?>> previousResult = getPreviousReading(build, Result.SUCCESS);
+        
+        if(previousResult != null) {
+            out.println(String.format("Previous result (build number %s)",previousResult.getSecond().number));
+            out.println(previousResult.getFirst());
+        } else {
+            out.println("No previous succesful builds");
+        }
+        
+        PRQAReading lar = previousResult != null ? previousResult.getFirst() : null;
+        
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
         ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
@@ -245,9 +256,9 @@ public class PRQANotifier extends Publisher {
         if(reportType.equals(QARReportType.Compliance)) {
 
             try {
-                PRQAStatus.PRQAComparisonMatrix max_msg = status.createComparison(maxMsg, StatusCategory.Messages, lac);                
-                PRQAStatus.PRQAComparisonMatrix proj_comp = status.createComparison(projCompliance, StatusCategory.ProjectCompliance, lac);
-                PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lac);
+                PRQAStatus.PRQAComparisonMatrix max_msg = status.createComparison(maxMsg, StatusCategory.Messages, lar);                
+                PRQAStatus.PRQAComparisonMatrix proj_comp = status.createComparison(projCompliance, StatusCategory.ProjectCompliance, lar);
+                PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lar);
 
                 if(!max_msg.compareIsEqualOrLower(totalMax)) {
                     status.addNotification(String.format("Max messages requirement not met, was %s and the requirement is %s",status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
@@ -285,6 +296,27 @@ public class PRQANotifier extends Publisher {
             build.setResult(Result.UNSTABLE);        
         build.getActions().add(action);        
         return true; 
+    }
+    
+    /**
+     * Fetches the most 'previous' result. The current build is baseline. So any prior build to the passed current build is considered.
+     * @param build
+     * @param expectedResult
+     * @return 
+     */
+    private Tuple<PRQAReading,AbstractBuild<?,?>> getPreviousReading(AbstractBuild<?,?> currentBuild, Result expectedResult) {
+        Tuple<PRQAReading,AbstractBuild<?,?>> result = null;
+        AbstractBuild<?,?> iterate = currentBuild;
+        do {
+            iterate = iterate.getPreviousNotFailedBuild();
+            if(iterate != null && iterate.getAction(PRQABuildAction.class) != null && iterate.getResult().equals(expectedResult)) {
+                result = new Tuple<PRQAReading, AbstractBuild<?, ?>>();
+                result.setSecond(iterate);
+                result.setFirst(iterate.getAction(PRQABuildAction.class).getResult());
+                return result;
+            }         
+        } while(iterate != null);      
+        return result;
     }
     
     @Exported
@@ -451,7 +483,7 @@ public class PRQANotifier extends Publisher {
         }        
             
         @Override
-        public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws FormException {           
+        public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {           
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
             if(instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
@@ -480,7 +512,7 @@ public class PRQANotifier extends Publisher {
         }
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+        public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
             save();
             return true;
         }
