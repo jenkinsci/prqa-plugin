@@ -1,8 +1,10 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <tr>
-        <td colspan="2"><h3>General configuration</h3></td>
-    </tr>
+        <td colspan="2">
+            <h3>Setup</h3>
+        </td>
+    </tr>             
     <f:entry title="Project file" field="projectFile">
         <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
     </f:entry>
@@ -25,46 +27,42 @@
         </select>
     </f:entry>
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
-  <!--<f:section title="Threshold" name="Threshold"> -->
-        
+    <tr>
+        <td colspan="2">
+            <h3>Threshold</h3>
+        </td>
+    </tr>
+    <f:entry title="Max messages" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
+        <div id="m_div" style="width:200px;">
+            <select class="setting-input" name="settingMaxMessages">               
+                <j:forEach var="cSetting" items="${comparisonSettings}">
+                    <f:option selected="${instance.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
+                </j:forEach>
+            </select>
+            <f:textbox name="prqa.totalMax" value="${instance.totalMax}" default="0"/>
+        </div>
+    </f:entry>
 
-        <tr>
-            <td colspan="2"><h3>Thresholds</h3></td>
-        </tr>
-        
-        <f:entry title="Max messages" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
-            <div id="m_div" style="width:200px;">
-                <select class="setting-input" name="settingMaxMessages">               
-                    <j:forEach var="cSetting" items="${comparisonSettings}">
-                        <f:option selected="${instance.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
-                    </j:forEach>
-                </select>
-                <f:textbox name="prqa.totalMax" value="${instance.totalMax}" default="0"/>
-            </div>
-        </f:entry>
-    
-        <f:entry title="File Compliance Index" field="fileComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
-            <div id="f_div" style="width:200px;">
-                <select class="setting-input" name="settingFileCompliance">               
-                    <j:forEach var="fcSetting" items="${comparisonSettings}">
-                        <f:option selected="${instance.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
-                    </j:forEach>
-                </select>
-                <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}" default="0"/>
-            </div>
-        </f:entry>
-        
-        <f:entry title="Project Compliance Index" field="projectComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
-            <div id="p_div" style="width:200px; float:left;">
-                <select class="setting-input" name="settingProjectCompliance">               
-                    <j:forEach var="pcSetting" items="${comparisonSettings}">
-                        <f:option selected="${instance.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
-                    </j:forEach>
-                </select>
-                <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}" default="0"/>
-            </div>
-        </f:entry>
+    <f:entry title="File Compliance Index" field="fileComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
+        <div id="f_div" style="width:200px;">
+            <select class="setting-input" name="settingFileCompliance">               
+                <j:forEach var="fcSetting" items="${comparisonSettings}">
+                    <f:option selected="${instance.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
+                </j:forEach>
+            </select>
+            <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}" default="0"/>
+        </div>
+    </f:entry>
 
-<!--   </f:section>  -->
-    
+    <f:entry title="Project Compliance Index" field="projectComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
+        <div id="p_div" style="width:200px; float:left;">
+            <select class="setting-input" name="settingProjectCompliance">               
+                <j:forEach var="pcSetting" items="${comparisonSettings}">
+                    <f:option selected="${instance.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
+                </j:forEach>
+            </select>
+            <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}" default="0"/>
+        </div>
+    </f:entry>
+
 </j:jelly>
