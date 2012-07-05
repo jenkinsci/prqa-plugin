@@ -4,7 +4,6 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 
@@ -12,20 +11,18 @@ import net.praqma.prqa.status.PRQAComplianceStatus;
  * The compliance report. 
  * @author Praqma
  */
-public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplianceStatus,PRQAComplianceReport> {
+public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplianceStatus> {
     
-    public PRQARemoteComplianceReport (PRQAComplianceReport report, BuildListener listener, boolean silentMode) {
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode) {
         super(report,listener,silentMode);
     }
     
     @Override
-    public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {        
-        try {
-            setup(file.getPath(), PRQAReport.XHTML);
-            listener.getLogger().println(String.format("Beginning report generation with the following command:\n %s",report.getQar().getCommand()));
-            return report.completeTask();
+    public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
+        try {    
+            setup(file.getPath(), PRQAReport.XHTML);     
+            return report.generateReport();
         } catch (PrqaException ex) {
-            listener.getLogger().println("Failed executing command: "+report.getQar().getBuilder().getCommand());
             if(report.getCmdResult() != null) {
                 for(String error : report.getCmdResult().errorList) {
                     listener.getLogger().println(error);
@@ -33,12 +30,13 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             }
             throw new IOException(ex);
         } finally {
-            if(report.getCmdResult() != null) {
-                for(String outline : report.getCmdResult().stdoutList) {
-                    listener.getLogger().println(outline);
+            if(!silentMode) {
+                if(report.getCmdResult() != null) {
+                    for(String outline : report.getCmdResult().stdoutList) {
+                        listener.getLogger().println(outline);
+                    }
                 }
             }
-            listener.getLogger().println("Finished remote reporting.");
         } 
     }
 }

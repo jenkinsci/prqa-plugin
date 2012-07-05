@@ -28,16 +28,15 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import net.praqma.prqa.reports.PRQAReport;
-import net.praqma.prqa.reports.PRQASuppressionReport;
 import net.praqma.prqa.status.PRQASuppressionStatus;
 
 /**
  *
  * @author Praqma
  */
-public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppressionStatus,PRQASuppressionReport>  {
+public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppressionStatus>  {
 
-    public PRQARemoteSuppressionReport(PRQASuppressionReport report, BuildListener listener, boolean silentMode) {
+    public PRQARemoteSuppressionReport(PRQAReport<?> report, BuildListener listener, boolean silentMode) {
         super(report,listener,silentMode);
     }
     
@@ -45,10 +44,10 @@ public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppres
     public PRQASuppressionStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         try {
             setup(file.getPath(), PRQAReport.XHTML);
-            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
-            return report.completeTask();
+            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getReportTool().getCommand()));
+            return report.generateReport();
         } catch (PrqaException ex) {
-            listener.getLogger().println("Failed executing command: "+report.getQar().getBuilder().getCommand());
+            listener.getLogger().println("Failed executing command: "+report.getReportTool().getBuilder().getCommand());
             throw new IOException(ex);
         }
     }

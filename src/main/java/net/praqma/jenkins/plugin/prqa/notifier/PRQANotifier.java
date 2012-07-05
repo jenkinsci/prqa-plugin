@@ -8,6 +8,7 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.*;
+import hudson.remoting.Future;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
@@ -18,18 +19,16 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import jenkins.model.Jenkins;
+import java.util.concurrent.ExecutionException;
 import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
+import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.products.QAR;
-import net.praqma.prqa.reports.PRQACodeReviewReport;
-import net.praqma.prqa.reports.PRQAComplianceReport;
-import net.praqma.prqa.reports.PRQAQualityReport;
-import net.praqma.prqa.reports.PRQASuppressionReport;
+import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
@@ -126,19 +125,19 @@ public class PRQANotifier extends Publisher {
 
     @Override
     public BuildStepMonitor getRequiredMonitorService() {
-        return BuildStepMonitor.NONE;
+        return BuildStepMonitor.BUILD;
     }
     
-    private void copyReportToArtifactsDir(String reportFile, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
-        FilePath[] files = build.getWorkspace().list("**/"+reportFile);
+    private void copyReportToArtifactsDir(PRQAReport report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+        FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate());
         if(files.length >= 1) {
-            out.println("Found report. Attempting to copy "+reportFile+" to artifacts directory: "+build.getArtifactsDir().getPath());
+            out.println("Found report. Attempting to copy "+report.getNamingTemplate()+" to artifacts directory: "+build.getArtifactsDir().getPath());
             String artifactDir = build.getArtifactsDir().getPath();
 
-            FilePath targetDir = new FilePath(new File(artifactDir+"/"+reportFile));
+            FilePath targetDir = new FilePath(new File(artifactDir+"/"+report.getNamingTemplate()));
             out.println("Attempting to copy report to following target: "+targetDir.getName());
 
-            build.getWorkspace().list("**/"+reportFile)[0].copyTo(targetDir);
+            build.getWorkspace().list("**/"+report.getNamingTemplate())[0].copyTo(targetDir);
             out.println("Succesfully copied report");
         }
     }
@@ -186,7 +185,7 @@ public class PRQANotifier extends Publisher {
         }            
         return null;
     }
-   
+    
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
@@ -195,34 +194,43 @@ public class PRQANotifier extends Publisher {
         out.println(Config.getPluginVersion());
         out.println("");
         
-        //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.
-        QAR qar = new QAR(product, projectFile, reportType);
+        //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.        
+        QAR qar = new QAR(PRQA.create(product), projectFile, reportType);
+        
         out.println("This job will create a report with the following selected parameters:");
         out.println(qar);
 
-        try {
+        Future<? extends PRQAReading> task = null;
+        PRQAReport<?> report = null;
+
+        try {     
+            report = PRQAReport.create(reportType, qar);            
             switch(reportType) {
-                case Compliance:
-                    PRQAComplianceReport testReport = new PRQAComplianceReport(qar);                  
-                    status = build.getWorkspace().act(new PRQARemoteComplianceReport(testReport,listener,false));
-                    copyReportToArtifactsDir(testReport.getNamingTemplate(), build);
+                case Compliance:                  
+                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false));
                     break;
                 case Quality:
-                    PRQAQualityReport qreport = new PRQAQualityReport(qar);
-                    status = build.getWorkspace().act(new PRQARemoteQualityReport(qreport,listener,false));
-                    copyReportToArtifactsDir(qreport.getNamingTemplate(), build);             
+                    task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false));
                     break;
                 case CodeReview:
-                    PRQACodeReviewReport prqacodereview = new PRQACodeReviewReport(qar);
-                    status = build.getWorkspace().act(new PRQARemoteCodeReviewReport(prqacodereview, listener, false));
-                    copyReportToArtifactsDir(prqacodereview.getNamingTemplate(), build);
+                    task = build.getWorkspace().actAsync(new PRQARemoteCodeReviewReport(report, listener, false));
                     break;
                 case Suppression:
-                    PRQASuppressionReport prqasupreport = new PRQASuppressionReport(qar);
-                    status = build.getWorkspace().act(new PRQARemoteSuppressionReport(prqasupreport, listener, false));
-                    copyReportToArtifactsDir(prqasupreport.getNamingTemplate(), build);
+                    task = build.getWorkspace().actAsync(new PRQARemoteSuppressionReport(report, listener, false));
                     break;
-            }
+        }
+            
+        try {
+            status = task.get();
+            copyReportToArtifactsDir(report, build);
+        } catch (ExecutionException ex) {
+            out.print("Caught exception - Abnormal execution");
+            throw new PrqaException.PrqaCommandLineException(qar, ex);
+        } catch (Exception ex) {
+            out.print("Caught exception - Abnormal execution");
+            throw new PrqaException.PrqaCommandLineException(qar, ex);
+        }
+            
         } catch (IOException ex) {
             out.println("Caught IOExcetion with cause: "+ex.getCause().getMessage());
             out.println(ex.getCause().toString());            
@@ -483,8 +491,9 @@ public class PRQANotifier extends Publisher {
         }        
             
         @Override
-        public PRQANotifier newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {           
+        public Publisher newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {           
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
+            
             if(instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
                 
@@ -507,6 +516,7 @@ public class PRQANotifier extends Publisher {
                                 
                 instance.setGraphTypes(list);
             }
+            
             save();
             return instance;
         }
@@ -514,7 +524,7 @@ public class PRQANotifier extends Publisher {
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
             save();
-            return true;
+            return super.configure(req, json);
         }
                
         public DescriptorImpl() {

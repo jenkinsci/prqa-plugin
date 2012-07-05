@@ -108,6 +108,11 @@ public class PRQABuildAction implements Action {
         return getPreviousAction(build);
     }
     
+    /**
+     * Fetches the previous PRQA build. Skips builds that were not configured as a PRQA Build. 
+     * 
+     * Goes to the end of list.
+     */ 
     public PRQABuildAction getPreviousAction(AbstractBuild<?,?> base) {
         PRQABuildAction action = null;
         AbstractBuild<?,?> start = base;
@@ -115,13 +120,12 @@ public class PRQABuildAction implements Action {
             start = start.getPreviousNotFailedBuild();
             if(start == null)
                 return null;
-            action = start.getAction(PRQABuildAction.class);
-            return action;
+            action = start.getAction(PRQABuildAction.class);            
+            if(action != null)
+                return action;
         }
     }
-    
-    
-    
+ 
     public PRQAReading getBuildActionStatus() {
         return this.result;
     }
@@ -156,7 +160,7 @@ public class PRQABuildAction implements Action {
             PRQAStatusCollection collection = new PRQAStatusCollection();
             DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
             ChartUtil.NumberOnlyBuildLabel label = null;
-                        
+            
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                 if(prqabuild.getResult() != null) {
                     label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build);

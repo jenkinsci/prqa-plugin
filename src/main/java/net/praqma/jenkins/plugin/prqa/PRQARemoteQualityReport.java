@@ -27,7 +27,7 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import net.praqma.prqa.reports.PRQAQualityReport;
+import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAQualityStatus;
 
@@ -35,16 +35,18 @@ import net.praqma.prqa.status.PRQAQualityStatus;
  *
  * @author Praqma
  */
-public class PRQARemoteQualityReport extends PRQARemoteReporting<PRQAQualityStatus,PRQAQualityReport> {
+public class PRQARemoteQualityReport extends PRQARemoteReporting<PRQAQualityStatus> {
 
     @Override
     public PRQAQualityStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         try {
             setup(file.getPath(), PRQAReport.XHTML);
-            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
-            return report.completeTask();
+            listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getReportTool().getCommand()));
+            listener.getLogger().println(String.format("Using QAR Version %s", report.getReportTool().getProductVersion()));
+            listener.getLogger().println(String.format("Using Analysis Tool %s", report.getReportTool().getAnalysisTool().getProductVersion()));
+            return report.generateReport();
         } catch (PrqaException ex) {
-            listener.getLogger().println("Failed executing command: "+report.getQar().getBuilder().getCommand());
+            listener.getLogger().println("Failed executing command: "+((QAR)report.getReportTool()).getBuilder().getCommand());
             if(report.getCmdResult() != null) {
                 for(String error : report.getCmdResult().errorList) {
                     listener.getLogger().println(error);
@@ -61,7 +63,7 @@ public class PRQARemoteQualityReport extends PRQARemoteReporting<PRQAQualityStat
         }
     }
     
-    public PRQARemoteQualityReport(PRQAQualityReport report, BuildListener listener, boolean silentMode) {
+    public PRQARemoteQualityReport(PRQAReport<?> report, BuildListener listener, boolean silentMode) {
         super(report,listener,silentMode);
     }
     

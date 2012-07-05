@@ -9,41 +9,45 @@ import net.praqma.prqa.status.PRQAStatus;
 /**
  * @author Praqma
  */
-public abstract class PRQARemoteReporting<K extends PRQAStatus, T extends PRQAReport> implements FilePath.FileCallable<K> {    
+public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FilePath.FileCallable<T> {    
     protected BuildListener listener;
     protected boolean silentMode;
-    protected T report;
+    protected PRQAReport<?> report;
 
-    public PRQARemoteReporting (T report, BuildListener listener, boolean silentMode) {
+    public PRQARemoteReporting (PRQAReport<?> report, BuildListener listener, boolean silentMode) {
         this.report = report;
         this.listener = listener;
         this.silentMode = silentMode;
     }
     
-    /*
+    /**
+     * This is setup. Must be called before anything else in the perform() method of concrete implemntations. We need to do this to setup output paths for the report.
+     * 
      * Constructs the final command. Performs the setup.
      * 
      * Takes the workspace path and an output format for the report that is to be generated. The information about the type of report is already present here. 
      * 
      * So the task of this piece of code is to construct the final command for generating the report
-     */
+     **/
     protected void setup(String path, String outputFormat) {
-        report.getQar().getBuilder().prependArgument(PRQACommandBuilder.getProduct(report.getQar().getProduct()));
-        report.getQar().getBuilder().appendArgument(PRQACommandBuilder.getProjectFile(report.getQar().getProjectFile()));
+        //Get the command builder. 
+        PRQACommandBuilder builder = report.getReportTool().getBuilder();
+        builder.prependArgument(PRQACommandBuilder.getProduct(report.getReportTool().getAnalysisTool()));
+        builder.appendArgument(PRQACommandBuilder.getProjectFile(report.getReportTool().getProjectFile()));
         
-        report.getQar().setReportOutputPath(path);
-        report.getQar().setCommandBase(path);
+        report.getReportTool().setReportOutputPath(path);
+        report.getReportTool().setCommandBase(path);
         
         if(silentMode) {
-            report.getQar().getBuilder().appendArgument("-plog");
+            builder.appendArgument("-plog");
         }
         
-        String qarEmbedded = "qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getQar().getType().toString(),true) + " "
+        String qarEmbedded = "qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getReportTool().getType().toString(),true) + " "
                     + PRQACommandBuilder.getProjectName() + " " + PRQACommandBuilder.getOutputPathParameter(path, true) + " " + PRQACommandBuilder.getViewingProgram("dummy")
                     + " " + PRQACommandBuilder.getReportFormatParameter(outputFormat, false);
 
-        report.getQar().getBuilder().appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));
-        report.getQar().setCommand(report.getQar().getBuilder().getCommand());       
+        builder.appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));
+        report.getReportTool().setCommand(builder.getCommand());       
     }
     
 }
