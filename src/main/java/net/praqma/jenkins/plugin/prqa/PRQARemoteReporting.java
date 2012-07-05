@@ -2,6 +2,7 @@ package net.praqma.jenkins.plugin.prqa;
 
 import hudson.FilePath;
 import hudson.model.BuildListener;
+import net.praqma.prqa.PRQA;
 import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
@@ -42,12 +43,11 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileP
             builder.appendArgument("-plog");
         }
         
-        String qarEmbedded = "qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getReportTool().getType().toString(),true) + " "
+        String qarEmbedded = "pal %Q %P+ %L+#qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getReportTool().getType().toString(),true) + " "
                     + PRQACommandBuilder.getProjectName() + " " + PRQACommandBuilder.getOutputPathParameter(path, true) + " " + PRQACommandBuilder.getViewingProgram("dummy")
                     + " " + PRQACommandBuilder.getReportFormatParameter(outputFormat, false);
 
         builder.appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));
         report.getReportTool().setCommand(builder.getCommand());       
     }
-    
 }
