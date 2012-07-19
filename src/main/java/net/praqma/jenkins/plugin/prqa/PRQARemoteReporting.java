@@ -43,7 +43,7 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileP
             builder.appendArgument("-plog");
         }
         
-        String qarEmbedded = "pal %Q %P+ %L+#qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getReportTool().getType().toString(),true) + " "
+        String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+"qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getReportTool().getType().toString(),true) + " "
                     + PRQACommandBuilder.getProjectName() + " " + PRQACommandBuilder.getOutputPathParameter(path, true) + " " + PRQACommandBuilder.getViewingProgram("dummy")
                     + " " + PRQACommandBuilder.getReportFormatParameter(outputFormat, false);
 

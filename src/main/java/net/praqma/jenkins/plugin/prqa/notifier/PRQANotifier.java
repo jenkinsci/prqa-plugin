@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.prqa.PRQA;
@@ -57,9 +59,11 @@ public class PRQANotifier extends Publisher {
     private Double projectComplianceIndex;
     
     private String projectFile;
+    private boolean performCrossModuleAnalysis;
+    private boolean publishToQAV;
 
     @DataBoundConstructor
-    public PRQANotifier(String reportType, String product, boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile) {
+    public PRQANotifier(String reportType, String product, boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV) {
         this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
@@ -71,6 +75,8 @@ public class PRQANotifier extends Publisher {
         this.settingFileCompliance = settingFileCompliance;
         this.projectFile = projectFile;
         this.thresholds = new HashMap<StatusCategory, Number>();
+        this.publishToQAV = publishToQAV;
+        this.performCrossModuleAnalysis = performCrossModuleAnalysis;
  
         if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
             thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
@@ -204,7 +210,10 @@ public class PRQANotifier extends Publisher {
         PRQAReport<?> report = null;
 
         try {     
-            report = PRQAReport.create(reportType, qar);            
+            report = PRQAReport.create(reportType, qar);
+            report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
+            report.setPublishToQAV(publishToQAV);
+            
             switch(reportType) {
                 case Compliance:                  
                     task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false));
@@ -269,7 +278,7 @@ public class PRQANotifier extends Publisher {
                 PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lar);
 
                 if(!max_msg.compareIsEqualOrLower(totalMax)) {
-                    status.addNotification(String.format("Max messages requirement not met, was %s and the requirement is %s",status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
+                    status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
                     res = false;
                 }
 
@@ -436,7 +445,36 @@ public class PRQANotifier extends Publisher {
     public String getProjectFile() {
         return this.projectFile;
     }
+
+    /**
+     * @return the performCrossModuleAnalysis
+     */
+    @Exported
+    public boolean isPerformCrossModuleAnalysis() {
+        return performCrossModuleAnalysis;
+    }
+
+    /**
+     * @param performCrossModuleAnalysis the performCrossModuleAnalysis to set
+     */
+    @Exported
+    public void setPerformCrossModuleAnalysis(boolean performCrossModuleAnalysis) {
+        this.performCrossModuleAnalysis = performCrossModuleAnalysis;
+    }
+
+    /**
+     * @return the publishToQAV
+     */
+    @Exported
+    public boolean isPublishToQAV() {
+        return publishToQAV;
+    }
     
+    @Exported
+    public void setPublishToQAV(boolean publishToQAV) {
+        this.publishToQAV = publishToQAV;
+    }
+
     /**
      * This class is used by Jenkins to define the plugin.
      * 

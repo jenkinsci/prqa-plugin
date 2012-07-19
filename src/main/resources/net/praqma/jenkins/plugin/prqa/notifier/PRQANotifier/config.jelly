@@ -2,7 +2,7 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <tr>
         <td colspan="2">
-            <h3>Setup</h3>
+            <h3>${%Setup}</h3>
         </td>
     </tr>             
     <f:entry title="Project file" field="projectFile">
@@ -26,10 +26,18 @@
             </j:forEach>
         </select>
     </f:entry>
+    
+    <f:entry title="Perform cross module analysis" field="performCrossModuleAnalysis">
+        <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
+    </f:entry>
+    <f:entry title="Upload results to QA Verify" field="publishToQAV">
+        <f:checkbox name="publishToQAV" value="${instance.publishToQAV}" checked="${instance.publishToQAV}"/>
+    </f:entry>
+    
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <tr>
         <td colspan="2">
-            <h3>Threshold</h3>
+            <h3>${%Threshold}</h3>
         </td>
     </tr>
     <f:entry title="Max messages" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">

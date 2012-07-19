@@ -35,7 +35,7 @@ public class PRQARemoteAnalysis implements FilePath.FileCallable<Boolean> {
         prqa.setCommandBase(file.getPath());
         try 
         {
-            CmdResult res = prqa.execute();            
+            CmdResult res = prqa.generateReportFiles();            
             if(res.stdoutList != null) {
                 for(String s : res.stdoutList) {
                     listener.getLogger().println(s);
