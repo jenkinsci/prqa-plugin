@@ -203,7 +203,7 @@ public class PRQANotifier extends Publisher {
         //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.        
         QAR qar = new QAR(PRQA.create(product), projectFile, reportType);
         
-        out.println("This job will create a report with the following selected parameters:");
+        out.println(Messages.PRQANotifer_reportGenerateText());
         out.println(qar);
 
         Future<? extends PRQAReading> task = null;
@@ -258,10 +258,10 @@ public class PRQANotifier extends Publisher {
         Tuple<PRQAReading,AbstractBuild<?,?>> previousResult = getPreviousReading(build, Result.SUCCESS);
         
         if(previousResult != null) {
-            out.println(String.format("Previous result (build number %s)",previousResult.getSecond().number));
+            out.println(String.format(Messages.PRQANotifier_previousResultBuildNumber(new Integer(previousResult.getSecond().number))));
             out.println(previousResult.getFirst());
         } else {
-            out.println("No previous succesful builds");
+            out.println(Messages.PRQANotifier_noPreviousResults());
         }
         
         PRQAReading lar = previousResult != null ? previousResult.getFirst() : null;
@@ -295,7 +295,7 @@ public class PRQANotifier extends Publisher {
             } catch (PrqaException.PrqaReadingException ex) {
                 out.println(ex);
             }
-            out.println("Scanned the following values:");        
+            out.println(Messages.PRQANotifier_scannedValues());        
             out.println(status);   
 
         } else if(reportType.equals(QARReportType.Quality)) {
@@ -487,9 +487,9 @@ public class PRQANotifier extends Publisher {
             try {
                 Double parsedValue = Double.parseDouble(value);
                 if(parsedValue < 0)
-                    return FormValidation.error("Decimal must be non-negative");
+                    return FormValidation.error(Messages.PRQANotifier_wrongDecimalValue());
             } catch (NumberFormatException ex) {
-                return FormValidation.error("Value is not a valid decimal number, use . to seperate decimals");
+                return FormValidation.error(Messages.PRQANotifier_wrongDecimalPunctuation());
             }
             
             return FormValidation.ok();
@@ -499,9 +499,9 @@ public class PRQANotifier extends Publisher {
             try {
                 Double parsedValue = Double.parseDouble(value);
                 if(parsedValue < 0)
-                    return FormValidation.error("Decimal must be non-negative");
+                    return FormValidation.error(Messages.PRQANotifier_wrongDecimalValue());
             } catch (NumberFormatException ex) {
-                return FormValidation.error("Value is not a valid decimal number, use . to seperate decimals");
+                return FormValidation.error(Messages.PRQANotifier_wrongDecimalPunctuation());
             }
             
             return FormValidation.ok();
@@ -511,9 +511,9 @@ public class PRQANotifier extends Publisher {
             try {
                 Integer parsedValue = Integer.parseInt(value);
                 if(parsedValue < 0)
-                    return FormValidation.error("Number of messages must be zero or greater");
+                    return FormValidation.error(Messages.PRQANotifier_wrongInteger());
             } catch (NumberFormatException ex) {
-                return FormValidation.error("Not a valid number, use a number without decimals");
+                return FormValidation.error(Messages.PRQANotifier_useNoDecimals());
             }
             return FormValidation.ok();
         }

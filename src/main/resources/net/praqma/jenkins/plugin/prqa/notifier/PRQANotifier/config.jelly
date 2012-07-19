@@ -5,12 +5,12 @@
             <h3>${%Setup}</h3>
         </td>
     </tr>             
-    <f:entry title="Project file" field="projectFile">
+    <f:entry title="${%Project file}" field="projectFile">
         <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
     </f:entry>
   
     <j:set var="levels" value="${descriptor.getReports()}"/>
-    <f:entry  title="Report Type" help="/plugin/prqa-plugin/config/help-configReportType.html">
+    <f:entry title="${%Report Type}" help="/plugin/prqa-plugin/config/help-configReportType.html">
         <select class="setting-input" name="PRQA.reportType">
             <j:forEach var="l" items="${levels}">                    
                 <f:option selected="${instance.reportType.equals(l)}" value="${l}">${l}</f:option>
@@ -19,7 +19,7 @@
     </f:entry>
      
     <j:set var="levels" value="${descriptor.getProducts()}"/>
-    <f:entry title="Product type" help="/plugin/prqa-plugin/config/help-configProductType.html">
+    <f:entry title="${%Product type}" help="/plugin/prqa-plugin/config/help-configProductType.html">
         <select class="product" name="PRQA.product">
             <j:forEach var="l" items="${levels}">
                 <f:option selected="${instance.product.equals(l)}" value="${l}">${l}</f:option>
@@ -27,10 +27,10 @@
         </select>
     </f:entry>
     
-    <f:entry title="Perform cross module analysis" field="performCrossModuleAnalysis">
+    <f:entry title="${%Perform cross module analysis}" field="performCrossModuleAnalysis">
         <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
     </f:entry>
-    <f:entry title="Upload results to QA Verify" field="publishToQAV">
+    <f:entry title="${%Upload results to QA Verify}" field="publishToQAV">
         <f:checkbox name="publishToQAV" value="${instance.publishToQAV}" checked="${instance.publishToQAV}"/>
     </f:entry>
     
@@ -40,7 +40,7 @@
             <h3>${%Threshold}</h3>
         </td>
     </tr>
-    <f:entry title="Max messages" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
+    <f:entry title="${%Max messages}" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
         <div id="m_div" style="width:200px;">
             <select class="setting-input" name="settingMaxMessages">               
                 <j:forEach var="cSetting" items="${comparisonSettings}">
@@ -51,7 +51,7 @@
         </div>
     </f:entry>
 
-    <f:entry title="File Compliance Index" field="fileComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
+    <f:entry title="${%File Compliance Index}" field="fileComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
         <div id="f_div" style="width:200px;">
             <select class="setting-input" name="settingFileCompliance">               
                 <j:forEach var="fcSetting" items="${comparisonSettings}">
@@ -62,7 +62,7 @@
         </div>
     </f:entry>
 
-    <f:entry title="Project Compliance Index" field="projectComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
+    <f:entry title="${%Project Compliance Index}" field="projectComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
         <div id="p_div" style="width:200px; float:left;">
             <select class="setting-input" name="settingProjectCompliance">               
                 <j:forEach var="pcSetting" items="${comparisonSettings}">
