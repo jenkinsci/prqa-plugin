@@ -32,6 +32,6 @@ import net.praqma.prqa.status.StatusCategory;
  */
 public class NumberOfClassesGraph extends PRQAGraph {
     public NumberOfClassesGraph() {
-        super("Number of Classes",PRQAContext.QARReportType.Quality,StatusCategory.NumberOfClasses);
+        super("Number of Classes", PRQAContext.QARReportType.Quality,StatusCategory.NumberOfClasses);
     }
 }

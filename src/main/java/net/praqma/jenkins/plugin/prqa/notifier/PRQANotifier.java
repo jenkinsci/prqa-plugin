@@ -278,17 +278,17 @@ public class PRQANotifier extends Publisher {
                 PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lar);
 
                 if(!max_msg.compareIsEqualOrLower(totalMax)) {
-                    status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
+                    status.addNotification(Messages.PRQANotifier_maxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
                     res = false;
                 }
 
                 if(!proj_comp.compareIsEqualOrHigher(projectComplianceIndex)) {
-                    status.addNotification(String.format("Project Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.ProjectCompliance),file_comp.getCompareValue()));
+                    status.addNotification(Messages.PRQANotifier_projectComplianceIndexRequirementNotMet(status.getReadout(StatusCategory.ProjectCompliance), file_comp.getCompareValue()));
                     res = false;
                 }
 
                 if(!file_comp.compareIsEqualOrHigher(fileComplianceIndex)) {
-                    status.addNotification(String.format("File Compliance Index not met, was %s and the required index is %s ",status.getReadout(StatusCategory.FileCompliance),file_comp.getCompareValue()));
+                    status.addNotification(Messages.PRQANotifier_fileComplianceRequirementNotMet(status.getReadout(StatusCategory.FileCompliance), file_comp.getCompareValue()));
                     res = false;
                 }
 
