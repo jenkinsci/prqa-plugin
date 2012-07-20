@@ -5,7 +5,6 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import net.praqma.prqa.PRQACommandLineUtility;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 
@@ -32,24 +31,10 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             //Print actual command
             out.println("Executing command:");
             out.println(report.getReportTool().getCommand());
+            PRQAComplianceStatus status = report.generateReport();
+            report.upload("insertSnapShotName", file.getPath());
             
-                    //TEST//
-        
-     
-        
-        String outpath = String.format(" -po qav::output=%s", file.getPath());
-        
-        String commandTest = "QAW qac \"C:\\Program Files (x86)\\PRQA\\QAC-8.0-R\\projects\\examples\\examples.prj\" ";
-        commandTest+="C:\\Program\\ Files\\ (x86)\\PRQA\\QA\\ Verify\\ 1.3\\Client\\qaimport ";
-        commandTest+="%Q  %F+ -sop %D -po qav::prqavcs=\"C:\\Program Files (x86)\\PRQA\\QA Verify 1.3\\Client\\vcs\\cvs.xml\""+outpath+" %P+\" –sfba";   
-        
-        out.println("Command (TEST)");
-        out.println(commandTest);
-        //TEST//
-            
-            
-            
-            return report.generateReport();
+            return status;
         } catch (PrqaException ex) {
             if(report.getCmdResult() != null) {
                 for(String error : report.getCmdResult().errorList) {

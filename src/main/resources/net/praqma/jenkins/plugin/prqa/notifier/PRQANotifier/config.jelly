@@ -34,6 +34,11 @@
         <f:checkbox name="publishToQAV" value="${instance.publishToQAV}" checked="${instance.publishToQAV}"/>
     </f:entry>
     
+    <f:entry title="${%QA Verify project name}" field="qaVerifyProjectName">
+        <f:textbox name="qaVerifyProjectName" value="${instance.qaVerifyProjectName}"/>
+    </f:entry>
+    
+    
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <tr>
         <td colspan="2">

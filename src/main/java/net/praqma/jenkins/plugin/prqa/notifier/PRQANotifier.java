@@ -61,9 +61,11 @@ public class PRQANotifier extends Publisher {
     private String projectFile;
     private boolean performCrossModuleAnalysis;
     private boolean publishToQAV;
+    
+    private String qaVerifyProjectName;
 
     @DataBoundConstructor
-    public PRQANotifier(String reportType, String product, boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV) {
+    public PRQANotifier(String reportType, String product, boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, String qaVerifyProjectName) {
         this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
@@ -203,7 +205,7 @@ public class PRQANotifier extends Publisher {
         //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.        
         QAR qar = new QAR(PRQA.create(product), projectFile, reportType);
         
-        out.println(Messages.PRQANotifer_reportGenerateText());
+        out.println(Messages.PRQANotifier_ReportGenerateText());
         out.println(qar);
 
         Future<? extends PRQAReading> task = null;
@@ -258,10 +260,10 @@ public class PRQANotifier extends Publisher {
         Tuple<PRQAReading,AbstractBuild<?,?>> previousResult = getPreviousReading(build, Result.SUCCESS);
         
         if(previousResult != null) {
-            out.println(String.format(Messages.PRQANotifier_previousResultBuildNumber(new Integer(previousResult.getSecond().number))));
+            out.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousResult.getSecond().number))));
             out.println(previousResult.getFirst());
         } else {
-            out.println(Messages.PRQANotifier_noPreviousResults());
+            out.println(Messages.PRQANotifier_NoPreviousResults());
         }
         
         PRQAReading lar = previousResult != null ? previousResult.getFirst() : null;
@@ -278,24 +280,24 @@ public class PRQANotifier extends Publisher {
                 PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lar);
 
                 if(!max_msg.compareIsEqualOrLower(totalMax)) {
-                    status.addNotification(Messages.PRQANotifier_maxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
+                    status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
                     res = false;
                 }
 
                 if(!proj_comp.compareIsEqualOrHigher(projectComplianceIndex)) {
-                    status.addNotification(Messages.PRQANotifier_projectComplianceIndexRequirementNotMet(status.getReadout(StatusCategory.ProjectCompliance), file_comp.getCompareValue()));
+                    status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(status.getReadout(StatusCategory.ProjectCompliance), file_comp.getCompareValue()));
                     res = false;
                 }
 
                 if(!file_comp.compareIsEqualOrHigher(fileComplianceIndex)) {
-                    status.addNotification(Messages.PRQANotifier_fileComplianceRequirementNotMet(status.getReadout(StatusCategory.FileCompliance), file_comp.getCompareValue()));
+                    status.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(status.getReadout(StatusCategory.FileCompliance), file_comp.getCompareValue()));
                     res = false;
                 }
 
             } catch (PrqaException.PrqaReadingException ex) {
                 out.println(ex);
             }
-            out.println(Messages.PRQANotifier_scannedValues());        
+            out.println(Messages.PRQANotifier_ScannedValues());        
             out.println(status);   
 
         } else if(reportType.equals(QARReportType.Quality)) {
@@ -476,6 +478,20 @@ public class PRQANotifier extends Publisher {
     }
 
     /**
+     * @return the qaVerifyProjectName
+     */
+    public String getQaVerifyProjectName() {
+        return qaVerifyProjectName;
+    }
+
+    /**
+     * @param qaVerifyProjectName the qaVerifyProjectName to set
+     */
+    public void setQaVerifyProjectName(String qaVerifyProjectName) {
+        this.qaVerifyProjectName = qaVerifyProjectName;
+    }
+
+    /**
      * This class is used by Jenkins to define the plugin.
      * 
      * @author jes
@@ -487,9 +503,9 @@ public class PRQANotifier extends Publisher {
             try {
                 Double parsedValue = Double.parseDouble(value);
                 if(parsedValue < 0)
-                    return FormValidation.error(Messages.PRQANotifier_wrongDecimalValue());
+                    return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
             } catch (NumberFormatException ex) {
-                return FormValidation.error(Messages.PRQANotifier_wrongDecimalPunctuation());
+                return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
             }
             
             return FormValidation.ok();
@@ -499,9 +515,9 @@ public class PRQANotifier extends Publisher {
             try {
                 Double parsedValue = Double.parseDouble(value);
                 if(parsedValue < 0)
-                    return FormValidation.error(Messages.PRQANotifier_wrongDecimalValue());
+                    return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
             } catch (NumberFormatException ex) {
-                return FormValidation.error(Messages.PRQANotifier_wrongDecimalPunctuation());
+                return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
             }
             
             return FormValidation.ok();
@@ -511,9 +527,9 @@ public class PRQANotifier extends Publisher {
             try {
                 Integer parsedValue = Integer.parseInt(value);
                 if(parsedValue < 0)
-                    return FormValidation.error(Messages.PRQANotifier_wrongInteger());
+                    return FormValidation.error(Messages.PRQANotifier_WrongInteger());
             } catch (NumberFormatException ex) {
-                return FormValidation.error(Messages.PRQANotifier_useNoDecimals());
+                return FormValidation.error(Messages.PRQANotifier_UseNoDecimals());
             }
             return FormValidation.ok();
         }
