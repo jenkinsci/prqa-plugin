@@ -38,6 +38,13 @@
         <f:textbox name="qaVerifyProjectName" value="${instance.qaVerifyProjectName}"/>
     </f:entry>
     
+    <f:entry title="${%VCS Config file location}" field="vcsConfigXml">
+        <f:textbox name="vcsConfigXml" value="${instance.vcsConfigXml}"/>
+    </f:entry>
+    
+    <f:entry title="${%Use single snapshot mode}" field="singleSnapshotMode">
+        <f:checkbox name="singleSnapshotMode" value="${instance.singleSnapshotMode}" checked="${instance.singleSnapshotMode}"/>
+    </f:entry>
     
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <tr>

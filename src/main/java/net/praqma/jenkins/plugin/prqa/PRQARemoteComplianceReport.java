@@ -32,8 +32,11 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             out.println("Executing command:");
             out.println(report.getReportTool().getCommand());
             PRQAComplianceStatus status = report.generateReport();
-            report.upload("insertSnapShotName", file.getPath());
-            
+            //public String upload(String snapshotName, String qavOutputPath, String projectLocation, String uploadProjectName) throws PrqaException { 
+            if(report.isPublishToQAV()) {
+                out.println(report.qavImport(file.getPath()));
+                out.println(report.upload(file.getPath()));
+            }
             return status;
         } catch (PrqaException ex) {
             if(report.getCmdResult() != null) {

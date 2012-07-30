@@ -35,6 +35,7 @@ import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -59,13 +60,21 @@ public class PRQANotifier extends Publisher {
     private Double projectComplianceIndex;
     
     private String projectFile;
+    private String vcsConfigXml;
     private boolean performCrossModuleAnalysis;
     private boolean publishToQAV;
+    private boolean singleSnapshotMode;
+    private String snapshotName;
     
     private String qaVerifyProjectName;
 
     @DataBoundConstructor
-    public PRQANotifier(String reportType, String product, boolean totalBetter, String totalMax, String fileComplianceIndex, String projectComplianceIndex, String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, String qaVerifyProjectName) {
+    public PRQANotifier(String reportType, String product, boolean totalBetter, 
+    String totalMax, String fileComplianceIndex, String projectComplianceIndex, 
+    String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
+    String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
+    String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
+            String snapShotName) {
         this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
@@ -79,6 +88,10 @@ public class PRQANotifier extends Publisher {
         this.thresholds = new HashMap<StatusCategory, Number>();
         this.publishToQAV = publishToQAV;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
+        this.vcsConfigXml = vcsConfigXml;
+        this.singleSnapshotMode = singleSnapshotMode;
+        this.qaVerifyProjectName = qaVerifyProjectName;
+        this.snapshotName = snapShotName;
  
         if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
             thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
@@ -215,6 +228,12 @@ public class PRQANotifier extends Publisher {
             report = PRQAReport.create(reportType, qar);
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
             report.setPublishToQAV(publishToQAV);
+            out.println(publishToQAV);
+            report.setSingleSnapshotMode(singleSnapshotMode);
+            report.setUploadProjectName(qaVerifyProjectName);
+            report.setVcsConfigFile(vcsConfigXml);
+            if(StringUtils.isNotBlank(snapshotName))
+                report.setSnapshotName(snapshotName, build.number);
             
             switch(reportType) {
                 case Compliance:                  
@@ -229,18 +248,18 @@ public class PRQANotifier extends Publisher {
                 case Suppression:
                     task = build.getWorkspace().actAsync(new PRQARemoteSuppressionReport(report, listener, false));
                     break;
-        }
+            }
             
-        try {
-            status = task.get();
-            copyReportToArtifactsDir(report, build);
-        } catch (ExecutionException ex) {
-            out.print("Caught exception - Abnormal execution");
-            throw new PrqaException.PrqaCommandLineException(qar, ex);
-        } catch (Exception ex) {
-            out.print("Caught exception - Abnormal execution");
-            throw new PrqaException.PrqaCommandLineException(qar, ex);
-        }
+            try {
+                status = task.get();
+                copyReportToArtifactsDir(report, build);
+            } catch (ExecutionException ex) {
+                out.print("Caught exception - Abnormal execution");
+                throw new PrqaException.PrqaCommandLineException(qar, ex);
+            } catch (Exception ex) {
+                out.print("Caught exception - Abnormal execution");
+                throw new PrqaException.PrqaCommandLineException(qar, ex);
+            }
             
         } catch (IOException ex) {
             out.println("Caught IOExcetion with cause: "+ex.getCause().getMessage());
@@ -492,6 +511,48 @@ public class PRQANotifier extends Publisher {
     }
 
     /**
+     * @return the vcsConfigXml
+     */
+    public String getVcsConfigXml() {
+        return vcsConfigXml;
+    }
+
+    /**
+     * @param vcsConfigXml the vcsConfigXml to set
+     */
+    public void setVcsConfigXml(String vcsConfigXml) {
+        this.vcsConfigXml = vcsConfigXml;
+    }
+
+    /**
+     * @return the singleSnapshotMode
+     */
+    public boolean isSingleSnapshotMode() {
+        return singleSnapshotMode;
+    }
+
+    /**
+     * @param singleSnapshotMode the singleSnapshotMode to set
+     */
+    public void setSingleSnapshotMode(boolean singleSnapshotMode) {
+        this.singleSnapshotMode = singleSnapshotMode;
+    }
+
+    /**
+     * @return the snapshotName
+     */
+    public String getSnapshotName() {
+        return snapshotName;
+    }
+
+    /**
+     * @param snapshotName the snapshotName to set
+     */
+    public void setSnapshotName(String snapshotName) {
+        this.snapshotName = snapshotName;
+    }
+
+    /**
      * This class is used by Jenkins to define the plugin.
      * 
      * @author jes
@@ -532,6 +593,18 @@ public class PRQANotifier extends Publisher {
                 return FormValidation.error(Messages.PRQANotifier_UseNoDecimals());
             }
             return FormValidation.ok();
+        }
+        
+        public FormValidation doCheckVcsConfigXml(@QueryParameter String value) {
+            try {
+                if(value.endsWith(".xml")) {
+                    return FormValidation.ok();
+                } else {
+                    return FormValidation.error(Messages.PRQANotifier_MustEndWithDotXml());
+                }
+            } catch (Exception ex) {
+                return FormValidation.error(Messages.PRQANotifier_IllegalVcsString());
+            }
         }
         
         @Override
