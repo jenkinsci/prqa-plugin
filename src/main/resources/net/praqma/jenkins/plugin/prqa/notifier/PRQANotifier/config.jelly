@@ -46,6 +46,10 @@
         <f:checkbox name="singleSnapshotMode" value="${instance.singleSnapshotMode}" checked="${instance.singleSnapshotMode}"/>
     </f:entry>
     
+    <f:entry title="${%Snapshot name}" field="snapshotName">
+        <f:textbox name="snapshotName" value="${instance.snapshotName}"/>
+    </f:entry>    
+    
     <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
     <tr>
         <td colspan="2">
