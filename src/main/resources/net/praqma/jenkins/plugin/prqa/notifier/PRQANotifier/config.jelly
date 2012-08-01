@@ -27,16 +27,16 @@
         </select>
     </f:entry>
     
-    <f:entry title="${%Perform cross module analysis}" field="performCrossModuleAnalysis">
+    <f:entry title="${%Perform cross module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
         <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
     </f:entry>
     
-    <f:entry title="${%Upload results to QA Verify}" field="publishToQAV">
+    <f:entry title="${%Upload results to QA Verify}" field="publishToQAV" help="/plugin/prqa-plugin/config/help-configUploadQAV.html">
         <f:checkbox name="publishToQAV" value="${instance.publishToQAV}" checked="${instance.publishToQAV}"/>
     </f:entry>
     
     <j:set var="zervers" value="${descriptor.getServers()}"/>
-    <f:entry title="${%Select server configuration}">
+    <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html">
         <select class="chosenServer" name="PRQA.chosenServer">
             <j:forEach var="l" items="${zervers}">
                 <f:option selected="${instance.chosenServer.equals(l)}" value="${l}">${l}</f:option>
@@ -44,27 +44,27 @@
         </select>
     </f:entry>
     
-    <f:entry title="${%Upload program location}" field="uploadProgramLocation">
+    <f:entry title="${%Upload program location}" field="uploadProgramLocation" help="/plugin/prqa-plugin/config/help-configUploadProgram.html">
         <f:textbox name="uploadProgramLocation" value="${instance.uploadProgramLocation}"/>
     </f:entry>
     
-    <f:entry title="${%Import program location}" field="importProgramLocation">
+    <f:entry title="${%Import program location}" field="importProgramLocation" help="/plugin/prqa-plugin/config/help-configImportProgram.html">
         <f:textbox name="importProgramLocation" value="${instance.importProgramLocation}"/>
     </f:entry>    
     
-    <f:entry title="${%QA Verify project name}" field="qaVerifyProjectName">
+    <f:entry title="${%QA Verify project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
         <f:textbox name="qaVerifyProjectName" value="${instance.qaVerifyProjectName}"/>
     </f:entry>
     
-    <f:entry title="${%VCS Config file location}" field="vcsConfigXml">
+    <f:entry title="${%VCS Config file location}" field="vcsConfigXml" help="/plugin/prqa-plugin/config/help-configVCSConfig.html">
         <f:textbox name="vcsConfigXml" value="${instance.vcsConfigXml}"/>
     </f:entry>
     
-    <f:entry title="${%Use single snapshot mode}" field="singleSnapshotMode">
+    <f:entry title="${%Use single snapshot mode}" field="singleSnapshotMode" help="/plugin/prqa-plugin/config/help-configSingleMode.html">
         <f:checkbox name="singleSnapshotMode" value="${instance.singleSnapshotMode}" checked="${instance.singleSnapshotMode}"/>
     </f:entry>
     
-    <f:entry title="${%Snapshot name}" field="snapshotName">
+    <f:entry title="${%Snapshot name}" field="snapshotName" help="/plugin/prqa-plugin/config/help-configSnapShotName.html">
         <f:textbox name="snapshotName" value="${instance.snapshotName}"/>
     </f:entry>    
     
