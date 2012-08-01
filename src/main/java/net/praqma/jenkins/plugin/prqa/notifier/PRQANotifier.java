@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
@@ -71,6 +69,7 @@ public class PRQANotifier extends Publisher {
     private boolean singleSnapshotMode;
     private String snapshotName;
     private String uploadProgramLocation;
+    private String importProgramLocation;
     
     private String qaVerifyProjectName;
 
@@ -80,7 +79,7 @@ public class PRQANotifier extends Publisher {
     String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
-            String snapshotName, String chosenServer, String uploadProgramLocation) {
+            String snapshotName, String chosenServer, String uploadProgramLocation, String importProgramLocation) {
         this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
@@ -99,6 +98,8 @@ public class PRQANotifier extends Publisher {
         this.qaVerifyProjectName = qaVerifyProjectName;
         this.snapshotName = snapshotName;
         this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+        this.uploadProgramLocation = uploadProgramLocation;
+        this.importProgramLocation = importProgramLocation;
  
         if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
             thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
@@ -235,7 +236,13 @@ public class PRQANotifier extends Publisher {
             report = PRQAReport.create(reportType, qar);
             QAV qav = null;
             if(publishToQAV) {
-                qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getPortNumber(), snapshotName, vcsConfigXml, singleSnapshotMode);
+                qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getUserName(),
+                        chosenServer.getPortNumber(), snapshotName, 
+                        vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
+                        report.getReportTool().getAnalysisTool().toString());
+                qav.setProductExecutable(getUploadProgramLocation());
+                qav.setImportProgram(getImportProgramLocation());
+                qav.setUploadProgram(getUploadProgramLocation());
             }
             
             
@@ -250,7 +257,7 @@ public class PRQANotifier extends Publisher {
             
             switch(reportType) {
                 case Compliance:                  
-                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false));
+                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, qav));
                     break;
                 case Quality:
                     task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false));
@@ -591,6 +598,20 @@ public class PRQANotifier extends Publisher {
      */
     public void setUploadProgramLocation(String uploadProgramLocation) {
         this.uploadProgramLocation = uploadProgramLocation;
+    }
+
+    /**
+     * @return the importProgramLocation
+     */
+    public String getImportProgramLocation() {
+        return importProgramLocation;
+    }
+
+    /**
+     * @param importProgramLocation the importProgramLocation to set
+     */
+    public void setImportProgramLocation(String importProgramLocation) {
+        this.importProgramLocation = importProgramLocation;
     }
 
     /**

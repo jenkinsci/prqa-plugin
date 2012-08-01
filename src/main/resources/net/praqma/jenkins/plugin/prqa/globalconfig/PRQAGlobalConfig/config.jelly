@@ -1,0 +1,57 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+                        
+    <f:section title="${%PRQA Plugin Global Configuration}">
+        <f:entry title="${%QA Verify Servers}" description="${%List of available QA Verify Servers}">
+            <f:repeatable var="servers" items="${instance.servers}">
+                <table>
+                <tr>
+                    <td>
+                        <f:label for="serverconfig.configurationName">${%Configuration name}</f:label>
+                    </td>
+                    <td>
+                        <f:textbox name="serverconfig.configurationName" field="configurationName" value="${servers.configurationName}"></f:textbox>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <f:label for="serverconfig.hostName">${%Host name}</f:label>
+                    </td>
+                    <td>
+                        <f:textbox name="serverconfig.hostName" field="hostName" value="${servers.hostName}"></f:textbox>
+                    </td>
+                </tr>
+                <tr>
+                    <td>        
+                        <f:label for="serverconfig.userName">${%User name}</f:label>
+                    </td>
+                    <td>
+                        <f:textbox name="serverconfig.userName" field="userName" value="${servers.userName}"></f:textbox>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <f:label for="serverconfig.password">${%Password}</f:label>
+                    </td>
+                    <td>
+                        <f:password name="serverconfig.password" field="password" value="${servers.password}" ></f:password>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <f:label for="serverconfig.portNumber">${%Port number}</f:label>
+                    </td>
+                    <td>
+                        <f:textbox name="serverconfig.portNumber" field="portNumber" value="${servers.portNumber}"></f:textbox>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <f:repeatableDeleteButton/>
+                    </td>
+                </tr>
+                </table>
+            </f:repeatable>
+        </f:entry>
+    </f:section>
+</j:jelly>

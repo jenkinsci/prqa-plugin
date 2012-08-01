@@ -48,6 +48,10 @@
         <f:textbox name="uploadProgramLocation" value="${instance.uploadProgramLocation}"/>
     </f:entry>
     
+    <f:entry title="${%Import program location}" field="importProgramLocation">
+        <f:textbox name="importProgramLocation" value="${instance.importProgramLocation}"/>
+    </f:entry>    
+    
     <f:entry title="${%QA Verify project name}" field="qaVerifyProjectName">
         <f:textbox name="qaVerifyProjectName" value="${instance.qaVerifyProjectName}"/>
     </f:entry>

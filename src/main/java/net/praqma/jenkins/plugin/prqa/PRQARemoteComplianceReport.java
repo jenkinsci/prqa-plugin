@@ -45,7 +45,13 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             if(qaverify != null) {
                 out.println(report.qavImport(file.getPath()));
                 out.println(report.upload(file.getPath()));
+                out.println("====NEW COMMANDS====");
+                out.println(qaverify.qavImport(file.getPath()));
+                out.println(qaverify.qavUpload(file.getPath()));
+                out.println("====END NEW COMMANDS===");
             }
+
+            
             
             return status;
         } catch (PrqaException ex) {
