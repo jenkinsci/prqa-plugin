@@ -96,13 +96,15 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
         }
     }
     */
-
+    
+    /*
     public FormValidation doCheckHostName(@QueryParameter String value) {
         if(StringUtils.isBlank(value)) {
             return FormValidation.error("Hostname must not be empty");
         }
         return FormValidation.ok();
     }
+    */
 
 
 }
