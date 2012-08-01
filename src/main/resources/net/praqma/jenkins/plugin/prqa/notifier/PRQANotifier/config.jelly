@@ -30,8 +30,22 @@
     <f:entry title="${%Perform cross module analysis}" field="performCrossModuleAnalysis">
         <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
     </f:entry>
+    
     <f:entry title="${%Upload results to QA Verify}" field="publishToQAV">
         <f:checkbox name="publishToQAV" value="${instance.publishToQAV}" checked="${instance.publishToQAV}"/>
+    </f:entry>
+    
+    <j:set var="zervers" value="${descriptor.getServers()}"/>
+    <f:entry title="${%Select server configuration}">
+        <select class="chosenServer" name="PRQA.chosenServer">
+            <j:forEach var="l" items="${zervers}">
+                <f:option selected="${instance.chosenServer.equals(l)}" value="${l}">${l}</f:option>
+            </j:forEach>
+        </select>
+    </f:entry>
+    
+    <f:entry title="${%Upload program location}" field="uploadProgramLocation">
+        <f:textbox name="uploadProgramLocation" value="${instance.uploadProgramLocation}"/>
     </f:entry>
     
     <f:entry title="${%QA Verify project name}" field="qaVerifyProjectName">

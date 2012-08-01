@@ -23,6 +23,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import net.praqma.jenkins.plugin.prqa.*;
+import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
+import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
@@ -30,6 +32,7 @@ import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.products.QAR;
+import net.praqma.prqa.products.QAV;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
@@ -51,6 +54,8 @@ public class PRQANotifier extends Publisher {
     private Integer totalMax;
     private String product;
     private QARReportType reportType;
+    
+    private QAVerifyServerConfiguration chosenServer;
  
     private String settingFileCompliance;
     private String settingMaxMessages;
@@ -65,6 +70,7 @@ public class PRQANotifier extends Publisher {
     private boolean publishToQAV;
     private boolean singleSnapshotMode;
     private String snapshotName;
+    private String uploadProgramLocation;
     
     private String qaVerifyProjectName;
 
@@ -74,7 +80,7 @@ public class PRQANotifier extends Publisher {
     String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
-            String snapShotName) {
+            String snapshotName, String chosenServer, String uploadProgramLocation) {
         this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
@@ -91,7 +97,8 @@ public class PRQANotifier extends Publisher {
         this.vcsConfigXml = vcsConfigXml;
         this.singleSnapshotMode = singleSnapshotMode;
         this.qaVerifyProjectName = qaVerifyProjectName;
-        this.snapshotName = snapShotName;
+        this.snapshotName = snapshotName;
+        this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
  
         if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
             thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
@@ -226,6 +233,12 @@ public class PRQANotifier extends Publisher {
 
         try {     
             report = PRQAReport.create(reportType, qar);
+            QAV qav = null;
+            if(publishToQAV) {
+                qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getPortNumber(), snapshotName, vcsConfigXml, singleSnapshotMode);
+            }
+            
+            
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
             report.setPublishToQAV(publishToQAV);
             out.println(publishToQAV);
@@ -553,6 +566,34 @@ public class PRQANotifier extends Publisher {
     }
 
     /**
+     * @return the chosenServer
+     */
+    public QAVerifyServerConfiguration getChosenServer() {
+        return chosenServer;
+    }
+
+    /**
+     * @param chosenServer the chosenServer to set
+     */
+    public void setChosenServer(String chosenServer) {
+        this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+    }
+
+    /**
+     * @return the uploadProgramLocation
+     */
+    public String getUploadProgramLocation() {
+        return uploadProgramLocation;
+    }
+
+    /**
+     * @param uploadProgramLocation the uploadProgramLocation to set
+     */
+    public void setUploadProgramLocation(String uploadProgramLocation) {
+        this.uploadProgramLocation = uploadProgramLocation;
+    }
+
+    /**
      * This class is used by Jenkins to define the plugin.
      * 
      * @author jes
@@ -679,6 +720,10 @@ public class PRQANotifier extends Publisher {
                 settings.add(setting.toString());
             }
             return settings;
-        }       
+        }
+        
+        public List<QAVerifyServerConfiguration> getServers() {
+            return PRQAGlobalConfig.get().getServers();
+        }
     }
 }

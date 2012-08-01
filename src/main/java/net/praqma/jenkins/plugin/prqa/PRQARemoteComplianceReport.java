@@ -5,6 +5,8 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
+import net.praqma.prqa.products.QAV;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 
@@ -14,8 +16,15 @@ import net.praqma.prqa.status.PRQAComplianceStatus;
  */
 public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplianceStatus> {
     
+    private QAV qaverify;
+    
     public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode) {
         super(report,listener,silentMode);
+    }
+    
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, QAV qaverify) {
+        super(report,listener,silentMode);
+        this.qaverify = qaverify;
     }
     
     @Override
@@ -33,10 +42,11 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             out.println(report.getReportTool().getCommand());
             PRQAComplianceStatus status = report.generateReport();
             //public String upload(String snapshotName, String qavOutputPath, String projectLocation, String uploadProjectName) throws PrqaException { 
-            if(report.isPublishToQAV()) {
+            if(qaverify != null) {
                 out.println(report.qavImport(file.getPath()));
                 out.println(report.upload(file.getPath()));
             }
+            
             return status;
         } catch (PrqaException ex) {
             if(report.getCmdResult() != null) {
