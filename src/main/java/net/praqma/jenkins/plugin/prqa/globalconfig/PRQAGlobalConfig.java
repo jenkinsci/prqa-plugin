@@ -106,5 +106,6 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
     }
     */
 
+    
 
 }

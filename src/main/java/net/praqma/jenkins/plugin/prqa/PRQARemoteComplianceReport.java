@@ -5,7 +5,6 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.prqa.products.QAV;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
@@ -41,17 +40,11 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             out.println("Executing command:");
             out.println(report.getReportTool().getCommand());
             PRQAComplianceStatus status = report.generateReport();
-            //public String upload(String snapshotName, String qavOutputPath, String projectLocation, String uploadProjectName) throws PrqaException { 
+
             if(qaverify != null) {
-                out.println(report.qavImport(file.getPath()));
-                out.println(report.upload(file.getPath()));
-                out.println("====NEW COMMANDS====");
                 out.println(qaverify.qavImport(file.getPath()));
                 out.println(qaverify.qavUpload(file.getPath()));
-                out.println("====END NEW COMMANDS===");
             }
-
-            
             
             return status;
         } catch (PrqaException ex) {

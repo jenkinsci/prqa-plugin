@@ -9,6 +9,6 @@ import net.praqma.prqa.status.StatusCategory;
  */
 public class MsgSupressionGraph extends PRQAGraph {
     public MsgSupressionGraph() {
-        super("Suppressed messages", PRQAContext.QARReportType.Suppression, StatusCategory.UniqueMessagesSupperessed,StatusCategory.MessagesSuppressed);
+        super("Suppressed messages", PRQAContext.QARReportType.Suppression, StatusCategory.UniqueMessagesSuppressed,StatusCategory.MessagesSuppressed);
     }
 }

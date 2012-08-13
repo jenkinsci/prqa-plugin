@@ -13,12 +13,15 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
@@ -31,10 +34,12 @@ import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.products.QAV;
+import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -237,24 +242,15 @@ public class PRQANotifier extends Publisher {
             QAV qav = null;
             if(publishToQAV) {
                 qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getUserName(),
-                        chosenServer.getPortNumber(), snapshotName, 
+                        chosenServer.getPortNumber(), snapshotName + build.number, 
                         vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
                         report.getReportTool().getAnalysisTool().toString());
-                qav.setProductExecutable(getUploadProgramLocation());
                 qav.setImportProgram(getImportProgramLocation());
                 qav.setUploadProgram(getUploadProgramLocation());
             }
             
             
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
-            report.setPublishToQAV(publishToQAV);
-            out.println(publishToQAV);
-            report.setSingleSnapshotMode(singleSnapshotMode);
-            report.setUploadProjectName(qaVerifyProjectName);
-            report.setVcsConfigFile(vcsConfigXml);
-            if(StringUtils.isNotBlank(snapshotName))
-                report.setSnapshotName(snapshotName, build.number);
-            
             switch(reportType) {
                 case Compliance:                  
                     task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, qav));
@@ -350,8 +346,9 @@ public class PRQANotifier extends Publisher {
         PRQABuildAction action = new PRQABuildAction(build);
         action.setResult(status);
         action.setPublisher(this); 
-        if(!res)
+        if(!res) {
             build.setResult(Result.UNSTABLE);        
+        }
         build.getActions().add(action);        
         return true; 
     }
@@ -625,8 +622,9 @@ public class PRQANotifier extends Publisher {
         public FormValidation doCheckFileComplianceIndex(@QueryParameter String value) {
             try {
                 Double parsedValue = Double.parseDouble(value);
-                if(parsedValue < 0)
+                if(parsedValue < 0) {
                     return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
+                }
             } catch (NumberFormatException ex) {
                 return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
             }
@@ -637,8 +635,9 @@ public class PRQANotifier extends Publisher {
         public FormValidation doCheckProjectComplianceIndex(@QueryParameter String value) {
             try {
                 Double parsedValue = Double.parseDouble(value);
-                if(parsedValue < 0)
+                if(parsedValue < 0) {
                     return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
+                }
             } catch (NumberFormatException ex) {
                 return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
             }
@@ -649,8 +648,9 @@ public class PRQANotifier extends Publisher {
         public FormValidation doCheckTotalMax(@QueryParameter String value) {
             try {
                 Integer parsedValue = Integer.parseInt(value);
-                if(parsedValue < 0)
+                if(parsedValue < 0) {
                     return FormValidation.error(Messages.PRQANotifier_WrongInteger());
+                }
             } catch (NumberFormatException ex) {
                 return FormValidation.error(Messages.PRQANotifier_UseNoDecimals());
             }
@@ -682,7 +682,6 @@ public class PRQANotifier extends Publisher {
         @Override
         public Publisher newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {           
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
-            
             if(instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
                 
@@ -722,10 +721,9 @@ public class PRQANotifier extends Publisher {
         }
 
         public QARReportType[] getReports() {
-            QARReportType[] types = new QARReportType[1];
-            types[0] = QARReportType.Compliance;
-            return types;
+           return QARReportType.values();
         }
+        
 
         public List<String> getProducts() {
             List<String> s = new ArrayList<String>();
