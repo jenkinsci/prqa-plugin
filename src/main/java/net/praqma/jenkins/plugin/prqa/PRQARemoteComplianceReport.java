@@ -5,6 +5,7 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
@@ -22,6 +23,18 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
     @Override
     public PRQAComplianceStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {        
         try {
+            Logger logger = Logger.getLogger( "test.logger.remote" );
+
+            System.out.println( "LEVEL: " + logger.getLevel() );
+
+            logger.finest( "finest from LoggingFileCallable" );
+            logger.finer( "finer from LoggingFileCallable" );
+            logger.fine( "fine from LoggingFileCallable" );
+            logger.config( "config from LoggingFileCallable" );
+            logger.info( "info from LoggingFileCallable" );
+            logger.warning( "warning from LoggingFileCallable" );
+            logger.severe( "severe from LoggingFileCallable" );
+
             setup(file.getPath(), PRQAReport.XHTML);
             listener.getLogger().println(String.format("Beginning report generation with the following command:\n %s",report.getQar().getCommand()));
             return report.completeTask();
