@@ -72,6 +72,7 @@
             <id>praqma</id>
             <url>http://code.praqma.net/repo/maven/</url>
         </repository>
+        
     </repositories>
     
     <pluginRepositories>
@@ -118,6 +119,12 @@
             <artifactId>prqa</artifactId>
             <version>0.6</version>
         </dependency>
+        <dependency>
+            <groupId>net.praqma</groupId>
+            <artifactId>logging</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+
     </dependencies>
     
     <scm>
