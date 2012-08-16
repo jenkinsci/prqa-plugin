@@ -1,5 +1,6 @@
 package net.praqma.jenkins.plugin.prqa;
 
+import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
@@ -14,12 +15,12 @@ import net.praqma.prqa.status.PRQACodeReviewStatus;
  */
 public class PRQARemoteCodeReviewReport extends PRQARemoteReporting<PRQACodeReviewStatus,PRQACodeReviewReport> {
 
-    public PRQARemoteCodeReviewReport(PRQACodeReviewReport report, BuildListener listener, boolean silentMode) {
-        super(report, listener, silentMode);
+    public PRQARemoteCodeReviewReport(PRQACodeReviewReport report, BuildListener listener, boolean silentMode, Actionable a) {
+        super(report, listener, silentMode, a);
     }
     
     @Override
-    public PRQACodeReviewStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
+    public PRQACodeReviewStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {
         setup(file.getPath(), PRQAReport.XHTML);
         try {
             listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getQar().getCommand()));
@@ -29,5 +30,6 @@ public class PRQARemoteCodeReviewReport extends PRQARemoteReporting<PRQACodeRevi
             throw new IOException(ex);
         } 
     }
+
     
 }

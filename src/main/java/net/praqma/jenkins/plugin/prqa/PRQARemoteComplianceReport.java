@@ -1,9 +1,11 @@
 package net.praqma.jenkins.plugin.prqa;
 
+import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
@@ -14,12 +16,12 @@ import net.praqma.prqa.status.PRQAComplianceStatus;
  */
 public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplianceStatus,PRQAComplianceReport> {
     
-    public PRQARemoteComplianceReport (PRQAComplianceReport report, BuildListener listener, boolean silentMode) {
-        super(report,listener,silentMode);
+    public PRQARemoteComplianceReport (PRQAComplianceReport report, BuildListener listener, boolean silentMode, Actionable a) {
+        super(report,listener,silentMode, a);
     }
     
     @Override
-    public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {        
+    public PRQAComplianceStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {        
         try {
             setup(file.getPath(), PRQAReport.XHTML);
             listener.getLogger().println(String.format("Beginning report generation with the following command:\n %s",report.getQar().getCommand()));
@@ -33,11 +35,13 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             }
             throw new IOException(ex);
         } finally {
+            /*
             if(report.getCmdResult() != null) {
                 for(String outline : report.getCmdResult().stdoutList) {
                     listener.getLogger().println(outline);
                 }
             }
+            */
             listener.getLogger().println("Finished remote reporting.");
         } 
     }

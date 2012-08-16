@@ -204,22 +204,22 @@ public class PRQANotifier extends Publisher {
             switch(reportType) {
                 case Compliance:
                     PRQAComplianceReport testReport = new PRQAComplianceReport(qar);                  
-                    status = build.getWorkspace().act(new PRQARemoteComplianceReport(testReport,listener,false));
+                    status = build.getWorkspace().act(new PRQARemoteComplianceReport(testReport,listener,false, build));
                     copyReportToArtifactsDir(testReport.getNamingTemplate(), build);
                     break;
                 case Quality:
                     PRQAQualityReport qreport = new PRQAQualityReport(qar);
-                    status = build.getWorkspace().act(new PRQARemoteQualityReport(qreport,listener,false));
+                    status = build.getWorkspace().act(new PRQARemoteQualityReport(qreport,listener,false, build));
                     copyReportToArtifactsDir(qreport.getNamingTemplate(), build);             
                     break;
                 case CodeReview:
                     PRQACodeReviewReport prqacodereview = new PRQACodeReviewReport(qar);
-                    status = build.getWorkspace().act(new PRQARemoteCodeReviewReport(prqacodereview, listener, false));
+                    status = build.getWorkspace().act(new PRQARemoteCodeReviewReport(prqacodereview, listener, false, build));
                     copyReportToArtifactsDir(prqacodereview.getNamingTemplate(), build);
                     break;
                 case Suppression:
                     PRQASuppressionReport prqasupreport = new PRQASuppressionReport(qar);
-                    status = build.getWorkspace().act(new PRQARemoteSuppressionReport(prqasupreport, listener, false));
+                    status = build.getWorkspace().act(new PRQARemoteSuppressionReport(prqasupreport, listener, false, build));
                     copyReportToArtifactsDir(prqasupreport.getNamingTemplate(), build);
                     break;
             }
