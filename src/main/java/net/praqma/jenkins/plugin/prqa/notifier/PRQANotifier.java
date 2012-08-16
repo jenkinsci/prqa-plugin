@@ -228,7 +228,7 @@ public class PRQANotifier extends Publisher {
         out.println(Config.getPluginVersion());
         out.println("");
         
-        //Create a QAR command line instance. Sets the selected type of report. Used later when we construct the command.        
+        //Create a QAR command line instance. Set the selected type of report. Used later when we construct the command.        
         QAR qar = new QAR(PRQA.create(product), projectFile, reportType);
         
         out.println(Messages.PRQANotifier_ReportGenerateText());
