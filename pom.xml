@@ -4,7 +4,7 @@
     <parent> 
         <groupId>org.jenkins-ci.plugins</groupId> 
         <artifactId>plugin</artifactId> 
-        <version>1.470</version>
+        <version>1.475</version>
     </parent>
 
     <groupId>net.praqma</groupId>
@@ -71,6 +71,7 @@
             <id>praqma</id>
             <url>http://code.praqma.net/repo/maven/</url>
         </repository>
+        
     </repositories>
     
     <pluginRepositories>
@@ -112,11 +113,19 @@
     </developers>
     
     <dependencies>
+        
         <dependency>
             <groupId>net.praqma</groupId>
             <artifactId>prqa</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
+        
+        <dependency>
+            <groupId>net.praqma</groupId>
+            <artifactId>logging</artifactId>
+            <version>0.1.1</version>
+        </dependency>
+       
     </dependencies>
     
     <scm>

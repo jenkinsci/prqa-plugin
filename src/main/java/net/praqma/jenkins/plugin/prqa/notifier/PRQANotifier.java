@@ -253,17 +253,16 @@ public class PRQANotifier extends Publisher {
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
             switch(reportType) {
                 case Compliance:                  
-                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, qav));
+                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav));
                     break;
                 case Quality:
-                    task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false));
+                    task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false, build ));
                     break;
                 case CodeReview:
-                    task = build.getWorkspace().actAsync(new PRQARemoteCodeReviewReport(report, listener, false));
+                    task = build.getWorkspace().actAsync(new PRQARemoteCodeReviewReport(report, listener, false, build));
                     break;
                 case Suppression:
-                    task = build.getWorkspace().actAsync(new PRQARemoteSuppressionReport(report, listener, false));
-                    break;
+                    task = build.getWorkspace().actAsync(new PRQARemoteSuppressionReport(report, listener, false, build));
             }
             
             try {

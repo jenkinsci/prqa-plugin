@@ -1,5 +1,6 @@
 package net.praqma.jenkins.plugin.prqa;
 
+import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
@@ -17,40 +18,40 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
     
     private QAV qaverify;
     
-    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode) {
-        super(report,listener,silentMode);
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
+        super(report,listener,silentMode, a);
     }
     
-    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, QAV qaverify) {
-        super(report,listener,silentMode);
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a, QAV qaverify) {
+        super(report,listener,silentMode,a);
         this.qaverify = qaverify;
     }
     
+    
     @Override
-    public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
-        PrintStream out = listener.getLogger();
-        try {    
+    public PRQAComplianceStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {        
+        try {
+           
             setup(file.getPath(), PRQAReport.XHTML);
-            out.println("Using Qar version: ");
-            out.println(report.getReportTool().getProductVersion());
-            out.println("Analyzing with tool: ");
-            out.println(report.getReportTool().getAnalysisTool().getProductVersion());
-            
-            //Print actual command
-            out.println("Executing command:");
-            out.println(report.getReportTool().getCommand());
+            listener.getLogger().println("Using Qar version: ");
+            listener.getLogger().println(report.getReportTool().getProductVersion());
+            listener.getLogger().println("Analyzing with tool: ");
+            listener.getLogger().println(report.getReportTool().getAnalysisTool().getProductVersion());
+           
+            listener.getLogger().println("Executing command:");
+            listener.getLogger().println(report.getReportTool().getCommand());
             PRQAComplianceStatus status = report.generateReport();
 
             if(qaverify != null) {
-                out.println(qaverify.qavImport(file.getPath()));
-                out.println(qaverify.qavUpload(file.getPath()));
+                listener.getLogger().println(qaverify.qavImport(file.getPath()));
+                listener.getLogger().println(qaverify.qavUpload(file.getPath()));
             }
             
             return status;
         } catch (PrqaException ex) {
             if(report.getCmdResult() != null) {
                 for(String error : report.getCmdResult().errorList) {
-                    out.println(error);
+                    listener.getLogger().println(error);
                 }
             }
             throw new IOException(ex);
@@ -58,10 +59,12 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             if(!silentMode) {
                 if(report.getCmdResult() != null) {
                     for(String outline : report.getCmdResult().stdoutList) {
-                        out.println(outline);
+                        listener.getLogger().println(outline);
                     }
                 }
             }
+
+            listener.getLogger().println("Finished remote reporting.");
         } 
     }
 }

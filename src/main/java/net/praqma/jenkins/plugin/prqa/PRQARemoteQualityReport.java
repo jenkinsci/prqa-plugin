@@ -23,11 +23,13 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
+import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import net.praqma.prqa.products.QAR;
+import net.praqma.prqa.reports.PRQAQualityReport;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAQualityStatus;
 
@@ -37,8 +39,12 @@ import net.praqma.prqa.status.PRQAQualityStatus;
  */
 public class PRQARemoteQualityReport extends PRQARemoteReporting<PRQAQualityStatus> {
 
+    public PRQARemoteQualityReport(PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
+        super(report,listener,silentMode, a);
+    }
+    
     @Override
-    public PRQAQualityStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
+    public PRQAQualityStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {
         try {
             setup(file.getPath(), PRQAReport.XHTML);
             listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getReportTool().getCommand()));
@@ -61,10 +67,5 @@ public class PRQARemoteQualityReport extends PRQARemoteReporting<PRQAQualityStat
             }
             listener.getLogger().println("Finished remote reporting.");
         }
-    }
-    
-    public PRQARemoteQualityReport(PRQAReport<?> report, BuildListener listener, boolean silentMode) {
-        super(report,listener,silentMode);
-    }
-    
+    } 
 }
