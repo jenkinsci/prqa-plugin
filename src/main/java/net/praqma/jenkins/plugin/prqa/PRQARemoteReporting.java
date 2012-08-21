@@ -46,6 +46,11 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
             builder.appendArgument("-plog");
         }
         
+        //RQ-1
+        if(report.isEnableDependencyMode()) {
+            builder.appendArgument("-mode depend");
+        }
+        
         String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+"qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getReportTool().getType().toString(),true) + " "
                     + PRQACommandBuilder.getProjectName() + " " + PRQACommandBuilder.getOutputPathParameter(path, true) + " " + PRQACommandBuilder.getViewingProgram("dummy")
                     + " " + PRQACommandBuilder.getReportFormatParameter(outputFormat, false);

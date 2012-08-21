@@ -24,6 +24,7 @@ import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
+import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
@@ -45,8 +46,7 @@ public class PRQANotifier extends Publisher {
     private PrintStream out;
     private List<PRQAGraph> graphTypes;
     private HashMap<StatusCategory,Number> thresholds;
-    private boolean showThresholds;
-    
+ 
     private Boolean totalBetter;
     private Integer totalMax;
     private String product;
@@ -71,6 +71,9 @@ public class PRQANotifier extends Publisher {
     //private String uploadProgramLocation;
     //private String importProgramLocation;
     
+    //RQ-1
+    private boolean enableDependencyMode;
+    
     private String qaVerifyProjectName;
 
     @DataBoundConstructor
@@ -79,7 +82,7 @@ public class PRQANotifier extends Publisher {
     String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
-            String snapshotName, String chosenServer, String uploadProgramLocation, String importProgramLocation) {
+            String snapshotName, String chosenServer, boolean enableDependencyMode ) {
         this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
@@ -98,6 +101,8 @@ public class PRQANotifier extends Publisher {
         this.qaVerifyProjectName = qaVerifyProjectName;
         //this.snapshotName = snapshotName;
         this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+        this.enableDependencyMode = enableDependencyMode;
+        
         //this.uploadProgramLocation = uploadProgramLocation;
         //this.importProgramLocation = importProgramLocation;
  
@@ -235,6 +240,7 @@ public class PRQANotifier extends Publisher {
 
         try {     
             report = PRQAReport.create(reportType, qar);
+            report.setEnableDependencyMode(enableDependencyMode);
             QAV qav = null;
             if(publishToQAV) {
                 qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getUserName(),

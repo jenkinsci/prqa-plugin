@@ -34,6 +34,11 @@
         <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
     </f:entry>
     
+    <f:entry title="${%Enable dependency based analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-configEnableDMode.html">
+        <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
+    </f:entry>
+    
+    
     <!--
     <f:entry title="${%Upload results to QA Verify}" field="publishToQAV" help="/plugin/prqa-plugin/config/help-configUploadQAV.html">
         <f:checkbox name="publishToQAV" value="${instance.publishToQAV}" checked="${instance.publishToQAV}"/>
@@ -52,14 +57,6 @@
                     </j:forEach>
                 </select>
             </f:entry>
-            
-            <f:entry title="${%Upload program location}" field="uploadProgramLocation" help="/plugin/prqa-plugin/config/help-configUploadProgram.html">
-                <f:textbox value="${instance.uploadProgramLocation}"/>
-            </f:entry>
-
-            <f:entry title="${%Import program location}" field="importProgramLocation" help="/plugin/prqa-plugin/config/help-configImportProgram.html">
-                <f:textbox value="${instance.importProgramLocation}"/>
-            </f:entry>    
 
             <f:entry title="${%QA Verify project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
                 <f:textbox value="${instance.qaVerifyProjectName}"/>
