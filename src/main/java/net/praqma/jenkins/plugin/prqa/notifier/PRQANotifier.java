@@ -25,6 +25,7 @@ import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
+import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
@@ -74,6 +75,13 @@ public class PRQANotifier extends Publisher {
     //RQ-1
     private boolean enableDependencyMode;
     
+    //RQ-7
+    private CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
+    
+    //RQ-15
+    private String msgConfigFile;
+    
+    
     private String qaVerifyProjectName;
 
     @DataBoundConstructor
@@ -82,7 +90,7 @@ public class PRQANotifier extends Publisher {
     String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
-            String snapshotName, String chosenServer, boolean enableDependencyMode ) {
+            String snapshotName, String chosenServer, boolean enableDependencyMode, String codeUploadSetting, String msgConfigFile) {
         this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
         this.product = product;
         this.totalBetter = totalBetter;
@@ -102,6 +110,9 @@ public class PRQANotifier extends Publisher {
         //this.snapshotName = snapshotName;
         this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
         this.enableDependencyMode = enableDependencyMode;
+        this.codeUploadSetting = CodeUploadSetting.valueOf(codeUploadSetting);
+        
+        this.msgConfigFile = msgConfigFile;
         
         //this.uploadProgramLocation = uploadProgramLocation;
         //this.importProgramLocation = importProgramLocation;
@@ -240,7 +251,7 @@ public class PRQANotifier extends Publisher {
 
         try {     
             report = PRQAReport.create(reportType, qar);
-            report.setEnableDependencyMode(enableDependencyMode);
+            report.setEnableDependencyMode(isEnableDependencyMode());
             QAV qav = null;
             if(publishToQAV) {
                 qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getUserName(),
@@ -248,12 +259,13 @@ public class PRQANotifier extends Publisher {
                         vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
                         report.getReportTool().getAnalysisTool().toString());
             }
-            
-            
+
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
             switch(reportType) {
-                case Compliance:                  
+                case Compliance:
+                    out.println("Before");
                     task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav));
+                    out.println("After");
                     break;
                 case Quality:
                     task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false, build ));
@@ -567,6 +579,48 @@ public class PRQANotifier extends Publisher {
     public void setChosenServer(String chosenServer) {
         this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
     }
+
+    /**
+     * @return the enableDependencyMode
+     */
+    public boolean isEnableDependencyMode() {
+        return enableDependencyMode;
+    }
+
+    /**
+     * @param enableDependencyMode the enableDependencyMode to set
+     */
+    public void setEnableDependencyMode(boolean enableDependencyMode) {
+        this.enableDependencyMode = enableDependencyMode;
+    }
+
+    /**
+     * @return the codeUploadSetting
+     */
+    public CodeUploadSetting getCodeUploadSetting() {
+        return codeUploadSetting;
+    }
+
+    /**
+     * @param codeUploadSetting the codeUploadSetting to set
+     */
+    public void setCodeUploadSetting(String codeUploadSetting) {
+        this.codeUploadSetting = CodeUploadSetting.valueOf(codeUploadSetting);
+    }
+
+    /**
+     * @return the msgConfigFile
+     */
+    public String getMsgConfigFile() {
+        return msgConfigFile;
+    }
+
+    /**
+     * @param msgConfigFile the msgConfigFile to set
+     */
+    public void setMsgConfigFile(String msgConfigFile) {
+        this.msgConfigFile = msgConfigFile;
+    }
     
     /**
      * This class is used by Jenkins to define the plugin.
@@ -700,6 +754,10 @@ public class PRQANotifier extends Publisher {
         
         public List<QAVerifyServerConfiguration> getServers() {
             return PRQAGlobalConfig.get().getServers();
+        }
+        
+        public CodeUploadSetting[] getUploadSettings() {
+            return CodeUploadSetting.values();
         }
     }
 }
