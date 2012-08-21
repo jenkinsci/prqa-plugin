@@ -13,15 +13,12 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
-import hudson.util.ListBoxModel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
@@ -34,14 +31,11 @@ import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.products.QAV;
-import net.praqma.prqa.reports.PRQAComplianceReport;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -72,9 +66,10 @@ public class PRQANotifier extends Publisher {
     private boolean performCrossModuleAnalysis;
     private boolean publishToQAV;
     private boolean singleSnapshotMode;
-    private String snapshotName;
-    private String uploadProgramLocation;
-    private String importProgramLocation;
+    //private String snapshotName;
+    
+    //private String uploadProgramLocation;
+    //private String importProgramLocation;
     
     private String qaVerifyProjectName;
 
@@ -101,10 +96,10 @@ public class PRQANotifier extends Publisher {
         this.vcsConfigXml = vcsConfigXml;
         this.singleSnapshotMode = singleSnapshotMode;
         this.qaVerifyProjectName = qaVerifyProjectName;
-        this.snapshotName = snapshotName;
+        //this.snapshotName = snapshotName;
         this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
-        this.uploadProgramLocation = uploadProgramLocation;
-        this.importProgramLocation = importProgramLocation;
+        //this.uploadProgramLocation = uploadProgramLocation;
+        //this.importProgramLocation = importProgramLocation;
  
         if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
             thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
@@ -243,11 +238,9 @@ public class PRQANotifier extends Publisher {
             QAV qav = null;
             if(publishToQAV) {
                 qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getUserName(),
-                        chosenServer.getPortNumber(), snapshotName + build.number, 
+                        chosenServer.getPortNumber(), 
                         vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
                         report.getReportTool().getAnalysisTool().toString());
-                qav.setImportProgram(getImportProgramLocation());
-                qav.setUploadProgram(getUploadProgramLocation());
             }
             
             
@@ -556,20 +549,6 @@ public class PRQANotifier extends Publisher {
     }
 
     /**
-     * @return the snapshotName
-     */
-    public String getSnapshotName() {
-        return snapshotName;
-    }
-
-    /**
-     * @param snapshotName the snapshotName to set
-     */
-    public void setSnapshotName(String snapshotName) {
-        this.snapshotName = snapshotName;
-    }
-
-    /**
      * @return the chosenServer
      */
     public QAVerifyServerConfiguration getChosenServer() {
@@ -582,35 +561,7 @@ public class PRQANotifier extends Publisher {
     public void setChosenServer(String chosenServer) {
         this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
     }
-
-    /**
-     * @return the uploadProgramLocation
-     */
-    public String getUploadProgramLocation() {
-        return uploadProgramLocation;
-    }
-
-    /**
-     * @param uploadProgramLocation the uploadProgramLocation to set
-     */
-    public void setUploadProgramLocation(String uploadProgramLocation) {
-        this.uploadProgramLocation = uploadProgramLocation;
-    }
-
-    /**
-     * @return the importProgramLocation
-     */
-    public String getImportProgramLocation() {
-        return importProgramLocation;
-    }
-
-    /**
-     * @param importProgramLocation the importProgramLocation to set
-     */
-    public void setImportProgramLocation(String importProgramLocation) {
-        this.importProgramLocation = importProgramLocation;
-    }
-
+    
     /**
      * This class is used by Jenkins to define the plugin.
      * 
