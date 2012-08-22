@@ -15,7 +15,8 @@ import net.praqma.prqa.status.PRQAComplianceStatus;
  */
 public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplianceStatus> {
     
-    private QAV qaverify;    
+    private QAV qaverify;
+    
     public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a, boolean skip) {
         super(report,listener,silentMode, a, skip);
     }
@@ -48,8 +49,9 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             }
 
             if(qaverify != null) {
-                listener.getLogger().println(qaverify.qavImport(file.getPath()));
-                listener.getLogger().println(qaverify.qavUpload(file.getPath()));
+
+                //listener.getLogger().println(qaverify.qavImport(file.getPath()));
+                listener.getLogger().println(qaverify.qavUpload(file.getPath(), generateReports));
             }
             
             return status;

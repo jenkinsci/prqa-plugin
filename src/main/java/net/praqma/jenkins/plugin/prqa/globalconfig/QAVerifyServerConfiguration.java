@@ -12,12 +12,12 @@ import org.kohsuke.stapler.DataBoundConstructor;
  */
 public class QAVerifyServerConfiguration {
     
-    private String configurationName;
-    private String hostName;
-    private Integer portNumber;
+    private String configurationName = "Configuration name";
+    private String hostName = "http://myserver:8080";
+    private Integer portNumber = 22230;
     
-    private String userName;
-    private String password;
+    private String userName = "upload";
+    private String password = "upload";
     
     @DataBoundConstructor
     public QAVerifyServerConfiguration(String configurationName, String hostName, Integer portNumber, String userName, String password) {

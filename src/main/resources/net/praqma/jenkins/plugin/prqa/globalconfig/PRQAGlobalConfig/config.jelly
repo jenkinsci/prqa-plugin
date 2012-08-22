@@ -10,7 +10,7 @@
                         <f:label for="serverconfig.configurationName">${%Configuration name}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.configurationName" field="configurationName" value="${servers.configurationName}"></f:textbox>
+                        <f:textbox name="serverconfig.configurationName" field="configurationName" value="${servers.configurationName}" default="Configuration name"></f:textbox>
                     </td>
                 </tr>
                 <tr>
@@ -18,7 +18,7 @@
                         <f:label for="serverconfig.hostName">${%Host name}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.hostName" field="hostName" value="${servers.hostName}"></f:textbox>
+                        <f:textbox name="serverconfig.hostName" field="hostName" value="${servers.hostName}" default="http://myhost:8080"></f:textbox>
                     </td>
                 </tr>
                 <tr>
@@ -26,7 +26,7 @@
                         <f:label for="serverconfig.userName">${%User name}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.userName" field="userName" value="${servers.userName}"></f:textbox>
+                        <f:textbox name="serverconfig.userName" field="userName" value="${servers.userName}" default="upload"></f:textbox>
                     </td>
                 </tr>
                 <tr>
@@ -34,7 +34,7 @@
                         <f:label for="serverconfig.password">${%Password}</f:label>
                     </td>
                     <td>
-                        <f:password name="serverconfig.password" field="password" value="${servers.password}" ></f:password>
+                        <f:password name="serverconfig.password" field="password" value="${servers.password}" default="upload"></f:password>
                     </td>
                 </tr>
                 <tr>
@@ -42,7 +42,7 @@
                         <f:label for="serverconfig.portNumber">${%Port number}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.portNumber" field="portNumber" value="${servers.portNumber}"></f:textbox>
+                        <f:textbox name="serverconfig.portNumber" field="portNumber" value="${servers.portNumber}" default = "22230">${servers.portNumber}</f:textbox>
                     </td>
                 </tr>
                 <tr>

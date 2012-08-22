@@ -121,6 +121,10 @@
             <f:entry title="${%VCS Config file location}" field="vcsConfigXml" help="/plugin/prqa-plugin/config/help-configVCSConfig.html">
                 <f:textbox value="${instance.vcsConfigXml}"/>
             </f:entry>
+            
+            <f:entry title="${%Repository path}" field="repository" help="/plugin/prqa-plugin/config/help-configVCSConfig.html">
+                <f:textbox value="${instance.repository}"/>
+            </f:entry>
 
             <f:entry title="${%Use single snapshot mode}" field="singleSnapshotMode" help="/plugin/prqa-plugin/config/help-configSingleMode.html">
                 <f:checkbox value="${instance.singleSnapshotMode}" checked="${instance.singleSnapshotMode}"/>

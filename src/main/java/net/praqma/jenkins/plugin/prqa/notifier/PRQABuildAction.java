@@ -118,11 +118,13 @@ public class PRQABuildAction implements Action {
         AbstractBuild<?,?> start = base;
         while(true) {
             start = start.getPreviousNotFailedBuild();
-            if(start == null)
+            if(start == null) {
                 return null;
+            }
             action = start.getAction(PRQABuildAction.class);            
-            if(action != null)
+            if(action != null) {
                 return action;
+            }
         }
     }
  

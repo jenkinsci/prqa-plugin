@@ -84,6 +84,9 @@ public class PRQANotifier extends Publisher {
     //RQ-15
     private String msgConfigFile;
     
+    //RQ-8
+    private String repository;
+    
     
     private String qaVerifyProjectName;
 
@@ -93,7 +96,8 @@ public class PRQANotifier extends Publisher {
     String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
-            String snapshotName, String chosenServer, boolean enableDependencyMode, String codeUploadSetting, String msgConfigFile, boolean generateReports) {
+            String snapshotName, String chosenServer, boolean enableDependencyMode, 
+            String codeUploadSetting, String msgConfigFile, boolean generateReports, String repository) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -116,6 +120,7 @@ public class PRQANotifier extends Publisher {
         
         this.generateReports = generateReports;
         this.msgConfigFile = msgConfigFile;
+        this.repository = repository;
         
         //this.uploadProgramLocation = uploadProgramLocation;
         //this.importProgramLocation = importProgramLocation;
@@ -266,29 +271,14 @@ public class PRQANotifier extends Publisher {
                 qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getUserName(),
                         chosenServer.getPortNumber(), 
                         vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
-                        report.getReportTool().getAnalysisTool().toString());
+                        report.getReportTool().getAnalysisTool().toString(),repository, codeUploadSetting, msgConfigFile);
             }
 
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
             task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
-            /*
-            switch(reportType) {
-                case Compliance:
-                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
-                    break;
-                case Quality:
-                    task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false, build ));
-                    break;
-                case CodeReview:
-                    task = build.getWorkspace().actAsync(new PRQARemoteCodeReviewReport(report, listener, false, build));
-                    break;
-                case Suppression:
-                    task = build.getWorkspace().actAsync(new PRQARemoteSuppressionReport(report, listener, false, build));
-            }
-            */
+            
             try {
-                
-                
+
                 status = task.get();
                 if(generateReports) {
                     copyReportsToArtifactsDir(report, build);
@@ -636,6 +626,20 @@ public class PRQANotifier extends Publisher {
     public void setGenerateReports(boolean generateReports) {
         this.generateReports = generateReports;
     }
+
+    /**
+     * @return the repository
+     */
+    public String getRepository() {
+        return repository;
+    }
+
+    /**
+     * @param repository the repository to set
+     */
+    public void setRepository(String repository) {
+        this.repository = repository;
+    }
     
     /**
      * This class is used by Jenkins to define the plugin.
@@ -684,6 +688,18 @@ public class PRQANotifier extends Publisher {
         }
         
         public FormValidation doCheckVcsConfigXml(@QueryParameter String value) {
+            try {
+                if(value.endsWith(".xml")) {
+                    return FormValidation.ok();
+                } else {
+                    return FormValidation.error(Messages.PRQANotifier_MustEndWithDotXml());
+                }
+            } catch (Exception ex) {
+                return FormValidation.error(Messages.PRQANotifier_IllegalVcsString());
+            }
+        }
+        
+        public FormValidation doCheckMsgConfigFile(@QueryParameter String value) {
             try {
                 if(value.endsWith(".xml")) {
                     return FormValidation.ok();
@@ -745,11 +761,6 @@ public class PRQANotifier extends Publisher {
             super(PRQANotifier.class);
             load();
         }
-
-        public QARReportType[] getReports() {
-           return QARReportType.values();
-        }
-        
 
         public List<String> getProducts() {
             List<String> s = new ArrayList<String>();
