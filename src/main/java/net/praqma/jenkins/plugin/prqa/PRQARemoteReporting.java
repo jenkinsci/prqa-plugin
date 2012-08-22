@@ -3,6 +3,7 @@ package net.praqma.jenkins.plugin.prqa;
 import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import net.praqma.logging.LoggingFileCallable;
+import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
@@ -51,9 +52,22 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
             builder.appendArgument("-mode depend");
         }
         
-        String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+"qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(report.getReportTool().getType().toString(),true) + " "
-                    + PRQACommandBuilder.getProjectName() + " " + PRQACommandBuilder.getOutputPathParameter(path, true) + " " + PRQACommandBuilder.getViewingProgram("dummy")
-                    + " " + PRQACommandBuilder.getReportFormatParameter(outputFormat, false);
+        String reports = "";
+        for (PRQAContext.QARReportType type : PRQAContext.QARReportType.values()) {
+            reports += "qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(type.toString(), true)+ " ";
+            reports += PRQACommandBuilder.getViewingProgram("echo")+ " ";
+            reports += PRQACommandBuilder.getReportFormatParameter(outputFormat, false)+ " ";
+            reports += PRQACommandBuilder.getProjectName()+ " ";
+            reports += PRQACommandBuilder.getOutputPathParameter(path, true);
+            reports += "#";
+        }
+        
+        //Remove trailing #
+        reports = reports.substring(0, reports.length()-1);
+        
+        
+        
+        String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+reports;
 
         builder.appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));
         report.getReportTool().setCommand(builder.getCommand());       

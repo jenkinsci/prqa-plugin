@@ -173,17 +173,19 @@ public class PRQANotifier extends Publisher {
         return BuildStepMonitor.BUILD;
     }
     
-    private void copyReportToArtifactsDir(PRQAReport report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
-        FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate());
-        if(files.length >= 1) {
-            out.println("Found report. Attempting to copy "+report.getNamingTemplate()+" to artifacts directory: "+build.getArtifactsDir().getPath());
-            String artifactDir = build.getArtifactsDir().getPath();
+    private void copyReportsToArtifactsDir(PRQAReport report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+        for(QARReportType type : QARReportType.values()) {
+            FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
+            if(files.length >= 1) {
+                out.println("Found report. Attempting to copy "+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)+" to artifacts directory: "+build.getArtifactsDir().getPath());
+                String artifactDir = build.getArtifactsDir().getPath();
 
-            FilePath targetDir = new FilePath(new File(artifactDir+"/"+report.getNamingTemplate()));
-            out.println("Attempting to copy report to following target: "+targetDir.getName());
+                FilePath targetDir = new FilePath(new File(artifactDir+"/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));
+                out.println("Attempting to copy report to following target: "+targetDir.getName());
 
-            build.getWorkspace().list("**/"+report.getNamingTemplate())[0].copyTo(targetDir);
-            out.println("Succesfully copied report");
+                build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION))[0].copyTo(targetDir);
+                out.println("Succesfully copied report");
+            }
         }
     }
     
@@ -263,9 +265,7 @@ public class PRQANotifier extends Publisher {
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
             switch(reportType) {
                 case Compliance:
-                    out.println("Before");
                     task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav));
-                    out.println("After");
                     break;
                 case Quality:
                     task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false, build ));
@@ -279,7 +279,7 @@ public class PRQANotifier extends Publisher {
             
             try {
                 status = task.get();
-                copyReportToArtifactsDir(report, build);
+                copyReportsToArtifactsDir(report, build);
             } catch (ExecutionException ex) {
                 out.print("Caught exception - Abnormal execution");
                 throw new PrqaException.PrqaCommandLineException(qar, ex);
