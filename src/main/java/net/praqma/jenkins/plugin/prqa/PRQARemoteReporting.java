@@ -16,13 +16,15 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
     protected BuildListener listener;
     protected boolean silentMode;
     protected PRQAReport<?> report;
+    protected boolean generateReports;
 
 
-    public PRQARemoteReporting (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
+    public PRQARemoteReporting (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a, boolean skip) {
         super(a);
         this.report = report;
         this.listener = listener;
         this.silentMode = silentMode;
+        generateReports = skip;
     }
     
     /**
@@ -71,5 +73,19 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
 
         builder.appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));
         report.getReportTool().setCommand(builder.getCommand());       
+    }
+
+    /**
+     * @return the generateReports
+     */
+    public boolean isSkipReportGeneration() {
+        return generateReports;
+    }
+
+    /**
+     * @param generateReports the generateReports to set
+     */
+    public void setSkipReportGeneration(boolean skipReportGeneration) {
+        this.generateReports = skipReportGeneration;
     }
 }

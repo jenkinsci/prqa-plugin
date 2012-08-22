@@ -17,7 +17,7 @@ public class PRQARemoteCodeReviewReport extends PRQARemoteReporting<PRQACodeRevi
 
 
     public PRQARemoteCodeReviewReport(PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
-        super(report, listener, silentMode, a);
+        super(report, listener, silentMode, a, false);
     }
     
     @Override

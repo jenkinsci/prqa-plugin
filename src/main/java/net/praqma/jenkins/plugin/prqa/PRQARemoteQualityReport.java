@@ -40,7 +40,7 @@ import net.praqma.prqa.status.PRQAQualityStatus;
 public class PRQARemoteQualityReport extends PRQARemoteReporting<PRQAQualityStatus> {
 
     public PRQARemoteQualityReport(PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
-        super(report,listener,silentMode, a);
+        super(report,listener,silentMode, a, false);
     }
     
     @Override

@@ -38,7 +38,7 @@ import net.praqma.prqa.status.PRQASuppressionStatus;
 public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppressionStatus>  {
 
     public PRQARemoteSuppressionReport(PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
-        super(report, listener, silentMode, a);
+        super(report, listener, silentMode, a, false);
     }
     
     @Override

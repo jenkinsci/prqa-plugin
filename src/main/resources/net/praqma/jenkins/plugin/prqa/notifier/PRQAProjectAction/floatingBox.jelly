@@ -6,9 +6,8 @@
             <j:when test="${latestAction.previousAction != null}">
                 <div>
                     <j:set var="publisher" value="${from.getLatestActionInProject().getPublisher()}"></j:set>
-                    <j:set var="reportType" value="${publisher.getReportType()}"></j:set>
-                    <j:set var="cnt" value="${publisher.getSupportedGraphs(reportType)}"></j:set>
-                    <j:forEach var="pgraph" items="${publisher.getSupportedGraphs(reportType)}">
+                    <j:set var="cnt" value="${publisher.getSupportedGraphs()}"></j:set>
+                    <j:forEach var="pgraph" items="${publisher.getSupportedGraphs()}">
                         <img style="margin-left:20px;" src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}"/>
                     </j:forEach>
                 </div>

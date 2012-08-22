@@ -51,7 +51,7 @@ public class PRQANotifier extends Publisher {
     private Boolean totalBetter;
     private Integer totalMax;
     private String product;
-    private QARReportType reportType;
+    
     
     private QAVerifyServerConfiguration chosenServer;
  
@@ -75,6 +75,9 @@ public class PRQANotifier extends Publisher {
     //RQ-1
     private boolean enableDependencyMode;
     
+    //RQ-3
+    private boolean generateReports;
+    
     //RQ-7
     private CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
     
@@ -85,13 +88,12 @@ public class PRQANotifier extends Publisher {
     private String qaVerifyProjectName;
 
     @DataBoundConstructor
-    public PRQANotifier(String reportType, String product, boolean totalBetter, 
+    public PRQANotifier(String product, boolean totalBetter, 
     String totalMax, String fileComplianceIndex, String projectComplianceIndex, 
     String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
-            String snapshotName, String chosenServer, boolean enableDependencyMode, String codeUploadSetting, String msgConfigFile) {
-        this.reportType = QARReportType.valueOf(reportType.replaceAll(" ", ""));
+            String snapshotName, String chosenServer, boolean enableDependencyMode, String codeUploadSetting, String msgConfigFile, boolean generateReports) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -112,6 +114,7 @@ public class PRQANotifier extends Publisher {
         this.enableDependencyMode = enableDependencyMode;
         this.codeUploadSetting = CodeUploadSetting.valueOf(codeUploadSetting);
         
+        this.generateReports = generateReports;
         this.msgConfigFile = msgConfigFile;
         
         //this.uploadProgramLocation = uploadProgramLocation;
@@ -189,10 +192,10 @@ public class PRQANotifier extends Publisher {
         }
     }
     
-    public List<PRQAGraph> getSupportedGraphs(QARReportType type) {
+    public List<PRQAGraph> getSupportedGraphs() {
         ArrayList<PRQAGraph> graphs = new ArrayList<PRQAGraph>();
         for(PRQAGraph g : graphTypes) {
-            if(g.getType().equals(type)) {
+            if(g.getType().equals(QARReportType.Compliance)) {
                 graphs.add(g);
             }
         }
@@ -200,7 +203,7 @@ public class PRQANotifier extends Publisher {
     }
     
     public PRQAGraph getGraph(String simpleClassName) {
-        for(PRQAGraph p : getSupportedGraphs(reportType)) {
+        for(PRQAGraph p : getSupportedGraphs()) {
             if(p.getClass().getSimpleName().equals(simpleClassName)) {
                 return p;
             }
@@ -242,7 +245,7 @@ public class PRQANotifier extends Publisher {
         out.println("");
         
         //Create a QAR command line instance. Set the selected type of report. Used later when we construct the command.        
-        QAR qar = new QAR(PRQA.create(product), projectFile, reportType);
+        QAR qar = new QAR(PRQA.create(product), projectFile, QARReportType.Compliance);
       
         
         out.println(Messages.PRQANotifier_ReportGenerateText());
@@ -252,7 +255,7 @@ public class PRQANotifier extends Publisher {
         PRQAReport<?> report = null;
 
         try {     
-            report = PRQAReport.create(reportType, qar);
+            report = PRQAReport.create(QARReportType.Compliance, qar);
             report.setEnableDependencyMode(isEnableDependencyMode());
             QAV qav = null;
             if(publishToQAV) {
@@ -263,9 +266,11 @@ public class PRQANotifier extends Publisher {
             }
 
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
+            task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
+            /*
             switch(reportType) {
                 case Compliance:
-                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav));
+                    task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
                     break;
                 case Quality:
                     task = build.getWorkspace().actAsync(new PRQARemoteQualityReport(report, listener, false, build ));
@@ -276,10 +281,14 @@ public class PRQANotifier extends Publisher {
                 case Suppression:
                     task = build.getWorkspace().actAsync(new PRQARemoteSuppressionReport(report, listener, false, build));
             }
-            
+            */
             try {
+                
+                
                 status = task.get();
-                copyReportsToArtifactsDir(report, build);
+                if(generateReports) {
+                    copyReportsToArtifactsDir(report, build);
+                }
             } catch (ExecutionException ex) {
                 out.print("Caught exception - Abnormal execution");
                 throw new PrqaException.PrqaCommandLineException(qar, ex);
@@ -295,9 +304,14 @@ public class PRQANotifier extends Publisher {
             out.println(ex);
         }
         
-        if(status == null) {
+        if(status == null && generateReports) {
             out.println("Failed getting results");
             return false;
+        }
+        
+        if(status == null && !generateReports) {
+            out.println("Skipped report generation - Everything ok");
+            return true;
         }
         
         status.setThresholds(thresholds);
@@ -318,41 +332,34 @@ public class PRQANotifier extends Publisher {
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
         ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
 
-        if(reportType.equals(QARReportType.Compliance)) {
 
-            try {
-                PRQAStatus.PRQAComparisonMatrix max_msg = status.createComparison(maxMsg, StatusCategory.Messages, lar);                
-                PRQAStatus.PRQAComparisonMatrix proj_comp = status.createComparison(projCompliance, StatusCategory.ProjectCompliance, lar);
-                PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lar);
+        try {
+            PRQAStatus.PRQAComparisonMatrix max_msg = status.createComparison(maxMsg, StatusCategory.Messages, lar);                
+            PRQAStatus.PRQAComparisonMatrix proj_comp = status.createComparison(projCompliance, StatusCategory.ProjectCompliance, lar);
+            PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lar);
 
-                if(!max_msg.compareIsEqualOrLower(totalMax)) {
-                    status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
-                    res = false;
-                }
-
-                if(!proj_comp.compareIsEqualOrHigher(projectComplianceIndex)) {
-                    status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(status.getReadout(StatusCategory.ProjectCompliance), file_comp.getCompareValue()));
-                    res = false;
-                }
-
-                if(!file_comp.compareIsEqualOrHigher(fileComplianceIndex)) {
-                    status.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(status.getReadout(StatusCategory.FileCompliance), file_comp.getCompareValue()));
-                    res = false;
-                }
-
-            } catch (PrqaException.PrqaReadingException ex) {
-                out.println(ex);
+            if(!max_msg.compareIsEqualOrLower(totalMax)) {
+                status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
+                res = false;
             }
-            out.println(Messages.PRQANotifier_ScannedValues());        
-            out.println(status);   
 
-        } else if(reportType.equals(QARReportType.Quality)) {
-            out.println(status);
-        } else if(reportType.equals(QARReportType.CodeReview)) {
-            out.println(status);
-        } else if (reportType.equals(QARReportType.Suppression)) {
-            out.println(status);
-        }   
+            if(!proj_comp.compareIsEqualOrHigher(projectComplianceIndex)) {
+                status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(status.getReadout(StatusCategory.ProjectCompliance), file_comp.getCompareValue()));
+                res = false;
+            }
+
+            if(!file_comp.compareIsEqualOrHigher(fileComplianceIndex)) {
+                status.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(status.getReadout(StatusCategory.FileCompliance), file_comp.getCompareValue()));
+                res = false;
+            }
+
+        } catch (PrqaException.PrqaReadingException ex) {
+            out.println(ex);
+        }
+        
+        out.println(Messages.PRQANotifier_ScannedValues());        
+        out.println(status);   
+
               
         PRQABuildAction action = new PRQABuildAction(build);
         action.setResult(status);
@@ -413,16 +420,6 @@ public class PRQANotifier extends Publisher {
     @Exported
     public void setProduct(String product) {
         this.product = product;
-    }
-
-    @Exported
-    public QARReportType getReportType() {
-        return reportType;
-    }
-
-    @Exported
-    public void setReportType(QARReportType reportType) {
-        this.reportType = reportType;
     }
 
     @Exported
@@ -620,6 +617,20 @@ public class PRQANotifier extends Publisher {
      */
     public void setMsgConfigFile(String msgConfigFile) {
         this.msgConfigFile = msgConfigFile;
+    }
+
+    /**
+     * @return the generateReports
+     */
+    public boolean isGenerateReports() {
+        return generateReports;
+    }
+
+    /**
+     * @param generateReports the generateReports to set
+     */
+    public void setGenerateReports(boolean generateReports) {
+        this.generateReports = generateReports;
     }
     
     /**
