@@ -248,8 +248,12 @@ public class PRQANotifier extends Publisher {
         QAR qar = new QAR(PRQA.create(product), projectFile, QARReportType.Compliance);
       
         
-        out.println(Messages.PRQANotifier_ReportGenerateText());
-        out.println(qar);
+        if(generateReports) {
+            out.println(Messages.PRQANotifier_ReportGenerateText());
+            out.println(qar);
+        } else {
+            out.println("No reports selected.");
+        }
 
         Future<? extends PRQAReading> task = null;
         PRQAReport<?> report = null;

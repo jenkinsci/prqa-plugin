@@ -44,7 +44,7 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
   
                 status = report.generateReport();
             } else {
-                listener.getLogger().println("No report generation selected no - QAR commands being run");
+                listener.getLogger().println("Report generation disabled");
             }
 
             if(qaverify != null) {
