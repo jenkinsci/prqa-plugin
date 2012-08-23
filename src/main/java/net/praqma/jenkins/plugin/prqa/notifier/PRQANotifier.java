@@ -182,6 +182,20 @@ public class PRQANotifier extends Publisher {
         return BuildStepMonitor.BUILD;
     }
     
+    private void copyReourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+        FilePath[] files = build.getWorkspace().list("**/"+pattern);
+        if(files.length >= 1) {
+            int i = 0;
+            String artifactDir = build.getArtifactsDir().getPath();
+            FilePath targetDir = new FilePath(new File(artifactDir+"/"+files[i].getName()));
+            
+            files[i].copyTo(targetDir);
+            out.println(String.format("Succesfully copied file %s to artifacts director", files[i].getName()));
+            
+            i++;
+        }
+    }
+    
     private void copyReportsToArtifactsDir(PRQAReport report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
         for(QARReportType type : QARReportType.values()) {
             FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
@@ -277,27 +291,31 @@ public class PRQANotifier extends Publisher {
         
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
 
-            task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
+            //task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
             
             try {
-
+                task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
                 status = task.get();
                 if(generateReports) {
                     copyReportsToArtifactsDir(report, build);
                 }
-            } catch (ExecutionException ex) {
-                out.print("Caught exception - Abnormal execution");
-                throw new PrqaException.PrqaCommandLineException(qar, ex);
+                copyReourcesToArtifactsDir("*.log", build);
+                
             } catch (Exception ex) {
-                out.print("Caught exception - Abnormal execution");
-                throw new PrqaException.PrqaCommandLineException(qar, ex);
+                
+                //throw new PrqaException.PrqaCommandLineException(qar, ex);
+                if(ex.getCause() != null && ex.getCause() instanceof PrqaException) {
+                    throw (PrqaException)ex.getCause();
+                } else {
+                   out.print("Caught exception - Abnormal execution");
+                   return false;
+                }
             }
-            
-        } catch (IOException ex) {
-            out.println("Caught IOExcetion with cause: "+ex.getCause().getMessage());
-            out.println(ex.getCause().toString());            
+             
         } catch (PrqaException ex) {
-            out.println(ex);
+            out.println("Error in build");
+            ex.printStackTrace(out);
+            return false;
         }
         
         if(status == null && generateReports) {
