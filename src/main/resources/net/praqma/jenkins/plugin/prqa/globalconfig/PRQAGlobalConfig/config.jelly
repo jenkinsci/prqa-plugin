@@ -18,7 +18,7 @@
                         <f:label for="serverconfig.hostName">${%Host name}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.hostName" field="hostName" value="${servers.hostName}" default="http://myhost:8080"></f:textbox>
+                        <f:textbox name="serverconfig.hostName" field="hostName" value="${servers.hostName}" default="localhost"></f:textbox>
                     </td>
                 </tr>
                 <tr>

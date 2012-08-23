@@ -57,7 +57,7 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
         String reports = "";
         for (PRQAContext.QARReportType type : PRQAContext.QARReportType.values()) {
             reports += "qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(type.toString(), true)+ " ";
-            reports += PRQACommandBuilder.getViewingProgram("echo")+ " ";
+            reports += PRQACommandBuilder.getViewingProgram("noviewer")+ " ";
             reports += PRQACommandBuilder.getReportFormatParameter(outputFormat, false)+ " ";
             reports += PRQACommandBuilder.getProjectName()+ " ";
             reports += PRQACommandBuilder.getOutputPathParameter(path, true);
@@ -66,8 +66,6 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
         
         //Remove trailing #
         reports = reports.substring(0, reports.length()-1);
-        
-        
         
         String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+reports;
 

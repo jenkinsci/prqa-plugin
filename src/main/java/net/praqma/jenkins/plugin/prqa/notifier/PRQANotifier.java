@@ -38,6 +38,7 @@ import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
@@ -251,7 +252,6 @@ public class PRQANotifier extends Publisher {
         
         //Create a QAR command line instance. Set the selected type of report. Used later when we construct the command.        
         QAR qar = new QAR(PRQA.create(product), projectFile, QARReportType.Compliance);
-      
         
         if(generateReports) {
             out.println(Messages.PRQANotifier_ReportGenerateText());
@@ -274,7 +274,9 @@ public class PRQANotifier extends Publisher {
                         report.getReportTool().getAnalysisTool().toString(),repository, codeUploadSetting, msgConfigFile);
             }
 
+        
             report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
+
             task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
             
             try {
@@ -689,7 +691,7 @@ public class PRQANotifier extends Publisher {
         
         public FormValidation doCheckVcsConfigXml(@QueryParameter String value) {
             try {
-                if(value.endsWith(".xml")) {
+                if(value.endsWith(".xml") || StringUtils.isBlank(value)) {
                     return FormValidation.ok();
                 } else {
                     return FormValidation.error(Messages.PRQANotifier_MustEndWithDotXml());
@@ -701,7 +703,7 @@ public class PRQANotifier extends Publisher {
         
         public FormValidation doCheckMsgConfigFile(@QueryParameter String value) {
             try {
-                if(value.endsWith(".xml")) {
+                if(value.endsWith(".xml") || StringUtils.isBlank(value)) {
                     return FormValidation.ok();
                 } else {
                     return FormValidation.error(Messages.PRQANotifier_MustEndWithDotXml());
