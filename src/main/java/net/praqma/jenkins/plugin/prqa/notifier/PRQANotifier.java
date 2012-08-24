@@ -54,7 +54,7 @@ public class PRQANotifier extends Publisher {
     private String product;
     
     
-    private QAVerifyServerConfiguration chosenServer;
+    private String chosenServer;
  
     private String settingFileCompliance;
     private String settingMaxMessages;
@@ -82,13 +82,6 @@ public class PRQANotifier extends Publisher {
     //RQ-7
     private CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
     
-    //RQ-15
-    private String msgConfigFile;
-    
-    //RQ-8
-    private String repository;
-    
-    
     private String qaVerifyProjectName;
 
     @DataBoundConstructor
@@ -98,7 +91,7 @@ public class PRQANotifier extends Publisher {
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
-            String codeUploadSetting, String msgConfigFile, boolean generateReports, String repository) {
+            String codeUploadSetting, String msgConfigFile, boolean generateReports) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -114,17 +107,11 @@ public class PRQANotifier extends Publisher {
         this.vcsConfigXml = vcsConfigXml;
         this.singleSnapshotMode = singleSnapshotMode;
         this.qaVerifyProjectName = qaVerifyProjectName;
-        //this.snapshotName = snapshotName;
-        this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+        this.chosenServer = chosenServer;//PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
         this.enableDependencyMode = enableDependencyMode;
         this.codeUploadSetting = CodeUploadSetting.valueOf(codeUploadSetting);
         
         this.generateReports = generateReports;
-        this.msgConfigFile = msgConfigFile;
-        this.repository = repository;
-        
-        //this.uploadProgramLocation = uploadProgramLocation;
-        //this.importProgramLocation = importProgramLocation;
  
         if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
             thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
@@ -282,10 +269,10 @@ public class PRQANotifier extends Publisher {
             report.setEnableDependencyMode(isEnableDependencyMode());
             QAV qav = null;
             if(publishToQAV) {
-                qav = new QAV(chosenServer.getHostName(), chosenServer.getPassword(), chosenServer.getUserName(),
-                        chosenServer.getPortNumber(), 
+                QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+                qav = new QAV(conf.getHostName(), conf.getPassword(), conf.getUserName(), conf.getPortNumber(), 
                         vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
-                        report.getReportTool().getAnalysisTool().toString(),repository, codeUploadSetting, msgConfigFile);
+                        report.getReportTool().getAnalysisTool().toString(), codeUploadSetting);
             }
 
         
@@ -578,20 +565,6 @@ public class PRQANotifier extends Publisher {
     }
 
     /**
-     * @return the chosenServer
-     */
-    public QAVerifyServerConfiguration getChosenServer() {
-        return chosenServer;
-    }
-
-    /**
-     * @param chosenServer the chosenServer to set
-     */
-    public void setChosenServer(String chosenServer) {
-        this.chosenServer = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
-    }
-
-    /**
      * @return the enableDependencyMode
      */
     public boolean isEnableDependencyMode() {
@@ -618,21 +591,7 @@ public class PRQANotifier extends Publisher {
     public void setCodeUploadSetting(String codeUploadSetting) {
         this.codeUploadSetting = CodeUploadSetting.valueOf(codeUploadSetting);
     }
-
-    /**
-     * @return the msgConfigFile
-     */
-    public String getMsgConfigFile() {
-        return msgConfigFile;
-    }
-
-    /**
-     * @param msgConfigFile the msgConfigFile to set
-     */
-    public void setMsgConfigFile(String msgConfigFile) {
-        this.msgConfigFile = msgConfigFile;
-    }
-
+    
     /**
      * @return the generateReports
      */
@@ -645,20 +604,6 @@ public class PRQANotifier extends Publisher {
      */
     public void setGenerateReports(boolean generateReports) {
         this.generateReports = generateReports;
-    }
-
-    /**
-     * @return the repository
-     */
-    public String getRepository() {
-        return repository;
-    }
-
-    /**
-     * @param repository the repository to set
-     */
-    public void setRepository(String repository) {
-        this.repository = repository;
     }
     
     /**

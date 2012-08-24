@@ -34,7 +34,7 @@
                         <f:label for="serverconfig.password">${%Password}</f:label>
                     </td>
                     <td>
-                        <f:password name="serverconfig.password" field="password" value="${servers.password}" default="upload"></f:password>
+                        <f:password name="serverconfig.password" field="password" value="${servers.password}" default=""></f:password>
                     </td>
                 </tr>
                 <tr>
