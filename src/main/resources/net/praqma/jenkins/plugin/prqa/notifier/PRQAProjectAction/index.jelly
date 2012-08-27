@@ -8,8 +8,7 @@
         <j:set var="reportType" value="${publisher.getReportType()}"></j:set>
         <j:set var="drawGraphs" value="${it.isDrawGraphs()}"></j:set>
         <div>
-            <h3>${%PRQA Results}</h3>
-            
+            <h3>${%PRQA Results}</h3>            
             <p>${%Visit} <a href="http://www.programmingresearch.com/">Programming Research</a> ${%website for additional product information}</p>
             <j:if test="${drawGraphs == true}">             
                 <j:forEach var="pgraph" items="${publisher.getSupportedGraphs()}">
