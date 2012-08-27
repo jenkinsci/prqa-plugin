@@ -4,5 +4,4 @@
     <ul>
         <li>${%PRQA View server location:} <a href="${it.getConfiguration().getFullUrl()}">${%QAVerify server}</a></li>
     </ul>
-
 </j:jelly>

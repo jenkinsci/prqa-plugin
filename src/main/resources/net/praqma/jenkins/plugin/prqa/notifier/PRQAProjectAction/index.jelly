@@ -12,7 +12,7 @@
             
             <p>${%Visit} <a href="http://www.programmingresearch.com/">Programming Research</a> ${%website for additional product information}</p>
             <j:if test="${drawGraphs == true}">             
-                <j:forEach var="pgraph" items="${publisher.getSupportedGraphs(reportType)}">
+                <j:forEach var="pgraph" items="${publisher.getSupportedGraphs()}">
                     <img style="margin-left:20px;" src="reportGraphs?width=600&amp;height=340&amp;graph=${pgraph.getClass().getSimpleName()}"/>
                 </j:forEach>
             </j:if>

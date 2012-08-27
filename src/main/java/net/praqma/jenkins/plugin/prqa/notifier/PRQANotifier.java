@@ -78,6 +78,9 @@ public class PRQANotifier extends Publisher {
     //RQ-7
     private CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
     
+    //RQ-9
+    private String sourceOrigin;
+    
     private String qaVerifyProjectName;
 
     @DataBoundConstructor
@@ -87,7 +90,7 @@ public class PRQANotifier extends Publisher {
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
-            String codeUploadSetting, String msgConfigFile, boolean generateReports) {
+            String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -106,6 +109,7 @@ public class PRQANotifier extends Publisher {
         this.chosenServer = chosenServer;//PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
         this.enableDependencyMode = enableDependencyMode;
         this.codeUploadSetting = CodeUploadSetting.getByValue(codeUploadSetting);
+        this.sourceOrigin = sourceOrigin;
         
         this.generateReports = generateReports;
  
@@ -266,7 +270,7 @@ public class PRQANotifier extends Publisher {
             QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(getChosenServer());
             qav = new QAV(conf.getHostName(), conf.getPassword(), conf.getUserName(), conf.getPortNumber(), 
                     vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
-                    report.getReportTool().getAnalysisTool().toString(), codeUploadSetting);
+                    report.getReportTool().getAnalysisTool().toString(), codeUploadSetting, sourceOrigin);
         }
 
 
@@ -597,6 +601,20 @@ public class PRQANotifier extends Publisher {
      */
     public void setChosenServer(String chosenServer) {
         this.chosenServer = chosenServer;
+    }
+
+    /**
+     * @return the sourceOrigin
+     */
+    public String getSourceOrigin() {
+        return sourceOrigin;
+    }
+
+    /**
+     * @param sourceOrigin the sourceOrigin to set
+     */
+    public void setSourceOrigin(String sourceOrigin) {
+        this.sourceOrigin = sourceOrigin;
     }
     
     /**
