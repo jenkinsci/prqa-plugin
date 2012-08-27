@@ -5,7 +5,7 @@ import hudson.tasks.Publisher;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import java.io.IOException;
-import net.praqma.jenkins.plugin.prqa.PrqaException;
+import net.praqma.prga.excetions.PrqaException;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAStatusCollection;
@@ -172,7 +172,7 @@ public class PRQABuildAction implements Action {
                         try
                         {
                             res = stat.getReadout(cat);                           
-                        } catch (PrqaException.PrqaReadingException ex) {
+                        } catch (PrqaException ex) {
                             continue;
                         }                        
                         

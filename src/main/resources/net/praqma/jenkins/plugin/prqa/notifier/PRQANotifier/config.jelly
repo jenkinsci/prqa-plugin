@@ -113,11 +113,7 @@
             <f:entry title="${%QA Verify project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
                 <f:textbox value="${instance.qaVerifyProjectName}"/>
             </f:entry>
-            
-            <f:entry title="${%Message configuration file}" field="msgConfigFile" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
-                <f:textbox value="${instance.msgConfigFile}"/>
-            </f:entry>
-            
+
             <f:entry title="${%VCS Config file location}" field="vcsConfigXml" help="/plugin/prqa-plugin/config/help-configVCSConfig.html">
                 <f:textbox value="${instance.vcsConfigXml}"/>
             </f:entry>

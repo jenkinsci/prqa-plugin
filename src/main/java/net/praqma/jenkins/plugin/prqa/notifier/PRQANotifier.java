@@ -4,6 +4,7 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
+import net.praqma.prga.excetions.PrqaException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -20,7 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import net.praqma.jenkins.plugin.prqa.*;
+import net.praqma.jenkins.plugin.prqa.Config;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
@@ -109,7 +111,7 @@ public class PRQANotifier extends Publisher {
         this.qaVerifyProjectName = qaVerifyProjectName;
         this.chosenServer = chosenServer;//PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
         this.enableDependencyMode = enableDependencyMode;
-        this.codeUploadSetting = CodeUploadSetting.valueOf(codeUploadSetting);
+        this.codeUploadSetting = CodeUploadSetting.getByValue(codeUploadSetting);
         
         this.generateReports = generateReports;
  
@@ -264,43 +266,28 @@ public class PRQANotifier extends Publisher {
         Future<? extends PRQAReading> task = null;
         PRQAReport<?> report = null;
 
-        try {     
-            report = PRQAReport.create(QARReportType.Compliance, qar);
-            report.setEnableDependencyMode(isEnableDependencyMode());
-            QAV qav = null;
-            if(publishToQAV) {
-                QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
-                qav = new QAV(conf.getHostName(), conf.getPassword(), conf.getUserName(), conf.getPortNumber(), 
-                        vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
-                        report.getReportTool().getAnalysisTool().toString(), codeUploadSetting);
-            }
+        report = PRQAReport.create(QARReportType.Compliance, qar);
+        report.setEnableDependencyMode(isEnableDependencyMode());
+        QAV qav = null;
+        if(publishToQAV) {
+            QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+            qav = new QAV(conf.getHostName(), conf.getPassword(), conf.getUserName(), conf.getPortNumber(), 
+                    vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
+                    report.getReportTool().getAnalysisTool().toString(), codeUploadSetting);
+        }
 
-        
-            report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
 
-            //task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
-            
-            try {
-                task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
-                status = task.get();
-                if(generateReports) {
-                    copyReportsToArtifactsDir(report, build);
-                }
-                copyReourcesToArtifactsDir("*.log", build);
-                
-            } catch (Exception ex) {
-                
-                //throw new PrqaException.PrqaCommandLineException(qar, ex);
-                if(ex.getCause() != null && ex.getCause() instanceof PrqaException) {
-                    throw (PrqaException)ex.getCause();
-                } else {
-                   out.print("Caught exception - Abnormal execution");
-                   return false;
-                }
+        report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
+
+        try {
+            task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
+            status = task.get();
+            if(generateReports) {
+                copyReportsToArtifactsDir(report, build);
             }
-             
-        } catch (PrqaException ex) {
-            out.println("Error in build");
+            copyReourcesToArtifactsDir("*.log", build);
+        } catch (Exception ex) {
+            out.println("Report generation failed");
             ex.printStackTrace(out);
             return false;
         }
@@ -354,7 +341,7 @@ public class PRQANotifier extends Publisher {
                 res = false;
             }
 
-        } catch (PrqaException.PrqaReadingException ex) {
+        } catch (PrqaException ex) {
             out.println(ex);
         }
         
@@ -696,19 +683,8 @@ public class PRQANotifier extends Publisher {
                 list.add(new MessagesGraph());
                 list.add(new LinesOfCodeGraph());
                 list.add(new MsgSupressionGraph());
-                list.add(new NumberOfSourceFilesGraph());
-                list.add(new NumberOfFilesGraph(QARReportType.Quality));
                 list.add(new NumberOfFilesGraph(QARReportType.Suppression));
                 list.add(new PercentSuppressionGraph());
-                
-                list.add(new NumberOfFileMetricsGraph());
-                list.add(new NumberOfFunctionGraph());
-                list.add(new NumberOfFunctionMetricsGraph());
-                
-                //Added for Cpp reports:
-                list.add(new NumberOfClassMetricsGraph());
-                list.add(new NumberOfClassesGraph());
-                                
                 instance.setGraphTypes(list);
             }
             

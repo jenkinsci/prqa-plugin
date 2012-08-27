@@ -48,33 +48,6 @@ public class GraphTest extends TestCase {
         assertEquals(cGraphs.getData().getOverriddenMin(StatusCategory.ProjectCompliance),Integer.valueOf(0));
         assertNotNull(cGraphs.getTitle());
         assertNotNull(cGraphs.getType());
-        
-        cGraphs.setType(PRQAContext.QARReportType.Quality);
-        assertEquals(cGraphs.getType(), PRQAContext.QARReportType.Quality);
-        
-        
-        MessagesGraph mGraphs = new MessagesGraph();
-        
-        LinesOfCodeGraph locGraph = new LinesOfCodeGraph();
-        
-        
-        NumberOfClassMetricsGraph nocmGraph = new NumberOfClassMetricsGraph();
-        
-        NumberOfClassesGraph nocGraph = new NumberOfClassesGraph();
-        
-        NumberOfFilesGraph nofGraph = new NumberOfFilesGraph();
-        
-        NumberOfFileMetricsGraph nofmGraph = new NumberOfFileMetricsGraph();
-        
-        NumberOfFunctionGraph nofuncGraph = new NumberOfFunctionGraph();
-        
-        NumberOfClassMetricsGraph nofumGraph = new NumberOfClassMetricsGraph();
-        
-        NumberOfSourceFilesGraph nosfGraph = new NumberOfSourceFilesGraph();
-        
-        PercentSuppressionGraph pctSupGraph = new PercentSuppressionGraph();
-        
-        
-        
+
     }
 }

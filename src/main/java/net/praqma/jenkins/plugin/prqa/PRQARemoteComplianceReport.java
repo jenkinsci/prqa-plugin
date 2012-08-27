@@ -1,13 +1,11 @@
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.model.AbstractBuild;
 import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.products.QAV;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
@@ -28,14 +26,13 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
         super(report,listener,silentMode, a, skip);
         this.qaverify = qaverify;        
     }
-    
-    
+
     @Override
     public PRQAComplianceStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {        
         try {
             
             //Replacing %WORKSPACE% with remote file system workspace path. 
-            String projFile = report.getReportTool().getProjectFile();
+            String projFile = report.getReportTool().getProjectFile(); 
             String replaced = projFile.replace("%WORKSPACE%", file.getPath());
             report.getReportTool().setProjectFile(replaced);
             setup(file.getPath(), PRQAReport.XHTML); 
@@ -56,9 +53,10 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             }
 
             if(qaverify != null) {
+                listener.getLogger().println("Beginning QA Verify upload procedure");
                 listener.getLogger().println(qaverify.qavUpload(file.getPath(), generateReports));
+                listener.getLogger().println("Finished QA Verify upload succesfully");
             }
-            
             return status;
         } catch (PrqaException ex) {
             if(report.getCmdResult() != null) {
@@ -75,7 +73,6 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
                     }
                 }
             }
-
             listener.getLogger().println("Finished remote reporting.");
         } 
     }

@@ -3,7 +3,7 @@ package net.praqma.jenkins.plugin.prqa.graphs;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import java.io.IOException;
-import net.praqma.jenkins.plugin.prqa.PrqaException;
+import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAStatusCollection;
 import net.praqma.prqa.status.StatusCategory;
@@ -39,7 +39,7 @@ public class ComplianceIndexGraphs extends PRQAGraph {
             try {
                 max = data.getMax(category);
                 min = data.getMin(category);
-            } catch (PrqaException.PrqaReadingException iex) {
+            } catch (PrqaException iex) {
                 continue;
             }
         }

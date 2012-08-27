@@ -1,5 +1,6 @@
 package net.praqma.jenkins.plugin.prqa;
 
+import net.praqma.prga.excetions.PrqaException;
 import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
