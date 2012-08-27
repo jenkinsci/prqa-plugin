@@ -39,6 +39,11 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension
 public class PRQAGlobalConfig extends GlobalConfiguration {
     
+    public enum ViewServerProtocol {
+        http,
+        https,
+    }
+    
     private List<QAVerifyServerConfiguration> servers = new ArrayList<QAVerifyServerConfiguration>();
     
     public PRQAGlobalConfig() {
@@ -78,6 +83,10 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
             }
         }
         return null;
+    }
+    
+    public ViewServerProtocol[] getViewServerProtocols() {
+        return ViewServerProtocol.values();  
     }
     
     //Disabled this for now. I have no idea as to why this makes the global confiuration unloadable.

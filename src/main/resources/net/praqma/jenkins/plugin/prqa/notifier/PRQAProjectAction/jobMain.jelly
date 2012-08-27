@@ -1,0 +1,8 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+    <h3>${%PRQA Links of interest}</h3>
+    <ul>
+        <li>${%PRQA View server location:} <a href="${it.getConfiguration().getFullUrl()}">${%QAVerify server}</a></li>
+    </ul>
+
+</j:jelly>

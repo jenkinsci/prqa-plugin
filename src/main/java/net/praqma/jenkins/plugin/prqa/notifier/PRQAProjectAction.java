@@ -2,9 +2,14 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.model.AbstractProject;
 import hudson.model.Actionable;
+import hudson.model.Descriptor;
 import hudson.model.ProminentProjectAction;
+import hudson.tasks.Publisher;
+import hudson.util.DescribableList;
 import java.io.IOException;
 import net.praqma.jenkins.plugin.prqa.Config;
+import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
+import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -69,5 +74,15 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
                 
             }
         }
+    }
+    
+    public QAVerifyServerConfiguration getConfiguration() {
+        DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
+        PRQANotifier notifier = publishersList.get(PRQANotifier.class);
+        if(notifier != null) {
+            QAVerifyServerConfiguration qavconfig = PRQAGlobalConfig.get().getConfigurationByName(notifier.getChosenServer());
+            return qavconfig;
+        }
+        return null;
     }
 }

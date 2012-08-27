@@ -13,19 +13,25 @@ import org.kohsuke.stapler.DataBoundConstructor;
 public class QAVerifyServerConfiguration {
     
     private String configurationName = "Configuration name";
-    private String hostName = "http://myserver:8080";
-    private Integer portNumber = 22230;
+    private String hostName;
+    private Integer portNumber;
     
-    private String userName = "upload";
-    private String password = "upload";
+    private String userName;
+    private String password;
+
+    private String protocol;
+    
+    private Integer viewerPortNumber = 8080;
     
     @DataBoundConstructor
-    public QAVerifyServerConfiguration(String configurationName, String hostName, Integer portNumber, String userName, String password) {
+    public QAVerifyServerConfiguration(String configurationName, String hostName, Integer portNumber, String userName, String password, String protocol, Integer viewerPortNumber) {
         this.configurationName = configurationName;
         this.hostName = hostName;
         this.password = password;
         this.userName = userName;
         this.portNumber = portNumber;
+        this.protocol = protocol;
+        this.viewerPortNumber = viewerPortNumber;
     }
     /**
      * @return the configurationName
@@ -119,6 +125,37 @@ public class QAVerifyServerConfiguration {
         }
     }
     
-    
-    
+    public String getFullUrl() {
+        String full = protocol + "://"+hostName+":"+viewerPortNumber;
+        return full;
+    }
+
+    /**
+     * @return the viewerPortNumber
+     */
+    public Integer getViewerPortNumber() {
+        return viewerPortNumber;
+    }
+
+    /**
+     * @param viewerPortNumber the viewerPortNumber to set
+     */
+    public void setViewerPortNumber(Integer viewerPortNumber) {
+        this.viewerPortNumber = viewerPortNumber;
+    }
+
+    /**
+     * @return the protocol
+     */
+    public String getProtocol() {
+        return protocol;
+    }
+
+    /**
+     * @param protocol the protocol to set
+     */
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
 }

@@ -7,44 +7,67 @@
                 <table>
                 <tr>
                     <td>
-                        <f:label for="serverconfig.configurationName">${%Configuration name}</f:label>
-                    </td>
+                        <f:label for="servers.configurationName">${%Configuration name}</f:label>
+                    </td>verconfi
                     <td>
-                        <f:textbox name="serverconfig.configurationName" field="configurationName" value="${servers.configurationName}" default="Configuration name"></f:textbox>
+                        <f:textbox name="servers.configurationName" field="configurationName" value="${servers.configurationName}" default="Configuration name"></f:textbox>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <f:label for="serverconfig.hostName">${%Host name}</f:label>
+                        <f:label for="servers.hostName">${%Host name}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.hostName" field="hostName" value="${servers.hostName}" default="localhost"></f:textbox>
+                        <f:textbox name="servers.hostName" field="hostName" value="${servers.hostName}" default="localhost"></f:textbox>
                     </td>
                 </tr>
                 <tr>
                     <td>        
-                        <f:label for="serverconfig.userName">${%User name}</f:label>
+                        <f:label for="servers.userName">${%User name}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.userName" field="userName" value="${servers.userName}" default="upload"></f:textbox>
+                        <f:textbox name="servers.userName" field="userName" value="${servers.userName}" default="upload"></f:textbox>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <f:label for="serverconfig.password">${%Password}</f:label>
+                        <f:label for="servers.password">${%Password}</f:label>
                     </td>
                     <td>
-                        <f:password name="serverconfig.password" field="password" value="${servers.password}" default=""></f:password>
+                        <f:password name="servers.password" field="password" value="${servers.password}" default=""></f:password>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <f:label for="serverconfig.portNumber">${%Port number}</f:label>
+                        <f:label for="servers.portNumber">${%Upload port number}</f:label>
                     </td>
                     <td>
-                        <f:textbox name="serverconfig.portNumber" field="portNumber" value="${servers.portNumber}" default = "22230">${servers.portNumber}</f:textbox>
+                        <f:textbox name="servers.portNumber" field="portNumber" value="${servers.portNumber}" default="22230">${servers.portNumber}</f:textbox>
                     </td>
                 </tr>
+                <tr>
+                    <td>
+                        <f:label for="serverconfig.viewerPortNumber">${%View server port number}</f:label>
+                    </td>
+                    <td>
+                        <f:textbox name="serverconfig.viewerPortNumber" field="viewerPortNumber" value="${servers.viewerPortNumber}" default="8080">${servers.viewerPortNumber}</f:textbox>
+                    </td>
+                </tr>
+    
+                <tr>
+                    <td>
+                        <f:label for="servers.protocol">${%View server protocol}</f:label>
+                    </td>
+                    <td>
+                        <j:set var="protokol" value="${instance.getViewServerProtocols()}"/>
+                        <select class="protocol" name="protocol">
+                            <j:forEach var="l" items="${protokol}">
+                                <f:option selected="${servers.protocol.equals(l.toString())}" value="${l}">${l}</f:option>
+                            </j:forEach>
+                        </select>
+                    </td>
+                </tr>
+
                 <tr>
                     <td>
                         <f:repeatableDeleteButton/>

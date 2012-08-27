@@ -20,13 +20,11 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import net.praqma.jenkins.plugin.prqa.Config;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
-import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
@@ -70,10 +68,6 @@ public class PRQANotifier extends Publisher {
     private boolean performCrossModuleAnalysis;
     private boolean publishToQAV;
     private boolean singleSnapshotMode;
-    //private String snapshotName;
-    
-    //private String uploadProgramLocation;
-    //private String importProgramLocation;
     
     //RQ-1
     private boolean enableDependencyMode;
@@ -170,18 +164,17 @@ public class PRQANotifier extends Publisher {
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.BUILD;
     }
-    
+        
     private void copyReourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
         FilePath[] files = build.getWorkspace().list("**/"+pattern);
         if(files.length >= 1) {
-            int i = 0;
-            String artifactDir = build.getArtifactsDir().getPath();
-            FilePath targetDir = new FilePath(new File(artifactDir+"/"+files[i].getName()));
-            
-            files[i].copyTo(targetDir);
-            out.println(String.format("Succesfully copied file %s to artifacts director", files[i].getName()));
-            
-            i++;
+            for(int i = 0; i<files.length; i++) { 
+                String artifactDir = build.getArtifactsDir().getPath();
+                FilePath targetDir = new FilePath(new File(artifactDir+"/"+files[i].getName()));
+
+                files[i].copyTo(targetDir);
+                out.println(String.format("Succesfully copied file %s to artifacts director", files[i].getName()));
+            }
         }
     }
     
@@ -270,7 +263,7 @@ public class PRQANotifier extends Publisher {
         report.setEnableDependencyMode(isEnableDependencyMode());
         QAV qav = null;
         if(publishToQAV) {
-            QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+            QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(getChosenServer());
             qav = new QAV(conf.getHostName(), conf.getPassword(), conf.getUserName(), conf.getPortNumber(), 
                     vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
                     report.getReportTool().getAnalysisTool().toString(), codeUploadSetting);
@@ -319,7 +312,6 @@ public class PRQANotifier extends Publisher {
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
         ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
-
 
         try {
             PRQAStatus.PRQAComparisonMatrix max_msg = status.createComparison(maxMsg, StatusCategory.Messages, lar);                
@@ -591,6 +583,20 @@ public class PRQANotifier extends Publisher {
      */
     public void setGenerateReports(boolean generateReports) {
         this.generateReports = generateReports;
+    }
+
+    /**
+     * @return the chosenServer
+     */
+    public String getChosenServer() {
+        return chosenServer;
+    }
+
+    /**
+     * @param chosenServer the chosenServer to set
+     */
+    public void setChosenServer(String chosenServer) {
+        this.chosenServer = chosenServer;
     }
     
     /**
