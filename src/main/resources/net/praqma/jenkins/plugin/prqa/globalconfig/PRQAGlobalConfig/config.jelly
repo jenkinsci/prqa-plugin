@@ -8,7 +8,7 @@
                 <tr>
                     <td>
                         <f:label for="servers.configurationName">${%Configuration name}</f:label>
-                    </td>verconfi
+                    </td>
                     <td>
                         <f:textbox name="servers.configurationName" field="configurationName" value="${servers.configurationName}" default="Configuration name"></f:textbox>
                     </td>

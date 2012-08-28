@@ -92,7 +92,7 @@
             </f:entry>
             
             <j:set var="zettings" value="${descriptor.getUploadSettings()}"/>
-            <f:entry title="${%Code upload settings}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="codeUploadSetting">
+            <f:entry title="${%Code upload settings}" help="/plugin/prqa-plugin/config/codeUpload.html" field="codeUploadSetting">
                 <table>
                 <j:forEach var="l" items="${zettings}">
                     <tr>
