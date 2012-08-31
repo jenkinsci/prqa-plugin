@@ -1,0 +1,39 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define"
+	xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+
+	<f:optionalBlock name="debugLog" title="${%Enable logging for job}" checked="${instance!=null}">
+		
+		<f:entry title="${%Acceptable logger names}">
+			<f:repeatable var="inst" varStatus="instStatus" items="${descriptor.getAcceptableLoggerNames(instance)}">
+			
+            <table width="40%">
+                <col width="100%"/>
+
+                <tbody>
+			 		<tr>
+                        <td align="left">
+                        	<f:textbox name="logging.logger.name" value="${inst.name}"/>
+						</td>
+						<td>
+							<select name="logging.logger.level">
+								<j:forEach var="l" items="${descriptor.getLogLevels()}">
+									<f:option selected="${inst.level == l.toUpperCase()}" value="${l.toUpperCase()}">${l}</f:option>
+								</j:forEach>
+							</select>
+						</td>
+                        <td align="right">
+                            <f:repeatableDeleteButton/>
+                        </td>
+					</tr>
+				</tbody>
+			</table>
+		</f:repeatable>
+		</f:entry>
+		
+	    <f:entry title="${%Enable poll logging}">
+	       <f:checkbox name="logging.pollLogging" checked="${instance.pollLogging}" />                                                                                        
+	    </f:entry>
+		
+	</f:optionalBlock>
+
+</j:jelly>
