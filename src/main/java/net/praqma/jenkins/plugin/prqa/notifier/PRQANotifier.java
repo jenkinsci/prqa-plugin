@@ -131,7 +131,6 @@ public class PRQANotifier extends Publisher {
         return new PRQAProjectAction(project);
     }
     
-    
     /*
      *Small utility to handle illegal values. Defaults to null if string is unparsable. 
      * 

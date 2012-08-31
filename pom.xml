@@ -119,12 +119,6 @@
             <artifactId>prqa</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-        
-        <dependency>
-            <groupId>net.praqma</groupId>
-            <artifactId>logging</artifactId>
-            <version>0.1.2</version>
-        </dependency>
        
     </dependencies>
     
