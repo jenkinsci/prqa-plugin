@@ -176,7 +176,8 @@ public class PRQANotifier extends Publisher {
                 FilePath targetDir = new FilePath(new File(artifactDir+"/"+files[i].getName()));
 
                 files[i].copyTo(targetDir);
-                out.println(String.format("Succesfully copied file %s to artifacts director", files[i].getName()));
+                out.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
+                //out.println(String.format("Succesfully copied file %s to artifact directory", files[i].getName()));
             }
         }
     }
@@ -185,14 +186,15 @@ public class PRQANotifier extends Publisher {
         for(QARReportType type : QARReportType.values()) {
             FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
             if(files.length >= 1) {
-                out.println("Found report. Attempting to copy "+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)+" to artifacts directory: "+build.getArtifactsDir().getPath());
+                out.println(Messages.PRQANotifier_FoundReport(report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));                
                 String artifactDir = build.getArtifactsDir().getPath();
 
                 FilePath targetDir = new FilePath(new File(artifactDir+"/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));
-                out.println("Attempting to copy report to following target: "+targetDir.getName());
+                out.println(Messages.PRQANotifier_CopyToTarget(targetDir.getName()));
+                //out.println("Attempting to copy report to following target: "+targetDir.getName());
 
                 build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION))[0].copyTo(targetDir);
-                out.println("Succesfully copied report");
+                out.println(Messages.PRQANotifier_SuccesCopyReport());
             }
         }
     }
@@ -283,25 +285,27 @@ public class PRQANotifier extends Publisher {
             }
             copyReourcesToArtifactsDir("*.log", build);
         } catch (Exception ex) {
-            out.println("Report generation failed");
+            out.println(Messages.PRQANotifier_FailedGettingResults());
             ex.printStackTrace(out);
             return false;
         }
         
         if(status == null && generateReports) {
-            out.println("Failed getting results");
+            out.println(Messages.PRQANotifier_FailedGettingResults());
             return false;
         }
         
+        Tuple<PRQAReading,AbstractBuild<?,?>> previousResult = getPreviousReading(build, Result.SUCCESS);
+        
         if(status == null && !generateReports) {
-            out.println("Skipped report generation - Everything ok");
+            out.println(Messages.PRQANotifier_SkipOk());
             return true;
         }
         
         status.setThresholds(thresholds);
        
         boolean res = true;
-        Tuple<PRQAReading,AbstractBuild<?,?>> previousResult = getPreviousReading(build, Result.SUCCESS);
+        
         
         if(previousResult != null) {
             out.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousResult.getSecond().number))));

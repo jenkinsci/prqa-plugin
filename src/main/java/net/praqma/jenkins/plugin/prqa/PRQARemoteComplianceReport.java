@@ -1,12 +1,11 @@
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.FilePath;
-import hudson.model.AbstractBuild;
 import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
+import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.PRQACommandLineUtility;
 import net.praqma.prqa.products.QAV;
@@ -30,9 +29,11 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
         int deleteCount = 0;
         for(String name : fileNames) {
             String fullPath = root + PRQACommandLineUtility.FILE_SEPARATOR + name;
-            listener.getLogger().println(String.format("Attempting to delete old log file: %s", fullPath));
+            listener.getLogger().println(Messages.PRQARemote_AttemptDelete(fullPath));
+            //listener.getLogger().println(String.format("Attempting to delete old log file: %s", fullPath));
             if(FileUtils.deleteQuietly(new File(fullPath))) {
-                listener.getLogger().println(String.format("Succesfully deleted old log file: %s", fullPath));
+                //listener.getLogger().println(String.format("Succesfully deleted old log file: %s", fullPath));
+                listener.getLogger().println(Messages.PRQARemote_SuccesfulDelete(fullPath));
                 deleteCount++;
             }
         }
@@ -63,28 +64,28 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
              * Clean up
              */
             int deleteCount = deleteOldLogFiles(file.getPath(),"qavupload.log","qaimport.log");
-            listener.getLogger().println(String.format("Sucessfully cleaned up %s old file(s)", deleteCount));
+            listener.getLogger().println(Messages.PRQARemote_SuccesXNumDelete(new Integer(deleteCount)));
             
             
             if(generateReports) {
-                listener.getLogger().println("Using Qar version: ");
+                listener.getLogger().println(Messages.PRQARemote_QARVersion());
                 listener.getLogger().println(report.getReportTool().getProductVersion());
-                listener.getLogger().println("Analyzing with tool: ");
+                listener.getLogger().println(Messages.PRQARemote_AnalyzeWithTool());
                 listener.getLogger().println(report.getReportTool().getAnalysisTool().getProductVersion());
-                listener.getLogger().println("Executing command:");
+                listener.getLogger().println(Messages.PRQARemote_ExecutingCommand());
                 listener.getLogger().println(report.getReportTool().getCommand());
                 status = report.generateReport();
             } else {
-                listener.getLogger().println("Report generation disabled");
+                listener.getLogger().println(Messages.PRQARemote_Disabled());
             }
 
             if(qaverify != null) {
-                listener.getLogger().println("Beginning QA Verify upload procedure");
+                listener.getLogger().println(Messages.PRQARemote_BeginUploadProc());
                 String command = qaverify.qavUpload(file.getPath(), generateReports);
-                listener.getLogger().println("Executing the following upload command:");
+                listener.getLogger().println(Messages.PRQARemote_ExecuteUploadCommand());
                 listener.getLogger().println(command);
                 qaverify.generateUpload(command, file.getPath(), generateReports);
-                listener.getLogger().println("Finished QA Verify upload succesfully");
+                listener.getLogger().println(Messages.PRQARemote_QAVUploadSucces());
             }
             return status;
         } catch (PrqaException ex) {
@@ -102,7 +103,7 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
                     }
                 }
             }
-            listener.getLogger().println("Finished remote reporting.");
+            listener.getLogger().println(Messages.PRQARemote_FinishSucces());
         } 
     }
 }
