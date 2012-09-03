@@ -58,8 +58,7 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
             String replaced = projFile.replace("%WORKSPACE%", file.getPath());
             report.getReportTool().setProjectFile(replaced);
             setup(file.getPath(), PRQAReport.XHTML); 
-            PRQAComplianceStatus status = null;
-            
+            PRQAComplianceStatus status = null;            
             /**
              * Clean up
              */
@@ -81,7 +80,10 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
 
             if(qaverify != null) {
                 listener.getLogger().println("Beginning QA Verify upload procedure");
-                listener.getLogger().println(qaverify.qavUpload(file.getPath(), generateReports));
+                String command = qaverify.qavUpload(file.getPath(), generateReports);
+                listener.getLogger().println("Executing the following upload command:");
+                listener.getLogger().println(command);
+                qaverify.generateUpload(command, file.getPath(), generateReports);
                 listener.getLogger().println("Finished QA Verify upload succesfully");
             }
             return status;
