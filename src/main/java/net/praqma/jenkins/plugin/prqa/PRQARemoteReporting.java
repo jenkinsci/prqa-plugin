@@ -44,6 +44,8 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
         
         report.getReportTool().setReportOutputPath(path);
         report.getReportTool().setCommandBase(path);
+    
+        
         
         if(silentMode) {
             builder.appendArgument("-plog");
@@ -52,10 +54,12 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingF
         //RQ-1
         if(report.isEnableDependencyMode()) {
             builder.appendArgument("-mode depend");
-        }
+       }
+        
+        builder.appendArgument(PRQACommandBuilder.getDataFlowAnanlysisParameter(report.isEnableDataFlowAnalysis()));
         
         String reports = "";
-        for (PRQAContext.QARReportType type : PRQAContext.QARReportType.values()) {
+        for (PRQAContext.QARReportType type : report.getChosenReports()) {
             reports += "qar %Q %P+ %L+ " + PRQACommandBuilder.getReportTypeParameter(type.toString(), true)+ " ";
             reports += PRQACommandBuilder.getViewingProgram("noviewer")+ " ";
             reports += PRQACommandBuilder.getReportFormatParameter(outputFormat, false)+ " ";

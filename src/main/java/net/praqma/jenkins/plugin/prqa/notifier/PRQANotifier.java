@@ -4,7 +4,6 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-import net.praqma.prga.excetions.PrqaException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -18,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import net.praqma.jenkins.plugin.prqa.Config;
@@ -25,8 +25,11 @@ import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
+import net.praqma.jenkins.plugin.prqa.notifier.Messages;
+import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
+import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
@@ -37,6 +40,7 @@ import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -48,6 +52,7 @@ public class PRQANotifier extends Publisher {
     private PrintStream out;
     private List<PRQAGraph> graphTypes;
     private HashMap<StatusCategory,Number> thresholds;
+    private EnumSet<QARReportType> chosenReportTypes;
  
     private Boolean totalBetter;
     private Integer totalMax;
@@ -71,6 +76,7 @@ public class PRQANotifier extends Publisher {
     
     //RQ-1
     private boolean enableDependencyMode;
+    private boolean enableDataFlowAnalysis;
     
     //RQ-3
     private boolean generateReports;
@@ -90,7 +96,8 @@ public class PRQANotifier extends Publisher {
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
-            String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin) {
+            String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin, EnumSet<QARReportType> chosenReportTypes,
+            boolean enableDataFlowAnalysis) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -110,6 +117,8 @@ public class PRQANotifier extends Publisher {
         this.enableDependencyMode = enableDependencyMode;
         this.codeUploadSetting = CodeUploadSetting.getByValue(codeUploadSetting);
         this.sourceOrigin = sourceOrigin;
+        this.chosenReportTypes = chosenReportTypes;
+        this.enableDataFlowAnalysis = enableDataFlowAnalysis;
         
         this.generateReports = generateReports;
  
@@ -182,8 +191,8 @@ public class PRQANotifier extends Publisher {
         }
     }
     
-    private void copyReportsToArtifactsDir(PRQAReport report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
-        for(QARReportType type : QARReportType.values()) {
+    private void copyReportsToArtifactsDir(PRQAReport<?> report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+        for(PRQAContext.QARReportType type : report.getChosenReports()) {
             FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
             if(files.length >= 1) {
                 out.println(Messages.PRQANotifier_FoundReport(report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));                
@@ -191,8 +200,7 @@ public class PRQANotifier extends Publisher {
 
                 FilePath targetDir = new FilePath(new File(artifactDir+"/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));
                 out.println(Messages.PRQANotifier_CopyToTarget(targetDir.getName()));
-                //out.println("Attempting to copy report to following target: "+targetDir.getName());
-
+                
                 build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION))[0].copyTo(targetDir);
                 out.println(Messages.PRQANotifier_SuccesCopyReport());
             }
@@ -266,6 +274,9 @@ public class PRQANotifier extends Publisher {
 
         report = PRQAReport.create(QARReportType.Compliance, qar);
         report.setEnableDependencyMode(isEnableDependencyMode());
+        report.setChosenReports(chosenReportTypes);
+        report.setEnableDataFlowAnalysis(enableDataFlowAnalysis);
+        
         QAV qav = null;
         if(publishToQAV) {
             QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(getChosenServer());
@@ -619,6 +630,31 @@ public class PRQANotifier extends Publisher {
     public void setSourceOrigin(String sourceOrigin) {
         this.sourceOrigin = sourceOrigin;
     }
+
+    /**
+     * @return the optionalReportTypes
+     */
+    public EnumSet<QARReportType> getChosenReportTypes() {
+        return chosenReportTypes;
+    }
+    
+    public void setChosenReportTypes(EnumSet<QARReportType> chosenReportTypes) {
+        this.chosenReportTypes = chosenReportTypes;
+    }
+
+    /**
+     * @return the enableDataFlowAnalysis
+     */
+    public boolean isEnableDataFlowAnalysis() {
+        return enableDataFlowAnalysis;
+    }
+
+    /**
+     * @param enableDataFlowAnalysis the enableDataFlowAnalysis to set
+     */
+    public void setEnableDataFlowAnalysis(boolean enableDataFlowAnalysis) {
+        this.enableDataFlowAnalysis = enableDataFlowAnalysis;
+    }
     
     /**
      * This class is used by Jenkins to define the plugin.
@@ -701,8 +737,21 @@ public class PRQANotifier extends Publisher {
         }        
             
         @Override
-        public Publisher newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {           
+        public Publisher newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
+            //System.out.println(formData);
+            JSONArray arr = formData.getJSONArray("chosenReport");
+            QARReportType[] types = getOptionalReportTypes().toArray(new QARReportType[getOptionalReportTypes().size()]);
+            
+            instance.setChosenReportTypes(QARReportType.REQUIRED_TYPES.clone());
+            
+            for(int i=0; i<arr.size(); i++) {
+                if(arr.getBoolean(i) == true) {
+                    instance.chosenReportTypes.add(types[i]);
+                }
+            }
+            instance.chosenReportTypes.add(QARReportType.Compliance);
+
             if(instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
                 
@@ -721,7 +770,7 @@ public class PRQANotifier extends Publisher {
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
-            save();
+            save();       
             return super.configure(req, json);
         }
                
@@ -752,6 +801,10 @@ public class PRQANotifier extends Publisher {
         
         public CodeUploadSetting[] getUploadSettings() {
             return CodeUploadSetting.values();
+        }
+        
+        public EnumSet<QARReportType> getOptionalReportTypes() {
+            return QARReportType.OPTIONAL_TYPES;
         }
     }
 }

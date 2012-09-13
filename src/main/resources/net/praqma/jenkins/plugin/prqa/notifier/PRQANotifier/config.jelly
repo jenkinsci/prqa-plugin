@@ -1,42 +1,63 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    
-    <tr>
-        <td colspan="2">
-            <h3>${%Setup}</h3>
-        </td>
-    </tr>
-    
-    <f:entry title="${%Project file}" field="projectFile">
-        <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
-    </f:entry>
-     
-    <j:set var="levels" value="${descriptor.getProducts()}"/>
-    <f:entry title="${%Product type}" help="/plugin/prqa-plugin/config/help-configProductType.html">
-        <select class="product" name="PRQA.product">
-            <j:forEach var="l" items="${levels}">
-                <f:option selected="${instance.product.equals(l)}" value="${l}">${l}</f:option>
-            </j:forEach>
-        </select>
-    </f:entry>
-    
-    <f:entry title="${%Perform cross module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
-        <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
-    </f:entry>
-    
-    <f:entry title="${%Enable dependency based analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-configEnableDMode.html">
-        <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
-    </f:entry>
+    <f:block>
+        <tr>
+            <td colspan="2">
+                <h3>${%Setup}</h3>
+            </td>
+        </tr>
+
+        <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
+            <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
+        </f:entry>
+
+        <j:set var="levels" value="${descriptor.getProducts()}"/>
+        <f:entry title="${%Product type}" help="/plugin/prqa-plugin/config/help-configProductType.html">
+            <select class="product" name="PRQA.product">
+                <j:forEach var="l" items="${levels}">
+                    <f:option selected="${instance.product.equals(l)}" value="${l}">${l}</f:option>
+                </j:forEach>
+            </select>
+        </f:entry>
+
+        <f:entry title="${%Perform cross module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
+            <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
+        </f:entry>
+
+        <f:entry title="${%Enable dependency based analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-configEnableDMode.html">
+            <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
+        </f:entry>
+
+        <f:entry title="${%Enable data flow analysis}" field="enableDataFlowAnalysis" help="/plugin/prqa-plugin/config/help-configEnableDFA.html">
+            <f:checkbox name="enableDataFlowAnalysis" value="${instance.enableDataFlowAnalysis}" checked="${instance.enableDataFlowAnalysis}"/>
+        </f:entry>
+    </f:block>
     
     <f:block>
-        <table width="100%">
+       <!-- <table width="100%"> -->
             <f:optionalBlock name="generateReports" title="${%Create PRQA Reports}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.generateReports}" inline="true">
+                <tr>
+                    <td colspan="2">
+                        <h3>${%Additional reports}</h3>
+                    </td>
+                </tr>
+                <j:set var="choosableReports" value="${descriptor.getOptionalReportTypes()}"/>
+                <j:forEach var="item" items="${choosableReports}">
+                    <tr>
+                        <td colspan="2">
+                            <f:checkbox field="chosenReport" checked="${instance.chosenReportTypes.contains(item)}" name="chosenReport"/>
+                            <f:label>${item}</f:label>                        
+                        </td>
+                    </tr>
+                </j:forEach>                    
+                
                 <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
                 <tr>
                     <td colspan="2">
                         <h3>${%Threshold}</h3>
                     </td>
                 </tr>
+
                 <f:entry title="${%Max messages}" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
                     <div id="m_div" style="width:200px;">
                         <select class="setting-input" name="settingMaxMessages">               
@@ -70,7 +91,7 @@
                     </div>
                 </f:entry>
             </f:optionalBlock>
-        </table>
+      <!-- </table>  -->
     </f:block>    
     <!--
     <f:entry title="${%Upload results to QA Verify}" field="publishToQAV" help="/plugin/prqa-plugin/config/help-configUploadQAV.html">
@@ -79,7 +100,7 @@
     -->
     
     <f:block>
-        <table width="100%">
+        <!-- <table width="100%"> -->
         <f:optionalBlock name="publishToQAV" title="${%Upload results to QA Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
             
             <j:set var="zervers" value="${descriptor.getServers()}"/>
@@ -129,6 +150,6 @@
             </f:entry>
 
         </f:optionalBlock>
-        </table>    
+       <!-- </table>    -->
     </f:block>
 </j:jelly>
