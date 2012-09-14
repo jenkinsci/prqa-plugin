@@ -5,10 +5,10 @@
         <j:set var="conf" value="${it.getConfiguration()}"/>
         <j:choose>
             <j:when test="${conf != null}">
-                <li>${%PRQA View server location:} <a href="${conf.getFullUrl()}">${%QA Verify server}</a></li>
+                <li>${%PRQA View server location:} <a href="${conf.getFullUrl()}">${%QA&#xb7;Verify server}</a></li>
             </j:when>
             <j:otherwise>
-                <li>${%No QA Verify servers defined} - click <a href="${ROOTURL}/configure">${%here}</a></li>
+                <li>${%No QA&#xb7;Verify servers defined} - click <a href="${ROOTURL}/configure">${%here}</a></li>
             </j:otherwise> 
         </j:choose>        
     </ul>
