@@ -6,7 +6,6 @@
                 <h3>${%Setup}</h3>
             </td>
         </tr>
-
         <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
             <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
         </f:entry>
@@ -20,7 +19,7 @@
             </select>
         </f:entry>
 
-        <f:entry title="${%Perform cross module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
+        <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
             <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
         </f:entry>
 
@@ -28,14 +27,14 @@
             <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
         </f:entry>
 
-        <f:entry title="${%Enable data flow analysis}" field="enableDataFlowAnalysis" help="/plugin/prqa-plugin/config/help-configEnableDFA.html">
+        <f:entry title="${%Enable dataflow analysis}" field="enableDataFlowAnalysis" help="/plugin/prqa-plugin/config/help-configEnableDFA.html">
             <f:checkbox name="enableDataFlowAnalysis" value="${instance.enableDataFlowAnalysis}" checked="${instance.enableDataFlowAnalysis}"/>
         </f:entry>
     </f:block>
     
     <f:block>
        <!-- <table width="100%"> -->
-            <f:optionalBlock name="generateReports" title="${%Create PRQA Reports}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.generateReports}" inline="true">
+            <f:optionalBlock name="generateReports" title="${%Create Compliance Report}" help="/plugin/prqa-plugin/config/help-configCreateCReport.html" checked="${instance.generateReports}" inline="true">
                 <tr>
                     <td colspan="2">
                         <h3>${%Additional reports}</h3>
@@ -58,7 +57,7 @@
                     </td>
                 </tr>
 
-                <f:entry title="${%Max messages}" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
+                <f:entry title="${%Messages}" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
                     <div id="m_div" style="width:200px;">
                         <select class="setting-input" name="settingMaxMessages">               
                             <j:forEach var="cSetting" items="${comparisonSettings}">
@@ -101,7 +100,7 @@
     
     <f:block>
         <!-- <table width="100%"> -->
-        <f:optionalBlock name="publishToQAV" title="${%Upload results to QA Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
+        <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
             
             <j:set var="zervers" value="${descriptor.getServers()}"/>
             <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServer">
