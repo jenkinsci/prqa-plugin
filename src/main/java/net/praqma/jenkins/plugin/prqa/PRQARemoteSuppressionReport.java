@@ -38,12 +38,12 @@ import net.praqma.prqa.status.PRQASuppressionStatus;
  */
 public class PRQARemoteSuppressionReport extends PRQARemoteReporting<PRQASuppressionStatus>  {
 
-    public PRQARemoteSuppressionReport(PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
-        super(report, listener, silentMode, a, false);
+    public PRQARemoteSuppressionReport(PRQAReport<?> report, BuildListener listener, boolean silentMode) {
+        super(report, listener, silentMode, false);
     }
     
     @Override
-    public PRQASuppressionStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {
+    public PRQASuppressionStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         try {
             setup(file.getPath(), PRQAReport.XHTML);
             listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getReportTool().getCommand()));

@@ -285,20 +285,24 @@ public class PRQANotifier extends Publisher {
                     report.getReportTool().getAnalysisTool().toString(), codeUploadSetting, sourceOrigin);
         }
 
-
         report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
 
         try {
-            task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, build, qav, generateReports));
-            status = task.get();
-            if(generateReports) {
-                copyReportsToArtifactsDir(report, build);
-            }
-            copyReourcesToArtifactsDir("*.log", build);
+            task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, qav, generateReports));
+            status = task.get();            
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             ex.printStackTrace(out);
             return false;
+        } finally {
+            try {
+                if(generateReports) {
+                    copyReportsToArtifactsDir(report, build);
+                }
+                copyReourcesToArtifactsDir("*.log", build);
+            } catch (Exception ex) {
+                ex.printStackTrace(out);
+            }
         }
         
         if(status == null && generateReports) {
@@ -315,8 +319,7 @@ public class PRQANotifier extends Publisher {
         
         status.setThresholds(thresholds);
        
-        boolean res = true;
-        
+        boolean res = true;        
         
         if(previousResult != null) {
             out.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousResult.getSecond().number))));

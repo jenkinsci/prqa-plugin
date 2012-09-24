@@ -17,12 +17,12 @@ import net.praqma.prqa.status.PRQACodeReviewStatus;
 public class PRQARemoteCodeReviewReport extends PRQARemoteReporting<PRQACodeReviewStatus> {
 
 
-    public PRQARemoteCodeReviewReport(PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a) {
-        super(report, listener, silentMode, a, false);
+    public PRQARemoteCodeReviewReport(PRQAReport<?> report, BuildListener listener, boolean silentMode) {
+        super(report, listener, silentMode, false);
     }
     
     @Override
-    public PRQACodeReviewStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {
+    public PRQACodeReviewStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {
         setup(file.getPath(), PRQAReport.XHTML);
         try {
             listener.getLogger().println(String.format("Beginning report generation with the follwoing command:\n %s",report.getReportTool().getCommand()));

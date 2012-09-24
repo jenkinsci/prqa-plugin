@@ -1,0 +1,15 @@
+<p>
+Configure the parameters for uploading to QA&middot;Verify. In each Jenkins job you can select the QA&middot;Verify server to upload to when the <i>Upload results to QA Verify</i> option is enabled.
+</p>
+<p>
+Click <i>Add</i> or <i>Delete</i> to administer the QA&middot;Servers. Each server entered here will appear in the drop down list in the <i>Select server configuration</i> in each job.
+<p>
+<ul>
+    <li><i>Configuration name</i> is the just a symbolic name to refer to this parameter set in the Jenkins Job configuration.</li>
+    <li><i>Host name</i> is either the IP address or name of the computer that the QA&middot;Verify server is running on.</li>
+    <li><i>User name </i>and <i>Password	</i> is for the account on the QA&middot;Verify server that has permission to upload snapshots. Usually the user is <tt>upload</tt> and the password is set in the User Management screen in QA&middot;Verify.</li>
+    <li><i>Upload port number</i> is the QA&middot;Verify port number which accepts uploads. This is configured when setting up the server; the default is <tt>22230.</tt></li>
+    <li><i>View server port number</i> is the port number of the QA&middot;Verify web interface. The default is <tt>8080</tt>.</li>
+    <li><i>View server protocol</i> is either <tt>HTTP</tt> or <tt>HTPPS</tt> depending on whether QA&middot;Verify is accessed via a secure connection.</li>
+</ul>
+</p>

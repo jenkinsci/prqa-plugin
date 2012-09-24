@@ -112,19 +112,12 @@
         </developer>
     </developers>
     
-    <dependencies>
-        
+    <dependencies>        
         <dependency>
             <groupId>net.praqma</groupId>
             <artifactId>prqa</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
-        <dependency>
-            <groupId>net.praqma</groupId>
-            <artifactId>logging</artifactId>
-            <version>0.1.2</version>
-        </dependency>
-       
     </dependencies>
     
     <scm>

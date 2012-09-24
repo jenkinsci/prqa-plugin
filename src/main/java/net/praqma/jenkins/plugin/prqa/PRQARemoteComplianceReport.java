@@ -30,9 +30,7 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
         for(String name : fileNames) {
             String fullPath = root + PRQACommandLineUtility.FILE_SEPARATOR + name;
             listener.getLogger().println(Messages.PRQARemote_AttemptDelete(fullPath));
-            //listener.getLogger().println(String.format("Attempting to delete old log file: %s", fullPath));
             if(FileUtils.deleteQuietly(new File(fullPath))) {
-                //listener.getLogger().println(String.format("Succesfully deleted old log file: %s", fullPath));
                 listener.getLogger().println(Messages.PRQARemote_SuccesfulDelete(fullPath));
                 deleteCount++;
             }
@@ -41,17 +39,17 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
     }
     
     
-    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a, boolean skip) {
-        super(report,listener,silentMode, a, skip);
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, boolean skip) {
+        super(report,listener,silentMode,skip);
     }
     
-    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a, QAV qaverify, boolean skip) {
-        super(report,listener,silentMode, a, skip);
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, QAV qaverify, boolean skip) {
+        super(report,listener,silentMode,skip);
         this.qaverify = qaverify;        
     }
 
     @Override
-    public PRQAComplianceStatus perform(File file, VirtualChannel vc) throws IOException, InterruptedException {        
+    public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {        
         try {
             
             //Replacing %WORKSPACE% with remote file system workspace path. 

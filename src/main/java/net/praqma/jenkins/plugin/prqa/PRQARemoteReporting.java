@@ -1,8 +1,8 @@
 package net.praqma.jenkins.plugin.prqa;
 
+import hudson.FilePath.FileCallable;
 import hudson.model.Actionable;
 import hudson.model.BuildListener;
-import net.praqma.logging.LoggingFileCallable;
 import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.reports.PRQAReport;
@@ -12,15 +12,14 @@ import net.praqma.prqa.status.PRQAStatus;
  * @author Praqma
  */
 
-public abstract class PRQARemoteReporting<T extends PRQAStatus> extends LoggingFileCallable<T> {    
+public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileCallable<T> {    
     protected BuildListener listener;
     protected boolean silentMode;
     protected PRQAReport<?> report;
     protected boolean generateReports;
 
 
-    public PRQARemoteReporting (PRQAReport<?> report, BuildListener listener, boolean silentMode, Actionable a, boolean skip) {
-        super(a);
+    public PRQARemoteReporting (PRQAReport<?> report, BuildListener listener, boolean silentMode, boolean skip) {
         this.report = report;
         this.listener = listener;
         this.silentMode = silentMode;
