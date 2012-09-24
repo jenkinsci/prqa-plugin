@@ -2,7 +2,7 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
                         
     <f:section title="${%PRQA Plugin Global Configuration}">
-        <f:entry title="${%QA Verify Servers}" description="${%List of available QA Verify Servers}">
+        <f:entry title="${%QA Verify Servers}" description="${%List of available QA Verify Servers}" help="/plugin/prqa-plugin/config/help-PRQAPluginGlobalConfiguration.html">
             <f:repeatable var="servers" items="${instance.servers}">
                 <table>
                 <tr>
