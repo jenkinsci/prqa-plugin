@@ -36,15 +36,34 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
      * So the task of this piece of code is to construct the final command for generating the report
      **/
     protected void setup(String path, String outputFormat) {
+        
+        /**
+         * Step 1:
+         * 
+         * Create the analysis 
+         */
+        PRQACommandBuilder analysisCommand = report.getAnalysisTool().getBuilder();
+        analysisCommand.prependArgument(PRQACommandBuilder.getProduct(report.getAnalysisTool()));
+        analysisCommand.appendArgument(PRQACommandBuilder.getProjectFile(report.getReportTool().getProjectFile()));
+        report.getAnalysisTool().setCommandBase(path);
+               
+        if(report.isEnableDependencyMode()) {
+            analysisCommand.appendArgument("-mode depend");
+        }
+        
+        analysisCommand.appendArgument(PRQACommandBuilder.getDataFlowAnanlysisParameter(report.isEnableDataFlowAnalysis()));
+                
+        String pal = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+" : "");
+        analysisCommand.appendArgument(PRQACommandBuilder.getMaseq(pal));
+        report.getAnalysisTool().setCommand(analysisCommand.getCommand());
+        
         //Get the command builder. 
         PRQACommandBuilder builder = report.getReportTool().getBuilder();
         builder.prependArgument(PRQACommandBuilder.getProduct(report.getReportTool().getAnalysisTool()));
         builder.appendArgument(PRQACommandBuilder.getProjectFile(report.getReportTool().getProjectFile()));
         
         report.getReportTool().setReportOutputPath(path);
-        report.getReportTool().setCommandBase(path);
-    
-        
+        report.getReportTool().setCommandBase(path);              
         
         if(silentMode) {
             builder.appendArgument("-plog");
@@ -53,9 +72,11 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
         //RQ-1
         if(report.isEnableDependencyMode()) {
             builder.appendArgument("-mode depend");
-       }
+        }
         
+        //Create the rest
         builder.appendArgument(PRQACommandBuilder.getDataFlowAnanlysisParameter(report.isEnableDataFlowAnalysis()));
+        builder.appendArgument(PRQACommandBuilder.getSfbaOption(true));
         
         String reports = "";
         for (PRQAContext.QARReportType type : report.getChosenReports()) {
@@ -70,9 +91,10 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
         //Remove trailing #
         reports = reports.substring(0, reports.length()-1);
         
-        String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+reports;
+        //TODO:Pending Jason question
+        //String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+reports;
 
-        builder.appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));
+        builder.appendArgument(PRQACommandBuilder.getMaseq(reports));
         report.getReportTool().setCommand(builder.getCommand());       
     }
 
