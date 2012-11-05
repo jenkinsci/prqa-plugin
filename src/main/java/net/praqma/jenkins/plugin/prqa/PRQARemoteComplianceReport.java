@@ -71,17 +71,12 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
                 listener.getLogger().println(Messages.PRQARemote_AnalyzeWithTool());
                 listener.getLogger().println(report.getReportTool().getAnalysisTool().getProductVersion());
                 
+                listener.getLogger().println("Analyzing first with current command: ");
+                listener.getLogger().println(report.getAnalysisTool().getBuilder().getCommand());
                 
                 listener.getLogger().println(Messages.PRQARemote_ExecutingCommand());
                 listener.getLogger().println(report.getReportTool().getCommand());
-                
-                
-                listener.getLogger().println("Analyzing first with current command: ");
-                listener.getLogger().println(report.getAnalysisTool().getBuilder().getCommand());
-                  
-                //TODO: This should be done in generateReport
-                //report.getAnalysisTool().analyze();        
-                
+   
                 status = report.generateReport();
             } else {
                 listener.getLogger().println(Messages.PRQARemote_Disabled());
@@ -89,7 +84,7 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
 
             if(qaverify != null) {
                 listener.getLogger().println(Messages.PRQARemote_BeginUploadProc());
-                String command = qaverify.qavUpload(file.getPath(), generateReports);
+                String command = qaverify.qavUpload(file.getPath());
                 listener.getLogger().println(Messages.PRQARemote_ExecuteUploadCommand());
                 listener.getLogger().println(command);
                 qaverify.generateUpload(command, file.getPath(), generateReports);

@@ -69,10 +69,8 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
             builder.appendArgument("-plog");
         }
         
-        //RQ-1
-        if(report.isEnableDependencyMode()) {
-            builder.appendArgument("-mode depend");
-        }
+
+        builder.appendArgument("-mode depend");
         
         //Create the rest
         builder.appendArgument(PRQACommandBuilder.getDataFlowAnanlysisParameter(report.isEnableDataFlowAnalysis()));
@@ -89,12 +87,11 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
         }
         
         //Remove trailing #
-        reports = reports.substring(0, reports.length()-1);
+        reports = reports.substring(0, reports.length()-1);        
         
-        //TODO:Pending Jason question
-        //String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+reports;
+        String qarEmbedded = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+#" : "")+reports;
 
-        builder.appendArgument(PRQACommandBuilder.getMaseq(reports));
+        builder.appendArgument(PRQACommandBuilder.getMaseq(qarEmbedded));
         report.getReportTool().setCommand(builder.getCommand());       
     }
 
