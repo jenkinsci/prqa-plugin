@@ -7,6 +7,7 @@ import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAStatus;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Praqma
@@ -54,7 +55,10 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
         analysisCommand.appendArgument(PRQACommandBuilder.getDataFlowAnanlysisParameter(report.isEnableDataFlowAnalysis()));
                 
         String pal = (report.isUseCrossModuleAnalysis() ? "pal %Q %P+ %L+" : "");
-        analysisCommand.appendArgument(PRQACommandBuilder.getMaseq(pal));
+        
+        if(!StringUtils.isEmpty(pal)) {
+            analysisCommand.appendArgument(PRQACommandBuilder.getMaseq(pal));
+        }
         report.getAnalysisTool().setCommand(analysisCommand.getCommand());
         
         //Get the command builder. 
