@@ -286,7 +286,7 @@ public class PRQANotifier extends Publisher {
         }
 
         report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
-
+        
         try {
             task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, qav, generateReports));
             status = task.get();            

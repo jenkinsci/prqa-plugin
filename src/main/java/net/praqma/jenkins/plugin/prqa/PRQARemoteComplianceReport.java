@@ -84,10 +84,10 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
 
             if(qaverify != null) {
                 listener.getLogger().println(Messages.PRQARemote_BeginUploadProc());
-                String command = qaverify.qavUpload(file.getPath());
+                String command = qaverify.qavUpload(file.getPath(), report.isUseCrossModuleAnalysis());
                 listener.getLogger().println(Messages.PRQARemote_ExecuteUploadCommand());
                 listener.getLogger().println(command);
-                qaverify.generateUpload(command, file.getPath(), generateReports);
+                qaverify.generateUpload(command, file.getPath());
                 listener.getLogger().println(Messages.PRQARemote_QAVUploadSucces());
             }
             return status;
