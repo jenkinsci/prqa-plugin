@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,7 @@ import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
-import net.praqma.jenkins.plugin.prqa.notifier.Messages;
+import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
@@ -49,6 +50,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
+    
+    public final String prqaTool;
+    
     private PrintStream out;
     private List<PRQAGraph> graphTypes;
     private HashMap<StatusCategory,Number> thresholds;
@@ -97,7 +101,8 @@ public class PRQANotifier extends Publisher {
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
             String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin, EnumSet<QARReportType> chosenReportTypes,
-            boolean enableDataFlowAnalysis) {
+            boolean enableDataFlowAnalysis, final String prqaTool) {
+        this.prqaTool = prqaTool;
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -256,6 +261,10 @@ public class PRQANotifier extends Publisher {
         out = listener.getLogger();
         PRQAReading status = null;
         
+        PRQAToolSuite suite = PRQAToolSuite.getInstallationByName(prqaTool);
+        
+        
+        
         out.println(Config.getPluginVersion());
         out.println("");
         
@@ -288,6 +297,8 @@ public class PRQANotifier extends Publisher {
         report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
         
         try {
+            //Custruct a new set of enviroment variables
+            suite.buildEnvVars(build.getEnvironment(listener));
             task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, qav, generateReports));
             status = task.get();            
         } catch (Exception ex) {
@@ -659,6 +670,12 @@ public class PRQANotifier extends Publisher {
         this.enableDataFlowAnalysis = enableDataFlowAnalysis;
     }
     
+    
+    public PRQAToolSuite findToolInstallation(String toolInstallName) {
+        return PRQAToolSuite.getInstallationByName(toolInstallName);
+    }
+   
+        
     /**
      * This class is used by Jenkins to define the plugin.
      * 
@@ -788,6 +805,11 @@ public class PRQANotifier extends Publisher {
                 s.add(a.toString());
             }
             return s;
+        }
+        
+        public List<PRQAToolSuite> getPRQATools() {
+            PRQAToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(PRQAToolSuite.DescriptorImpl.class).getInstallations();
+            return Arrays.asList(prqaInstallations);
         }
         
         public List<String> getComparisonSettings() {

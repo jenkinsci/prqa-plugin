@@ -6,6 +6,20 @@
                 <h3>${%Setup}</h3>
             </td>
         </tr>
+        <f:entry title="Installation selection">            
+        <select name="prqaTool">
+          <j:forEach var="pt" items="${descriptor.PRQATools}" varStatus="current">
+              <j:choose>
+                <j:when test="${instance.prqaTool == pt.name}">
+                    <option value="${pt.name}" selected="SELECTED">${pt.name}</option>
+                </j:when>
+                <j:otherwise>
+                    <option value="${pt.name}">${pt.name}</option>
+                </j:otherwise>
+              </j:choose>
+          </j:forEach>
+        </select>
+        </f:entry>
         <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
             <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
         </f:entry>
