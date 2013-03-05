@@ -3,6 +3,7 @@ package net.praqma.jenkins.plugin.prqa;
 import hudson.FilePath.FileCallable;
 import hudson.model.Actionable;
 import hudson.model.BuildListener;
+import java.util.HashMap;
 import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.products.PRQACommandBuilder;
 import net.praqma.prqa.reports.PRQAReport;
@@ -18,6 +19,7 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
     protected boolean silentMode;
     protected PRQAReport<?> report;
     protected boolean generateReports;
+    protected HashMap<String, String> environment;
 
 
     public PRQARemoteReporting (PRQAReport<?> report, BuildListener listener, boolean silentMode, boolean skip) {
@@ -44,6 +46,7 @@ public abstract class PRQARemoteReporting<T extends PRQAStatus> implements FileC
          * Create the analysis 
          */
         PRQACommandBuilder analysisCommand = report.getAnalysisTool().getBuilder();
+        
         analysisCommand.prependArgument(PRQACommandBuilder.getProduct(report.getAnalysisTool()));
         analysisCommand.appendArgument(PRQACommandBuilder.getProjectFile(report.getReportTool().getProjectFile()));
         report.getAnalysisTool().setCommandBase(path);

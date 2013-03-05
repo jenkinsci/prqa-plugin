@@ -1,0 +1,19 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    
+    <f:entry title="${%Installation name}" field="name">
+        <f:textbox></f:textbox>
+    </f:entry>
+    <f:entry title="${%QACpp home}" field="home">
+        <f:textbox></f:textbox>
+    </f:entry>
+    <f:entry title="${%QAR home}" field="qarHome">
+        <f:textbox></f:textbox>
+    </f:entry>
+    <f:entry title="${%QAW home}" field="qawHome">
+        <f:textbox></f:textbox>
+    </f:entry>    
+    <f:entry title="${%QAV Client home}" field="qavHome">
+        <f:textbox></f:textbox>
+    </f:entry>
+</j:jelly>

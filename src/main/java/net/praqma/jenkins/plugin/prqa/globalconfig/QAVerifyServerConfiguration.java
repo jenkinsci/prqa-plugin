@@ -4,23 +4,21 @@
  */
 package net.praqma.jenkins.plugin.prqa.globalconfig;
 
+import java.io.Serializable;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  *
  * @author Praqma
  */
-public class QAVerifyServerConfiguration {
+public class QAVerifyServerConfiguration implements Serializable {
     
     private String configurationName = "Configuration name";
     private String hostName;
-    private Integer portNumber;
-    
+    private Integer portNumber;    
     private String userName;
     private String password;
-
     private String protocol;
-    
     private Integer viewerPortNumber = 8080;
     
     @DataBoundConstructor

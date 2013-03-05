@@ -7,8 +7,8 @@
             </td>
         </tr>
         <f:entry title="Installation selection">            
-        <select name="prqaTool">
-          <j:forEach var="pt" items="${descriptor.PRQATools}" varStatus="current">
+        <select name="qacTool">
+          <j:forEach var="pt" items="${descriptor.qacTools}" varStatus="current">
               <j:choose>
                 <j:when test="${instance.prqaTool == pt.name}">
                     <option value="${pt.name}" selected="SELECTED">${pt.name}</option>

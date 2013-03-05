@@ -21,14 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.praqma.jenkins.plugin.prqa.setup;
+package net.praqma.jenkins.plugin.prqa.notifier;
 
-import java.util.HashMap;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.Serializable;
+import java.util.regex.Pattern;
 
 /**
  *
  * @author Praqma
  */
-public interface PRQAToolSuite {
-    public HashMap<String, String> createEnvironmentVariables(String workspaceRoot);
-}
+public class ReportFileFilter implements FileFilter, Serializable {
+
+        public final Pattern compliance = Pattern.compile("Compliance Report-.*\\.x?html");
+        public final Pattern suppression = Pattern.compile("Suppression Report-.*\\.x?html");
+        public final Pattern codereview = Pattern.compile("Code Review Report-.*\\.x?html");
+        
+        public ReportFileFilter() { } 
+        
+        @Override
+        public boolean accept(File pathname) {
+            boolean match = compliance.matcher(pathname.getName()).matches() || suppression.matcher(pathname.getName()).matches() || codereview.matcher(pathname.getName()).matches();
+            return match;
+        }
+        
+    }

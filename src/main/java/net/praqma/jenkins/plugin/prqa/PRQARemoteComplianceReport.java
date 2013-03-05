@@ -1,10 +1,10 @@
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.model.Actionable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.PRQACommandLineUtility;
@@ -19,6 +19,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplianceStatus> {
     
+    private HashMap<String, String> environment;
     private QAV qaverify;
     
     /**
@@ -43,17 +44,28 @@ public class PRQARemoteComplianceReport extends PRQARemoteReporting<PRQAComplian
         super(report,listener,silentMode,skip);
     }
     
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, boolean skip, HashMap<String,String> environment) { 
+        super(report,listener,silentMode,skip);
+        this.environment = environment;
+    }
+    
     public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, QAV qaverify, boolean skip) {
         super(report,listener,silentMode,skip);
         this.qaverify = qaverify;        
+    }    
+    
+    public PRQARemoteComplianceReport (PRQAReport<?> report, BuildListener listener, boolean silentMode, QAV qaverify, boolean skip, HashMap<String,String> environment) {
+        super(report,listener,silentMode,skip);
+        this.qaverify = qaverify;
+        this.environment = environment;
     }
 
     @Override
     public PRQAComplianceStatus invoke(File file, VirtualChannel vc) throws IOException, InterruptedException {        
-        try {
-            
-            //Replacing %WORKSPACE% with remote file system workspace path. 
-            String projFile = report.getReportTool().getProjectFile(); 
+        try {            
+            //Replacing %WORKSPACE% with remote file system workspace path.
+            report.setEnvironment(environment);
+            String projFile = report.getReportTool().getProjectFile();             
             String replaced = projFile.replace("%WORKSPACE%", file.getPath());
             report.getReportTool().setProjectFile(replaced);
             setup(file.getPath(), PRQAReport.XHTML); 

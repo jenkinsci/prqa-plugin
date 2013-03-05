@@ -4,6 +4,7 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
+import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -14,30 +15,45 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import net.praqma.jenkins.plugin.prqa.Config;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteReport;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
+import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
+import net.praqma.jenkins.plugin.prqa.setup.QACppToolSuite;
 import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
+import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
+import net.praqma.prqa.PRQAReportSettings;
+import net.praqma.prqa.PRQAUploadSettings;
+import net.praqma.prqa.QAVerifyServerSettings;
+import net.praqma.prqa.products.QAC;
+import net.praqma.prqa.products.QACpp;
 import net.praqma.prqa.products.QAR;
 import net.praqma.prqa.products.QAV;
 import net.praqma.prqa.reports.PRQAReport;
+import net.praqma.prqa.reports.PRQAReport2;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
@@ -51,7 +67,8 @@ import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
     
-    public final String prqaTool;
+    public final String qacTool;
+    public final String qacppTool;
     
     private PrintStream out;
     private List<PRQAGraph> graphTypes;
@@ -101,8 +118,9 @@ public class PRQANotifier extends Publisher {
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
             String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin, EnumSet<QARReportType> chosenReportTypes,
-            boolean enableDataFlowAnalysis, final String prqaTool) {
-        this.prqaTool = prqaTool;
+            boolean enableDataFlowAnalysis, final String qacTool, final String qacppTool) {
+        this.qacTool = qacTool;
+        this.qacppTool = qacppTool;
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -196,7 +214,7 @@ public class PRQANotifier extends Publisher {
         }
     }
     
-    private void copyReportsToArtifactsDir(PRQAReport<?> report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
+    private void copyReportsToArtifactsDir(PRQAReport<?> report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {        
         for(PRQAContext.QARReportType type : report.getChosenReports()) {
             FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
             if(files.length >= 1) {
@@ -255,15 +273,47 @@ public class PRQANotifier extends Publisher {
         }            
         return null;
     }
+ 
+    /**
+     * Pre-build for the plugin. We use this one to clean up old report files.
+     * @param build
+     * @param listener
+     * @return 
+     */
+    @Override
+    public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
+        try {
+            List<FilePath> files = build.getWorkspace().list(new ReportFileFilter());
+            int numberOfReportFiles = build.getWorkspace().list(new ReportFileFilter()).size();
+            listener.getLogger().println(String.format( "Found %s report fragments, cleaning up", numberOfReportFiles));
+            int deleteCounter = 0;
+            for(FilePath f : files) {
+                f.delete();
+                deleteCounter++;
+            }
+            listener.getLogger().println( String.format("Succesfully deleted %s report fragments",deleteCounter) );
+            
+        } catch (IOException ex) {
+            ex.printStackTrace(listener.getLogger());
+            Logger.getLogger(PRQANotifier.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace(listener.getLogger());
+            Logger.getLogger(PRQANotifier.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        return true;
+    }
     
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         out = listener.getLogger();
         PRQAReading status = null;
+        PRQAToolSuite suite = null;
         
-        PRQAToolSuite suite = PRQAToolSuite.getInstallationByName(prqaTool);
-        
-        
+        QACToolSuite qacSuite = QACToolSuite.getInstallationByName(qacTool);
+        QACppToolSuite qacppSuite = QACppToolSuite.getInstallationByName(qacppTool);
+        suite = qacSuite != null ? qacSuite : qacppSuite;
         
         out.println(Config.getPluginVersion());
         out.println("");
@@ -278,29 +328,40 @@ public class PRQANotifier extends Publisher {
             out.println("No reports selected.");
         }
 
-        Future<? extends PRQAReading> task = null;
         PRQAReport<?> report = null;
-
-        report = PRQAReport.create(QARReportType.Compliance, qar);
-        report.setEnableDependencyMode(isEnableDependencyMode());
-        report.setChosenReports(chosenReportTypes);
-        report.setEnableDataFlowAnalysis(enableDataFlowAnalysis);
         
-        QAV qav = null;
-        if(publishToQAV) {
-            QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(getChosenServer());
-            qav = new QAV(conf.getHostName(), conf.getPassword(), conf.getUserName(), conf.getPortNumber(), 
-                    vcsConfigXml, singleSnapshotMode, qaVerifyProjectName, report.getReportTool().getProjectFile(),
-                    report.getReportTool().getAnalysisTool().toString(), codeUploadSetting, sourceOrigin);
+        //Verion 1.2.0 (Compound all settings, and do the analysis/report/import&upload in one go.
+        
+        QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);        
+ 
+        PRQAApplicationSettings appSettings = null;
+        if(suite != null) {
+            if(suite instanceof QACToolSuite) {
+                QACToolSuite cSuite = (QACToolSuite)suite;
+                appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome);            
+            } else {
+                QACToolSuite cSuite = (QACToolSuite)suite;
+                appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome);            
+            }
         }
-
-        report.setUseCrossModuleAnalysis(performCrossModuleAnalysis);
         
+        PRQAReportSettings settings = new PRQAReportSettings(chosenServer, projectFile,
+                performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
+                enableDataFlowAnalysis, qacTool,qacppTool, chosenReportTypes, product);
+        
+        PRQAUploadSettings uploadSettings = new PRQAUploadSettings(vcsConfigXml, singleSnapshotMode, codeUploadSetting, sourceOrigin, qaVerifyProjectName);
+        
+        
+        QAVerifyServerSettings qavSettings = null;
+        if(conf != null) {
+            qavSettings = new QAVerifyServerSettings(conf.getHostName(), conf.getPortNumber(), conf.getProtocol(), conf.getPassword(), conf.getUserName());                    
+        }        
+
         try {
-            //Custruct a new set of enviroment variables
-            suite.buildEnvVars(build.getEnvironment(listener));
-            task = build.getWorkspace().actAsync(new PRQARemoteComplianceReport(report, listener, false, qav, generateReports));
-            status = task.get();            
+            
+            PRQAReport2 report2 = new PRQAReport2(settings, qavSettings, uploadSettings, appSettings, suite.createEnvironmentVariables(build.getWorkspace().getRemote()));
+            status = build.getWorkspace().act(new PRQARemoteReport(report2, listener));
+        
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             ex.printStackTrace(out);
@@ -669,10 +730,28 @@ public class PRQANotifier extends Publisher {
     public void setEnableDataFlowAnalysis(boolean enableDataFlowAnalysis) {
         this.enableDataFlowAnalysis = enableDataFlowAnalysis;
     }
+
+    public QACToolSuite findQac(String toolInstallName) {
+        return QACToolSuite.getInstallationByName(toolInstallName);
+    }
     
+    public QACppToolSuite findQacpp(String toolInstallName) {
+        return QACppToolSuite.getInstallationByName(toolInstallName);
+    }
     
-    public PRQAToolSuite findToolInstallation(String toolInstallName) {
-        return PRQAToolSuite.getInstallationByName(toolInstallName);
+    private HashMap<String,String> _getEnvironmentForTool(QAR tool, AbstractBuild<?,?> build, BuildListener listener) throws IOException, InterruptedException {
+        if(tool.getAnalysisTool() instanceof QACpp) {            
+            QACToolSuite qacSuite = QACToolSuite.getInstallationByName(qacTool);
+            qacSuite.buildEnvVars(build.getEnvironment(listener));
+            return qacSuite.convert(build.getEnvironment(listener));
+ 
+        } else if(tool.getAnalysisTool() instanceof QAC) {
+            QACppToolSuite qacppSuite = QACppToolSuite.getInstallationByName(qacppTool);
+            qacppSuite.buildEnvVars(build.getEnvironment(listener));
+            return qacppSuite.convert(build.getEnvironment(listener)); 
+        }
+        return null;
+
     }
    
         
@@ -773,14 +852,9 @@ public class PRQANotifier extends Publisher {
             instance.chosenReportTypes.add(QARReportType.Compliance);
 
             if(instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
-                ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
-                
+                ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();                
                 list.add(new ComplianceIndexGraphs());
                 list.add(new MessagesGraph());
-                list.add(new LinesOfCodeGraph());
-                list.add(new MsgSupressionGraph());
-                list.add(new NumberOfFilesGraph(QARReportType.Suppression));
-                list.add(new PercentSuppressionGraph());
                 instance.setGraphTypes(list);
             }
             
@@ -807,8 +881,13 @@ public class PRQANotifier extends Publisher {
             return s;
         }
         
-        public List<PRQAToolSuite> getPRQATools() {
-            PRQAToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(PRQAToolSuite.DescriptorImpl.class).getInstallations();
+        public List<QACToolSuite> getQacTools() {
+            QACToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
+            return Arrays.asList(prqaInstallations);
+        }
+        
+        public List<QACppToolSuite> getQacppTools() {
+            QACppToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(QACppToolSuite.DescriptorImpl.class).getInstallations();
             return Arrays.asList(prqaInstallations);
         }
         

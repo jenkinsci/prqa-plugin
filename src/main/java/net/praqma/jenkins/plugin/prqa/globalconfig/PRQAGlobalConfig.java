@@ -88,30 +88,4 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
     public ViewServerProtocol[] getViewServerProtocols() {
         return ViewServerProtocol.values();  
     }
-    
-    //Disabled this for now. I have no idea as to why this makes the global confiuration unloadable.
-    /*
-    public FormValidation doCheckConfigurationName(@QueryParameter String value) {
-        if(getConfigurationByName(value) != null) {
-            return FormValidation.error("A configuration with that name already exists");
-        } else {
-            if(StringUtils.isBlank(value)) {
-                return FormValidation.error("Configuration name must be set");
-            }
-            return FormValidation.ok();
-        }
-    }
-    */
-    
-    /*
-    public FormValidation doCheckHostName(@QueryParameter String value) {
-        if(StringUtils.isBlank(value)) {
-            return FormValidation.error("Hostname must not be empty");
-        }
-        return FormValidation.ok();
-    }
-    */
-
-    
-
 }
