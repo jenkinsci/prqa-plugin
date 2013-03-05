@@ -199,7 +199,7 @@ public class PRQANotifier extends Publisher {
     public BuildStepMonitor getRequiredMonitorService() {
         return BuildStepMonitor.BUILD;
     }
-        
+   
     private void copyReourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException, InterruptedException {
         FilePath[] files = build.getWorkspace().list("**/"+pattern);
         if(files.length >= 1) {
@@ -209,22 +209,22 @@ public class PRQANotifier extends Publisher {
 
                 files[i].copyTo(targetDir);
                 out.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
-                //out.println(String.format("Succesfully copied file %s to artifact directory", files[i].getName()));
+                
             }
         }
     }
-    
-    private void copyReportsToArtifactsDir(PRQAReport<?> report, AbstractBuild<?, ?> build) throws IOException, InterruptedException {        
-        for(PRQAContext.QARReportType type : report.getChosenReports()) {
-            FilePath[] files = build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
+
+    private void copyReportsToArtifactsDir(PRQAReportSettings settings, AbstractBuild<?, ?> build) throws IOException, InterruptedException {        
+        for(PRQAContext.QARReportType type : settings.chosenReportTypes) {
+            FilePath[] files = build.getWorkspace().list("**/"+PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
             if(files.length >= 1) {
-                out.println(Messages.PRQANotifier_FoundReport(report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));                
+                out.println(Messages.PRQANotifier_FoundReport(PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));                
                 String artifactDir = build.getArtifactsDir().getPath();
 
-                FilePath targetDir = new FilePath(new File(artifactDir+"/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));
+                FilePath targetDir = new FilePath(new File(artifactDir+"/"+PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));
                 out.println(Messages.PRQANotifier_CopyToTarget(targetDir.getName()));
                 
-                build.getWorkspace().list("**/"+report.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION))[0].copyTo(targetDir);
+                build.getWorkspace().list("**/"+PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION))[0].copyTo(targetDir);
                 out.println(Messages.PRQANotifier_SuccesCopyReport());
             }
         }
@@ -291,7 +291,7 @@ public class PRQANotifier extends Publisher {
                 f.delete();
                 deleteCounter++;
             }
-            listener.getLogger().println( String.format("Succesfully deleted %s report fragments",deleteCounter) );
+            listener.getLogger().println( String.format("Succesfully deleted %s report fragments", deleteCounter) );
             
         } catch (IOException ex) {
             ex.printStackTrace(listener.getLogger());
@@ -369,7 +369,7 @@ public class PRQANotifier extends Publisher {
         } finally {
             try {
                 if(generateReports) {
-                    copyReportsToArtifactsDir(report, build);
+                    copyReportsToArtifactsDir(settings, build);
                 }
                 copyReourcesToArtifactsDir("*.log", build);
             } catch (Exception ex) {
@@ -412,7 +412,7 @@ public class PRQANotifier extends Publisher {
             PRQAStatus.PRQAComparisonMatrix file_comp = status.createComparison(fileCompliance, StatusCategory.FileCompliance, lar);
 
             if(!max_msg.compareIsEqualOrLower(totalMax)) {
-                status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages),max_msg.getCompareValue()));
+                status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(status.getReadout(StatusCategory.Messages), max_msg.getCompareValue()));
                 res = false;
             }
 
@@ -738,23 +738,7 @@ public class PRQANotifier extends Publisher {
     public QACppToolSuite findQacpp(String toolInstallName) {
         return QACppToolSuite.getInstallationByName(toolInstallName);
     }
-    
-    private HashMap<String,String> _getEnvironmentForTool(QAR tool, AbstractBuild<?,?> build, BuildListener listener) throws IOException, InterruptedException {
-        if(tool.getAnalysisTool() instanceof QACpp) {            
-            QACToolSuite qacSuite = QACToolSuite.getInstallationByName(qacTool);
-            qacSuite.buildEnvVars(build.getEnvironment(listener));
-            return qacSuite.convert(build.getEnvironment(listener));
- 
-        } else if(tool.getAnalysisTool() instanceof QAC) {
-            QACppToolSuite qacppSuite = QACppToolSuite.getInstallationByName(qacppTool);
-            qacppSuite.buildEnvVars(build.getEnvironment(listener));
-            return qacppSuite.convert(build.getEnvironment(listener)); 
-        }
-        return null;
 
-    }
-   
-        
     /**
      * This class is used by Jenkins to define the plugin.
      * 

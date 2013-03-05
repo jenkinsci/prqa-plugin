@@ -56,13 +56,12 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
     @Override
     public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
         HashMap<String,String> environment = new HashMap<String, String>();
-        environment.put("QACBIN", getHome()+"bin");
         environment.put("QACPATH", getHome());
         environment.put("QACOUTPATH", workspaceRoot); //This one MUST be our workspace
         environment.put("QACHELPFILES", getHome()+"help");
         environment.put("QACTEMP", getHome()); //Temporary folder        
         return environment;
-    }
+    }        
     
     public HashMap<String,String> convert(EnvVars vars) {
         HashMap<String, String> varsMap = new HashMap<String, String>();
@@ -84,7 +83,7 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             }
         }
         return null;
-    }
+    }    
     
     public static QACToolSuite[] getInstallations() {
         QACToolSuite[] installations = Jenkins.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();

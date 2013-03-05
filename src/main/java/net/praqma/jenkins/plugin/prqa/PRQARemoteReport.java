@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.prga.excetions.PrqaException;
+import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.reports.PRQAReport2;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.util.execute.CmdResult;
@@ -55,11 +56,11 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
     @Override
     public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {        
         try {
-            
+
             String pathVar = "path";
             Map<String,String> environment = System.getenv();
             
-            
+
             for(String s : environment.keySet()) {
                 if(s.equalsIgnoreCase(pathVar)) {
                     pathVar = s;
@@ -68,24 +69,39 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             }
             
             String currentPath = environment.get(pathVar);
-            
-            
-            
+
+            String delimiter = System.getProperty("file.separator");
             if(report.getSettings().product.equalsIgnoreCase("qac")) {
+                String slashPath = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPATH"), delimiter);
+                report.getEnvironment().put("QACPATH", slashPath);       
+ 
+                String qacBin = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPATH"), delimiter) + "bin";
+                report.getEnvironment().put("QACBIN", qacBin);
+                report.getEnvironment().put("QACHELPFILES", report.getEnvironment().get("QACPATH") + "help");
+                
                 currentPath = report.getEnvironment().get("QACBIN") + ";" + currentPath;
                 report.getEnvironment().put("QACTEMP", System.getProperty("java.io.tmpdir"));
+                
+           
             } else {
+                String slashPath = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPPPATH"), delimiter);
+                report.getEnvironment().put("QACPPPATH", slashPath);
+                
+                String qacppBin = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPPPATH"), delimiter) + "bin";
+                report.getEnvironment().put("QACPPBIN", qacppBin);
+                report.getEnvironment().put("QACPPHELPFILES", report.getEnvironment().get("QACPPPATH") + "help");
+                
                 currentPath = report.getEnvironment().get("QACPPBIN") + ";" + currentPath;
                 report.getEnvironment().put("QACPPTEMP", System.getProperty("java.io.tmpdir"));
+
             }
             
-            currentPath = report.getAppSettings().qarHome + System.getProperty("file.separator") +"bin;" + currentPath;
+            currentPath = PRQAApplicationSettings.addSlash(report.getAppSettings().qarHome, delimiter) + "bin;" + currentPath;
             currentPath = report.getAppSettings().qavClientHome + ";" + currentPath;
-            currentPath = report.getAppSettings().qawHome + System.getProperty("file.separator") + "bin;" + currentPath;
+            currentPath = PRQAApplicationSettings.addSlash(report.getAppSettings().qawHome, delimiter) + "bin;" + currentPath;
             
             report.getEnvironment().put(pathVar, currentPath);
  
-            
             report.setWorkspace(f);
             listener.getLogger().println("===Printing Environment===");
             for(String s : report.printEnvironmentAsFromPJUTils()) {

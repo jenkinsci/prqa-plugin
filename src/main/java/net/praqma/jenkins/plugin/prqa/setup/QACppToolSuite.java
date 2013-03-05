@@ -53,10 +53,17 @@ public class QACppToolSuite extends ToolInstallation implements PRQAToolSuite {
         this.qavHome = qavHome;
     }
 
+    //TODO: Must use system specific file delimitation before release
     @Override
     public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
-        return null;
-    }
+        HashMap<String,String> environment = new HashMap<String, String>();
+        environment.put("QACPPPATH", getHome());
+        environment.put("QACPPOUTPATH", workspaceRoot); //This one MUST be our workspace
+        environment.put("QACPPHELPFILES", getHome()+"help");
+        environment.put("QACPPTEMP", getHome()); //Temporary folder        
+        return environment;
+    } 
+    
 
     @Extension
     public static final class DescriptorImpl extends ToolDescriptor<QACppToolSuite>  {
