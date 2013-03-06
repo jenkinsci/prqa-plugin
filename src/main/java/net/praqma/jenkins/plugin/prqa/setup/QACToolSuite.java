@@ -27,6 +27,7 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
+import hudson.util.ListBoxModel;
 import java.util.HashMap;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
@@ -43,23 +44,30 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
     public final String qarHome;
     public final String qawHome;
     public final String qavHome;
-    
+    public final String tool;
+        
     @DataBoundConstructor
-    public QACToolSuite(final String name, final String home, final String qarHome, final String qawHome, final String qavHome) {
+    public QACToolSuite(final String name, final String home, final String qarHome, final String qawHome, final String qavHome, final String tool) {
         super(name, home);
         this.qarHome = qarHome;
         this.qawHome = qawHome;
         this.qavHome = qavHome;
+        this.tool = tool;
     }
     
     //TODO: Must use system specific file delimitation before release
     @Override
     public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
-        HashMap<String,String> environment = new HashMap<String, String>();
-        environment.put("QACPATH", getHome());
-        environment.put("QACOUTPATH", workspaceRoot); //This one MUST be our workspace
-        environment.put("QACHELPFILES", getHome()+"help");
-        environment.put("QACTEMP", getHome()); //Temporary folder        
+        HashMap<String,String> environment =  null;
+        if(tool.equals("qac")) {
+            environment = new HashMap<String, String>();
+            environment.put("QACPATH", getHome());
+            environment.put("QACOUTPATH", workspaceRoot); //This one MUST be our workspace 
+        } else if(tool.equals("qacpp")) {
+            environment = new HashMap<String, String>();
+            environment.put("QACPPPATH", getHome());
+            environment.put("QACPPOUTPATH", workspaceRoot); //This one MUST be our workspace
+        } 
         return environment;
     }        
     
@@ -100,7 +108,7 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
         
         @Override
         public String getDisplayName() {
-            return "QAC installation";
+            return "PRQA Tool";
         }
 
         @Override
@@ -114,6 +122,13 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
             save();
             return super.configure(req, json);
+        }
+        
+        public ListBoxModel doFillToolItems () {
+            ListBoxModel model = new ListBoxModel();            
+            model.add("QA·C","qac");
+            model.add("QA·C++","qacpp");
+            return model;
         }
     }
     

@@ -46,11 +46,12 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
 
     private PRQAReport2 report;
     private BuildListener listener;
+    boolean isUnix;
  
-    public PRQARemoteReport(PRQAReport2 report, BuildListener listener) {
+    public PRQARemoteReport(PRQAReport2 report, BuildListener listener, boolean isUnix) {
         this.report = report;
-        this.listener = listener;     
-        
+        this.listener = listener;
+        this.isUnix = isUnix;
     }
     
     @Override
@@ -71,51 +72,59 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             String currentPath = environment.get(pathVar);
 
             String delimiter = System.getProperty("file.separator");
-            if(report.getSettings().product.equalsIgnoreCase("qac")) {
-                String slashPath = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPATH"), delimiter);
-                report.getEnvironment().put("QACPATH", slashPath);       
- 
-                String qacBin = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPATH"), delimiter) + "bin";
-                report.getEnvironment().put("QACBIN", qacBin);
-                report.getEnvironment().put("QACHELPFILES", report.getEnvironment().get("QACPATH") + "help");
-                
-                currentPath = report.getEnvironment().get("QACBIN") + ";" + currentPath;
-                report.getEnvironment().put("QACTEMP", System.getProperty("java.io.tmpdir"));
-                
-           
-            } else {
-                String slashPath = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPPPATH"), delimiter);
-                report.getEnvironment().put("QACPPPATH", slashPath);
-                
-                String qacppBin = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPPPATH"), delimiter) + "bin";
-                report.getEnvironment().put("QACPPBIN", qacppBin);
-                report.getEnvironment().put("QACPPHELPFILES", report.getEnvironment().get("QACPPPATH") + "help");
-                
-                currentPath = report.getEnvironment().get("QACPPBIN") + ";" + currentPath;
-                report.getEnvironment().put("QACPPTEMP", System.getProperty("java.io.tmpdir"));
+            String pathSep = System.getProperty("path.separator");
+            if(report.getEnvironment() != null) {
+                if(report.getSettings().product.equalsIgnoreCase("qac")) {                
+                    String slashPath = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPATH"), delimiter);
+                    report.getEnvironment().put("QACPATH", slashPath);       
 
+                    String qacBin = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPATH"), delimiter) + "bin";
+                    report.getEnvironment().put("QACBIN", qacBin);
+                    report.getEnvironment().put("QACHELPFILES", report.getEnvironment().get("QACPATH") + "help");
+
+                    currentPath = report.getEnvironment().get("QACBIN") + pathSep + currentPath;
+                    report.getEnvironment().put("QACTEMP", System.getProperty("java.io.tmpdir"));
+
+
+                } else {
+                    String slashPath = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPPPATH"), delimiter);
+                    report.getEnvironment().put("QACPPPATH", slashPath);
+
+                    String qacppBin = PRQAApplicationSettings.addSlash(report.getEnvironment().get("QACPPPATH"), delimiter) + "bin";
+                    report.getEnvironment().put("QACPPBIN", qacppBin);
+                    report.getEnvironment().put("QACPPHELPFILES", report.getEnvironment().get("QACPPPATH") + "help");
+
+                    currentPath = report.getEnvironment().get("QACPPBIN") + pathSep + currentPath;
+                    report.getEnvironment().put("QACPPTEMP", System.getProperty("java.io.tmpdir"));
+
+                }
+                
+                currentPath = PRQAApplicationSettings.addSlash(report.getAppSettings().qarHome, delimiter) + "bin" + pathSep + currentPath;
+                currentPath = report.getAppSettings().qavClientHome + pathSep + currentPath;
+                currentPath = PRQAApplicationSettings.addSlash(report.getAppSettings().qawHome, delimiter) + "bin" + pathSep + currentPath;
+                report.getEnvironment().put(pathVar, currentPath);
+                
             }
             
-            currentPath = PRQAApplicationSettings.addSlash(report.getAppSettings().qarHome, delimiter) + "bin;" + currentPath;
-            currentPath = report.getAppSettings().qavClientHome + ";" + currentPath;
-            currentPath = PRQAApplicationSettings.addSlash(report.getAppSettings().qawHome, delimiter) + "bin;" + currentPath;
-            
-            report.getEnvironment().put(pathVar, currentPath);
- 
+
             report.setWorkspace(f);
+
             listener.getLogger().println("===Printing Environment===");
             for(String s : report.printEnvironmentAsFromPJUTils()) {
                 listener.getLogger().println(s);
             }
             listener.getLogger().println("===Printing Environment===");
             
+            listener.getLogger().println("Checking setup");
+            report.checkSetup(isUnix);
+                    
             listener.getLogger().println("Analysis command:");
-            listener.getLogger().println(report.createAnalysisCommand());
-            report.analyze();
+            listener.getLogger().println(report.createAnalysisCommand(isUnix));
+            report.analyze(isUnix);
             
-            listener.getLogger().println("Reports command:");
-            listener.getLogger().println(report.createReportCommand());
-            report.report();
+            listener.getLogger().println("Report command:");
+            listener.getLogger().println(report.createReportCommand(isUnix));
+            report.report(isUnix);
             
             listener.getLogger().println("Upload command:");
             listener.getLogger().println(report.createUploadCommand());

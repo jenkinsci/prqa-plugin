@@ -59,8 +59,6 @@ public class QACppToolSuite extends ToolInstallation implements PRQAToolSuite {
         HashMap<String,String> environment = new HashMap<String, String>();
         environment.put("QACPPPATH", getHome());
         environment.put("QACPPOUTPATH", workspaceRoot); //This one MUST be our workspace
-        environment.put("QACPPHELPFILES", getHome()+"help");
-        environment.put("QACPPTEMP", getHome()); //Temporary folder        
         return environment;
     } 
     

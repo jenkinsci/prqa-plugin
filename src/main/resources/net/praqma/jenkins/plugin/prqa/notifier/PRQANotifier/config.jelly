@@ -6,6 +6,7 @@
                 <h3>${%Setup}</h3>
             </td>
         </tr>
+        <!--
         <f:entry title="Installation selection">            
         <select name="qacTool">
           <j:forEach var="pt" items="${descriptor.qacTools}" varStatus="current">
@@ -19,11 +20,27 @@
               </j:choose>
           </j:forEach>
         </select>
+        
         </f:entry>
+        -->
+        <!--
+        <f:entry title="QAC installation selection" field="qacTool">
+            <f:select/>
+        </f:entry>
+        <f:entry title="QACpp installation selection" field="qacppTool">
+            <f:select/>
+        </f:entry>
+        -->
         <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
             <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
         </f:entry>
-
+        
+        <f:entry title="${%Product}" field="product">
+            <f:select/>            
+        </f:entry>
+        
+        
+        <!--
         <j:set var="levels" value="${descriptor.getProducts()}"/>
         <f:entry title="${%Product type}" help="/plugin/prqa-plugin/config/help-configProductType.html">
             <select class="product" name="PRQA.product">
@@ -32,6 +49,7 @@
                 </j:forEach>
             </select>
         </f:entry>
+        -->
 
         <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
             <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
@@ -69,6 +87,9 @@
                     <h3>${%Threshold}</h3>
                 </td>
             </tr>
+            <f:entry title="Threshold level" field="threshholdlevel">
+                <f:select/>
+            </f:entry>
 
             <f:entry title="${%Messages}" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
                 <div id="m_div" style="width:200px;">

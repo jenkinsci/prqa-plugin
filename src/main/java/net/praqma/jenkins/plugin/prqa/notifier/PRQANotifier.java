@@ -4,21 +4,18 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-import hudson.EnvVars;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.*;
-import hudson.remoting.Future;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -26,13 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import net.praqma.jenkins.plugin.prqa.Config;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteComplianceReport;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteReport;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
+import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACppToolSuite;
@@ -41,19 +37,16 @@ import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAContext;
-import net.praqma.prqa.PRQAContext.AnalysisTools;
 import net.praqma.prqa.PRQAContext.ComparisonSettings;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAReportSettings;
 import net.praqma.prqa.PRQAUploadSettings;
 import net.praqma.prqa.QAVerifyServerSettings;
-import net.praqma.prqa.products.QAC;
-import net.praqma.prqa.products.QACpp;
 import net.praqma.prqa.products.QAR;
-import net.praqma.prqa.products.QAV;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.reports.PRQAReport2;
+import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.structure.Tuple;
@@ -66,19 +59,19 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
-    
+    /*
     public final String qacTool;
     public final String qacppTool;
-    
+    */
     private PrintStream out;
     private List<PRQAGraph> graphTypes;
     private HashMap<StatusCategory,Number> thresholds;
     private EnumSet<QARReportType> chosenReportTypes;
+    public final int threshholdlevel;
  
     private Boolean totalBetter;
     private Integer totalMax;
-    private String product;
-    
+    public final String product;
     
     private String chosenServer;
  
@@ -111,16 +104,18 @@ public class PRQANotifier extends Publisher {
     private String qaVerifyProjectName;
 
     @DataBoundConstructor
-    public PRQANotifier(String product, boolean totalBetter, 
+    public PRQANotifier(final String product, boolean totalBetter, 
     String totalMax, String fileComplianceIndex, String projectComplianceIndex, 
     String settingMaxMessages, String settingFileCompliance, String settingProjectCompliance, 
     String projectFile, boolean performCrossModuleAnalysis, boolean publishToQAV, 
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
             String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin, EnumSet<QARReportType> chosenReportTypes,
-            boolean enableDataFlowAnalysis, final String qacTool, final String qacppTool) {
+            boolean enableDataFlowAnalysis, final int threshholdlevel) {
+        /*
         this.qacTool = qacTool;
         this.qacppTool = qacppTool;
+        * */
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -142,6 +137,7 @@ public class PRQANotifier extends Publisher {
         this.sourceOrigin = sourceOrigin;
         this.chosenReportTypes = chosenReportTypes;
         this.enableDataFlowAnalysis = enableDataFlowAnalysis;
+        this.threshholdlevel=threshholdlevel;
         
         this.generateReports = generateReports;
  
@@ -216,7 +212,8 @@ public class PRQANotifier extends Publisher {
 
     private void copyReportsToArtifactsDir(PRQAReportSettings settings, AbstractBuild<?, ?> build) throws IOException, InterruptedException {        
         for(PRQAContext.QARReportType type : settings.chosenReportTypes) {
-            FilePath[] files = build.getWorkspace().list("**/"+PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION));
+            String pattern = "**/"+PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION);
+            FilePath[] files = build.getWorkspace().list(pattern);
             if(files.length >= 1) {
                 out.println(Messages.PRQANotifier_FoundReport(PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION)));                
                 String artifactDir = build.getArtifactsDir().getPath();
@@ -307,19 +304,20 @@ public class PRQANotifier extends Publisher {
     
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
+        
+        String productUsed = product;
         out = listener.getLogger();
         PRQAReading status = null;
         PRQAToolSuite suite = null;
+        QACToolSuite qacSuite = QACToolSuite.getInstallationByName(product);
         
-        QACToolSuite qacSuite = QACToolSuite.getInstallationByName(qacTool);
-        QACppToolSuite qacppSuite = QACppToolSuite.getInstallationByName(qacppTool);
-        suite = qacSuite != null ? qacSuite : qacppSuite;
+        if(qacSuite != null) {
+            productUsed = qacSuite.tool;
+            suite = qacSuite;
+        }
         
         out.println(Config.getPluginVersion());
-        out.println("");
-        
-        //Create a QAR command line instance. Set the selected type of report. Used later when we construct the command.        
-        QAR qar = new QAR(PRQA.create(product), projectFile, QARReportType.Compliance);
+        QAR qar = new QAR(PRQA.create(productUsed), projectFile, QARReportType.Compliance);
         
         if(generateReports) {
             out.println(Messages.PRQANotifier_ReportGenerateText());
@@ -327,10 +325,6 @@ public class PRQANotifier extends Publisher {
         } else {
             out.println("No reports selected.");
         }
-
-        PRQAReport<?> report = null;
-        
-        //Verion 1.2.0 (Compound all settings, and do the analysis/report/import&upload in one go.
         
         QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);        
  
@@ -339,15 +333,12 @@ public class PRQANotifier extends Publisher {
             if(suite instanceof QACToolSuite) {
                 QACToolSuite cSuite = (QACToolSuite)suite;
                 appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome);            
-            } else {
-                QACToolSuite cSuite = (QACToolSuite)suite;
-                appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome);            
-            }
+            } 
         }
         
         PRQAReportSettings settings = new PRQAReportSettings(chosenServer, projectFile,
                 performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
-                enableDataFlowAnalysis, qacTool,qacppTool, chosenReportTypes, product);
+                enableDataFlowAnalysis, chosenReportTypes, productUsed);
         
         PRQAUploadSettings uploadSettings = new PRQAUploadSettings(vcsConfigXml, singleSnapshotMode, codeUploadSetting, sourceOrigin, qaVerifyProjectName);
         
@@ -358,9 +349,19 @@ public class PRQANotifier extends Publisher {
         }        
 
         try {
-            
-            PRQAReport2 report2 = new PRQAReport2(settings, qavSettings, uploadSettings, appSettings, suite.createEnvironmentVariables(build.getWorkspace().getRemote()));
-            status = build.getWorkspace().act(new PRQARemoteReport(report2, listener));
+            PRQAReport2 report2;
+            if(suite != null) {
+                out.println("Creating report WITH environment injected");
+                
+                HashMap<String,String> test = suite.createEnvironmentVariables(build.getWorkspace().getRemote());
+                out.println("Created environment: "+test.size());
+                report2 = new PRQAReport2(settings, qavSettings, uploadSettings, appSettings, suite.createEnvironmentVariables(build.getWorkspace().getRemote()));
+            } else {
+                out.println("Creating report WITHOUT environment injected");
+                report2 = new PRQAReport2(settings, qavSettings, uploadSettings, appSettings, null);
+            }
+            listener.getLogger().println("Launching on linux???: "+launcher.isUnix());
+            status = build.getWorkspace().act(new PRQARemoteReport(report2, listener, launcher.isUnix()));
         
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
@@ -431,7 +432,9 @@ public class PRQANotifier extends Publisher {
         }
         
         out.println(Messages.PRQANotifier_ScannedValues());        
-        out.println(status);   
+        out.println(status);
+        out.println("Sum of messages defined by threshold: "+ ((PRQAComplianceStatus)status).getMessageCount(threshholdlevel));
+        
 
               
         PRQABuildAction action = new PRQABuildAction(build);
@@ -485,6 +488,7 @@ public class PRQANotifier extends Publisher {
         return graphTypes;
     }
     
+    /*
     @Exported
     public String getProduct() {
         return product;
@@ -494,6 +498,7 @@ public class PRQANotifier extends Publisher {
     public void setProduct(String product) {
         this.product = product;
     }
+    */
 
     @Exported
     public Boolean getTotalBetter() {
@@ -730,7 +735,7 @@ public class PRQANotifier extends Publisher {
     public void setEnableDataFlowAnalysis(boolean enableDataFlowAnalysis) {
         this.enableDataFlowAnalysis = enableDataFlowAnalysis;
     }
-
+    /*
     public QACToolSuite findQac(String toolInstallName) {
         return QACToolSuite.getInstallationByName(toolInstallName);
     }
@@ -738,6 +743,7 @@ public class PRQANotifier extends Publisher {
     public QACppToolSuite findQacpp(String toolInstallName) {
         return QACppToolSuite.getInstallationByName(toolInstallName);
     }
+    */ 
 
     /**
      * This class is used by Jenkins to define the plugin.
@@ -856,7 +862,7 @@ public class PRQANotifier extends Publisher {
             super(PRQANotifier.class);
             load();
         }
-
+        /*
         public List<String> getProducts() {
             List<String> s = new ArrayList<String>();
             for (AnalysisTools a : AnalysisTools.values()) {
@@ -864,6 +870,7 @@ public class PRQANotifier extends Publisher {
             }
             return s;
         }
+        */
         
         public List<QACToolSuite> getQacTools() {
             QACToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
@@ -894,5 +901,46 @@ public class PRQANotifier extends Publisher {
         public EnumSet<QARReportType> getOptionalReportTypes() {
             return QARReportType.OPTIONAL_TYPES;
         }
+        
+        /*
+        public ListBoxModel doFillQacppToolItems() {
+            ListBoxModel model = new ListBoxModel();
+            model.add("QA·C++", null);
+            for(QACppToolSuite suite : getQacppTools()) {
+                model.add(suite.getName());
+            }
+            return model;            
+        }
+        */
+        public ListBoxModel doFillProductItems() {
+            ListBoxModel model = new ListBoxModel();
+            model.add("QA·C", "qac");
+            model.add("QA·C++", "qacpp");
+            
+            for(QACToolSuite suite : getQacTools()) {
+                model.add(suite.getName());
+            }          
+            return model;            
+        }
+        
+        public ListBoxModel doFillThreshholdlevelItems() {
+            ListBoxModel model = new ListBoxModel();
+            for(int i=0; i<10; i++) {
+                model.add(""+i);
+            }
+            return model;
+        }
+        /*
+        public ListBoxModel doFillProduct2Items() {
+            ListBoxModel model = new ListBoxModel();
+            model.add("QA·C", "qac");
+            model.add("QA·C++", "qacpp");
+            for(QACToolSuite suite : getQacTools()) {
+                model.add(suite.getName());
+            }
+            return model;
+            
+        }
+        */
     }
 }

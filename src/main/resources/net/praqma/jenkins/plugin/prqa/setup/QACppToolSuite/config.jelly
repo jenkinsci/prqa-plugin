@@ -7,10 +7,10 @@
     <f:entry title="${%QACpp home}" field="home">
         <f:textbox></f:textbox>
     </f:entry>
-    <f:entry title="${%QAR home}" field="qarHome">
+    <f:entry title="${%QAR installation home}" field="qarHome">
         <f:textbox></f:textbox>
     </f:entry>
-    <f:entry title="${%QAW home}" field="qawHome">
+    <f:entry title="${%QAW installation home}" field="qawHome">
         <f:textbox></f:textbox>
     </f:entry>    
     <f:entry title="${%QAV Client home}" field="qavHome">
