@@ -186,7 +186,7 @@ public class PRQABuildAction implements Action {
                         } catch (PrqaException ex) {
                             continue;
                         }                        
-                        Number threshold = prqabuild.getThreshold(cat);//getPublisher(PRQANotifier.class).getThreshold(cat);
+                        Number threshold = prqabuild.getThreshold(cat);
                                 
                         if(threshold != null) {
                             dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);
