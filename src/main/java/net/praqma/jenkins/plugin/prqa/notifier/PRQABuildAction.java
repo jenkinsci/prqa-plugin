@@ -9,6 +9,7 @@ import net.praqma.prga.excetions.PrqaException;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAStatusCollection;
+import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import org.kohsuke.stapler.StaplerRequest;
@@ -158,6 +159,7 @@ public class PRQABuildAction implements Action {
         PRQANotifier notifier = (PRQANotifier)getPublisher();
         if(notifier != null) {
             String className = req.getParameter("graph");
+            int thresholdSetting = Integer.parseInt(req.getParameter("tsetting"));
             PRQAGraph graph =  notifier.getGraph(className);
             PRQAStatusCollection collection = new PRQAStatusCollection();
             DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
@@ -171,11 +173,20 @@ public class PRQABuildAction implements Action {
                         Number res = null;
                         try
                         {
-                            res = stat.getReadout(cat);                           
+                            PRQAComplianceStatus cs = (PRQAComplianceStatus)stat;
+                            if(cs.getMessagesByLevel() == null && cat.equals(StatusCategory.Messages)) {
+                                res = stat.getReadout(cat);
+                            } else if(!cs.allEmpty() && cat.equals(StatusCategory.Messages)) {
+                                res = cs.getMessageCount(thresholdSetting); 
+                            } else {
+                                res = stat.getReadout(cat);
+                            }
+                            
+                                                       
                         } catch (PrqaException ex) {
                             continue;
                         }                        
-                        Number threshold = prqabuild.getThreshold(cat);
+                        Number threshold = prqabuild.getThreshold(cat);//getPublisher(PRQANotifier.class).getThreshold(cat);
                                 
                         if(threshold != null) {
                             dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);

@@ -8,7 +8,7 @@
                     <j:set var="publisher" value="${from.getLatestActionInProject().getPublisher()}"></j:set>
                     <j:set var="cnt" value="${publisher.getSupportedGraphs()}"></j:set>
                     <j:forEach var="pgraph" items="${publisher.getSupportedGraphs()}">
-                        <img style="margin-left:20px;" src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}"/>
+                        <img style="margin-left:20px;" src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.threshholdlevel}"/>
                     </j:forEach>
                 </div>
             </j:when>

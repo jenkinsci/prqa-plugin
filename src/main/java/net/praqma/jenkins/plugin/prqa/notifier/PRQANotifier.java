@@ -137,7 +137,7 @@ public class PRQANotifier extends Publisher {
         this.sourceOrigin = sourceOrigin;
         this.chosenReportTypes = chosenReportTypes;
         this.enableDataFlowAnalysis = enableDataFlowAnalysis;
-        this.threshholdlevel=threshholdlevel;
+        this.threshholdlevel = threshholdlevel;
         
         this.generateReports = generateReports;
  
@@ -403,10 +403,71 @@ public class PRQANotifier extends Publisher {
         
         PRQAReading lar = previousResult != null ? previousResult.getFirst() : null;
         
+        //None, Threshold, Improvement;
+        
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
         ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
+        
+        
+        //First compare file compliance
+        try {
+            Double currentFileCompliance = status.getReadout(StatusCategory.ProjectCompliance).doubleValue();
+            if(fileCompliance == ComparisonSettings.Improvement) {
+                if(lar != null) {
+                    Double previous = lar.getReadout(StatusCategory.FileCompliance).doubleValue();
+                    if(currentFileCompliance < previous) {
+                        status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentFileCompliance, previous));
+                        res = false;
+                    }
+                }
 
+            } else if(fileCompliance == ComparisonSettings.Threshold) {
+                if(currentFileCompliance < fileComplianceIndex) {
+                    status.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentFileCompliance, fileComplianceIndex));
+                    res = false;
+                }
+            }
+            
+            Double currentProjecCompliance = status.getReadout(StatusCategory.ProjectCompliance).doubleValue();
+            if(projCompliance == ComparisonSettings.Threshold) {
+                if(currentProjecCompliance < projectComplianceIndex) {
+                    status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentProjecCompliance, projectComplianceIndex));
+                    res = false;
+                }
+
+            } else if(projCompliance == ComparisonSettings.Improvement) {
+                if(lar != null) {
+                    Double previous = lar.getReadout(StatusCategory.ProjectCompliance).doubleValue();
+                    if(currentProjecCompliance < previous) {
+                        status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentProjecCompliance, previous));
+                        res = false;
+                    }
+                }
+            }
+        } catch (PrqaException ex) {
+            out.println(ex);
+        }
+
+        int current = ((PRQAComplianceStatus)status).getMessageCount(threshholdlevel);
+        if(maxMsg == ComparisonSettings.Improvement) {
+            if(lar != null) {
+                int previous = ((PRQAComplianceStatus)lar).getMessageCount(threshholdlevel);
+                if(current > previous) {
+                    status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(current, previous));
+                    res = false;
+                }
+            }
+
+        } else if(maxMsg == ComparisonSettings.Threshold) {
+            if(current > totalMax) {
+                status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(current, totalMax));
+                res = false;
+            }
+        }
+
+        
+        /*
         try {
             PRQAStatus.PRQAComparisonMatrix max_msg = status.createComparison(maxMsg, StatusCategory.Messages, lar);                
             PRQAStatus.PRQAComparisonMatrix proj_comp = status.createComparison(projCompliance, StatusCategory.ProjectCompliance, lar);
@@ -431,12 +492,10 @@ public class PRQANotifier extends Publisher {
             out.println(ex);
         }
         
+        */
         out.println(Messages.PRQANotifier_ScannedValues());        
         out.println(status);
-        out.println("Sum of messages defined by threshold: "+ ((PRQAComplianceStatus)status).getMessageCount(threshholdlevel));
-        
 
-              
         PRQABuildAction action = new PRQABuildAction(build);
         action.setResult(status);
         action.setPublisher(this); 
