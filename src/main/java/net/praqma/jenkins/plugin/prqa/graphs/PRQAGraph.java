@@ -77,6 +77,7 @@ public abstract class PRQAGraph implements Serializable {
         Number min = null;
         int width = Integer.parseInt(req.getParameter("width"));
         int height = Integer.parseInt(req.getParameter("height"));
+        int tsetting = Integer.parseInt(req.getParameter("tsetting"));
         
         for (StatusCategory category : categories) {
             try {
@@ -85,8 +86,21 @@ public abstract class PRQAGraph implements Serializable {
             } catch (PrqaException iex) {
                 continue;
             }
-            if(max != null && min != null)
+            
+            //Dynamic graph title based on the threshold setting.
+            if(category.equals(StatusCategory.Messages)) {
+                if(tsetting == 0) {
+                    setTitle("Messages per Build");
+                } else if(tsetting  == 9) {
+                    setTitle("Level 9 Messages per Build");
+                } else {
+                    setTitle(String.format("Level %s-9 Messages per Build",tsetting));
+                }
+            }
+            
+            if(max != null && min != null) {
                 ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), getTitle() == null ? category.toString() : getTitle() , null, max.intValue(), min.intValue()), width, height );     
+            }
         }
         
 

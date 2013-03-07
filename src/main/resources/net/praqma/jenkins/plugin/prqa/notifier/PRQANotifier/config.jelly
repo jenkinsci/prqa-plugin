@@ -6,51 +6,16 @@
                 <h3>${%Setup}</h3>
             </td>
         </tr>
-        <!--
-        <f:entry title="Installation selection">            
-        <select name="qacTool">
-          <j:forEach var="pt" items="${descriptor.qacTools}" varStatus="current">
-              <j:choose>
-                <j:when test="${instance.prqaTool == pt.name}">
-                    <option value="${pt.name}" selected="SELECTED">${pt.name}</option>
-                </j:when>
-                <j:otherwise>
-                    <option value="${pt.name}">${pt.name}</option>
-                </j:otherwise>
-              </j:choose>
-          </j:forEach>
-        </select>
+        <f:entry title="${%Product}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
+            <f:select/>            
+        </f:entry>
         
-        </f:entry>
-        -->
-        <!--
-        <f:entry title="QAC installation selection" field="qacTool">
-            <f:select/>
-        </f:entry>
-        <f:entry title="QACpp installation selection" field="qacppTool">
-            <f:select/>
-        </f:entry>
-        -->
         <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
             <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
         </f:entry>
         
-        <f:entry title="${%Product}" field="product">
-            <f:select/>            
-        </f:entry>
-        
-        
-        <!--
-        <j:set var="levels" value="${descriptor.getProducts()}"/>
-        <f:entry title="${%Product type}" help="/plugin/prqa-plugin/config/help-configProductType.html">
-            <select class="product" name="PRQA.product">
-                <j:forEach var="l" items="${levels}">
-                    <f:option selected="${instance.product.equals(l)}" value="${l}">${l}</f:option>
-                </j:forEach>
-            </select>
-        </f:entry>
-        -->
 
+        
         <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
             <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
         </f:entry>
@@ -87,7 +52,7 @@
                     <h3>${%Threshold}</h3>
                 </td>
             </tr>
-            <f:entry title="Threshold level" field="threshholdlevel">
+            <f:entry title="Threshold level" field="threshholdlevel" help="/plugin/prqa-plugin/config/help-thresholds.html">
                 <f:select/>
             </f:entry>
 
@@ -152,8 +117,7 @@
                             <j:otherwise>
                                 <td style="vertical-align:middle"><f:radio name="codeUploadSetting" value="${l}" checked="false"/></td>
                             </j:otherwise>
-                    </j:choose>
-                        
+                    </j:choose>                        
                     </tr>
                 </j:forEach>
                 </table>

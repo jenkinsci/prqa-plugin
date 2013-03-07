@@ -30,7 +30,6 @@ import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
-import net.praqma.jenkins.plugin.prqa.setup.QACppToolSuite;
 import net.praqma.prga.excetions.PrqaException;
 import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
@@ -67,39 +66,39 @@ public class PRQANotifier extends Publisher {
     private EnumSet<QARReportType> chosenReportTypes;
     public final int threshholdlevel;
  
-    private Boolean totalBetter;
-    private Integer totalMax;
+    public final Boolean totalBetter;
+    public final Integer totalMax;
     public final String product;
     
-    private String chosenServer;
+    public final String chosenServer;
  
-    private String settingFileCompliance;
-    private String settingMaxMessages;
-    private String settingProjectCompliance;
+    public final String settingFileCompliance;
+    public final String settingMaxMessages;
+    public final String settingProjectCompliance;
     
-    private Double fileComplianceIndex;
-    private Double projectComplianceIndex;
+    public final Double fileComplianceIndex;
+    public final Double projectComplianceIndex;
     
-    private String projectFile;
-    private String vcsConfigXml;
-    private boolean performCrossModuleAnalysis;
-    private boolean publishToQAV;
-    private boolean singleSnapshotMode;
+    public final String projectFile;
+    public final String vcsConfigXml;
+    public final boolean performCrossModuleAnalysis;
+    public final boolean publishToQAV;
+    public final boolean singleSnapshotMode;
     
     //RQ-1
-    private boolean enableDependencyMode;
-    private boolean enableDataFlowAnalysis;
+    public final boolean enableDependencyMode;
+    public final boolean enableDataFlowAnalysis;
     
     //RQ-3
-    private boolean generateReports;
+    public final boolean generateReports;
     
     //RQ-7
     private CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
     
     //RQ-9
-    private String sourceOrigin;
+    public final String sourceOrigin;
     
-    private String qaVerifyProjectName;
+    public final String qaVerifyProjectName;
 
     @DataBoundConstructor
     public PRQANotifier(final String product, boolean totalBetter, 
@@ -301,7 +300,7 @@ public class PRQANotifier extends Publisher {
         
         String productUsed = product;
         out = listener.getLogger();
-        PRQAReading status = null;
+        PRQAComplianceStatus status = null;
         PRQAToolSuite suite = null;
         QACToolSuite qacSuite = QACToolSuite.getInstallationByName(product);
         
@@ -356,6 +355,8 @@ public class PRQANotifier extends Publisher {
             }
             listener.getLogger().println("Launching on linux???: "+launcher.isUnix());
             status = build.getWorkspace().act(new PRQARemoteReport(report2, listener, launcher.isUnix()));
+            status.setMessagesWithinThreshold(status.getMessageCount(threshholdlevel));
+            
         
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
@@ -498,11 +499,6 @@ public class PRQANotifier extends Publisher {
     public Integer getTotalMax() {
         return this.totalMax;
     }
-
-    @Exported
-    public void setTotalMax(Integer totalMax) {
-        this.totalMax = totalMax;
-    }
     
     @Exported
     public void setGraphTypes(List<PRQAGraph> graphTypes) {
@@ -512,173 +508,6 @@ public class PRQANotifier extends Publisher {
     @Exported
     public List<PRQAGraph> getGraphTypes() {
         return graphTypes;
-    }
-    
-    /*
-    @Exported
-    public String getProduct() {
-        return product;
-    }
-
-    @Exported
-    public void setProduct(String product) {
-        this.product = product;
-    }
-    */
-
-    @Exported
-    public Boolean getTotalBetter() {
-        return totalBetter;
-    }
-
-    @Exported
-    public void setTotalBetter(Boolean totalBetter) {
-        this.totalBetter = totalBetter;
-    }
-    
-    @Exported 
-    public void setFileComplianceIndex(Double fileCompliance) {
-        this.fileComplianceIndex = fileCompliance;
-    }
-    
-    @Exported
-    public Double getFileComplianceIndex(){
-        return this.fileComplianceIndex;        
-    }
-    
-    @Exported
-    public Double getProjectComplianceIndex() {
-        return this.projectComplianceIndex;
-    }
-    
-    @Exported 
-    public void setProjectComplianceIndex(Double index) {
-        this.projectComplianceIndex = index;
-    }
-      
-    @Exported 
-    public void setSettingFileCompliance(String settingFileCompliance) {
-        this.settingFileCompliance = settingFileCompliance;
-    }
-    
-    @Exported 
-    public String getSettingFileCompliance() {
-        return this.settingFileCompliance;
-    }
-    
-    @Exported 
-    public void setSettingProjectCompliance(String settingProjectCompliance) {
-        this.settingProjectCompliance = settingProjectCompliance;
-    }
-    
-    @Exported 
-    public String getSettingProjectCompliance() {
-        return this.settingProjectCompliance;
-    }
-    
-    @Exported 
-    public String getSettingMaxMessages() {
-        return this.settingMaxMessages;
-    }
-    
-    @Exported 
-    public void setSettingMaxMessages(String settingMaxMessages) {
-        this.settingMaxMessages = settingMaxMessages;
-    }
-    
-    @Exported
-    public void setProjectFile(String projectFile) {
-        this.projectFile = projectFile;
-    }
-    
-    @Exported
-    public String getProjectFile() {
-        return this.projectFile;
-    }
-
-    /**
-     * @return the performCrossModuleAnalysis
-     */
-    @Exported
-    public boolean isPerformCrossModuleAnalysis() {
-        return performCrossModuleAnalysis;
-    }
-
-    /**
-     * @param performCrossModuleAnalysis the performCrossModuleAnalysis to set
-     */
-    @Exported
-    public void setPerformCrossModuleAnalysis(boolean performCrossModuleAnalysis) {
-        this.performCrossModuleAnalysis = performCrossModuleAnalysis;
-    }
-
-    /**
-     * @return the publishToQAV
-     */
-    @Exported
-    public boolean isPublishToQAV() {
-        return publishToQAV;
-    }
-    
-    @Exported
-    public void setPublishToQAV(boolean publishToQAV) {
-        this.publishToQAV = publishToQAV;
-    }
-
-    /**
-     * @return the qaVerifyProjectName
-     */
-    public String getQaVerifyProjectName() {
-        return qaVerifyProjectName;
-    }
-
-    /**
-     * @param qaVerifyProjectName the qaVerifyProjectName to set
-     */
-    public void setQaVerifyProjectName(String qaVerifyProjectName) {
-        this.qaVerifyProjectName = qaVerifyProjectName;
-    }
-
-    /**
-     * @return the vcsConfigXml
-     */
-    public String getVcsConfigXml() {
-        return vcsConfigXml;
-    }
-
-    /**
-     * @param vcsConfigXml the vcsConfigXml to set
-     */
-    public void setVcsConfigXml(String vcsConfigXml) {
-        this.vcsConfigXml = vcsConfigXml;
-    }
-
-    /**
-     * @return the singleSnapshotMode
-     */
-    public boolean isSingleSnapshotMode() {
-        return singleSnapshotMode;
-    }
-
-    /**
-     * @param singleSnapshotMode the singleSnapshotMode to set
-     */
-    public void setSingleSnapshotMode(boolean singleSnapshotMode) {
-        this.singleSnapshotMode = singleSnapshotMode;
-    }
-
-    /**
-     * @return the enableDependencyMode
-     */
-    public boolean isEnableDependencyMode() {
-        return enableDependencyMode;
-    }
-
-    /**
-     * @param enableDependencyMode the enableDependencyMode to set
-     */
-    public void setEnableDependencyMode(boolean enableDependencyMode) {
-        this.enableDependencyMode = enableDependencyMode;
     }
 
     /**
@@ -696,48 +525,6 @@ public class PRQANotifier extends Publisher {
     }
     
     /**
-     * @return the generateReports
-     */
-    public boolean isGenerateReports() {
-        return generateReports;
-    }
-
-    /**
-     * @param generateReports the generateReports to set
-     */
-    public void setGenerateReports(boolean generateReports) {
-        this.generateReports = generateReports;
-    }
-
-    /**
-     * @return the chosenServer
-     */
-    public String getChosenServer() {
-        return chosenServer;
-    }
-
-    /**
-     * @param chosenServer the chosenServer to set
-     */
-    public void setChosenServer(String chosenServer) {
-        this.chosenServer = chosenServer;
-    }
-
-    /**
-     * @return the sourceOrigin
-     */
-    public String getSourceOrigin() {
-        return sourceOrigin;
-    }
-
-    /**
-     * @param sourceOrigin the sourceOrigin to set
-     */
-    public void setSourceOrigin(String sourceOrigin) {
-        this.sourceOrigin = sourceOrigin;
-    }
-
-    /**
      * @return the optionalReportTypes
      */
     public EnumSet<QARReportType> getChosenReportTypes() {
@@ -746,20 +533,6 @@ public class PRQANotifier extends Publisher {
     
     public void setChosenReportTypes(EnumSet<QARReportType> chosenReportTypes) {
         this.chosenReportTypes = chosenReportTypes;
-    }
-
-    /**
-     * @return the enableDataFlowAnalysis
-     */
-    public boolean isEnableDataFlowAnalysis() {
-        return enableDataFlowAnalysis;
-    }
-
-    /**
-     * @param enableDataFlowAnalysis the enableDataFlowAnalysis to set
-     */
-    public void setEnableDataFlowAnalysis(boolean enableDataFlowAnalysis) {
-        this.enableDataFlowAnalysis = enableDataFlowAnalysis;
     }
 
     /**
@@ -845,7 +618,6 @@ public class PRQANotifier extends Publisher {
         @Override
         public Publisher newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
-            //System.out.println(formData);
             JSONArray arr = formData.getJSONArray("chosenReport");
             QARReportType[] types = getOptionalReportTypes().toArray(new QARReportType[getOptionalReportTypes().size()]);
             
@@ -882,11 +654,6 @@ public class PRQANotifier extends Publisher {
         
         public List<QACToolSuite> getQacTools() {
             QACToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
-            return Arrays.asList(prqaInstallations);
-        }
-        
-        public List<QACppToolSuite> getQacppTools() {
-            QACppToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(QACppToolSuite.DescriptorImpl.class).getInstallations();
             return Arrays.asList(prqaInstallations);
         }
         

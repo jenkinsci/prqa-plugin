@@ -80,7 +80,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
         DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
         PRQANotifier notifier = publishersList.get(PRQANotifier.class);
         if(notifier != null) {
-            QAVerifyServerConfiguration qavconfig = PRQAGlobalConfig.get().getConfigurationByName(notifier.getChosenServer());
+            QAVerifyServerConfiguration qavconfig = PRQAGlobalConfig.get().getConfigurationByName(notifier.chosenServer);
             return qavconfig;
         }
         return null;

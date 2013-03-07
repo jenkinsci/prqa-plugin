@@ -174,12 +174,19 @@ public class PRQABuildAction implements Action {
                         try
                         {
                             PRQAComplianceStatus cs = (PRQAComplianceStatus)stat;
+                            /*
                             if(cs.getMessagesByLevel() == null && cat.equals(StatusCategory.Messages)) {
                                 res = stat.getReadout(cat);
                             } else if(!cs.allEmpty() && cat.equals(StatusCategory.Messages)) {
                                 res = cs.getMessageCount(thresholdSetting); 
                             } else {
                                 res = stat.getReadout(cat);
+                            }
+                            */
+                            if(cat.equals(StatusCategory.Messages)) {
+                                res = cs.getMessagesWithinThreshold();
+                            } else {
+                               res = stat.getReadout(cat); 
                             }
                             
                                                        
