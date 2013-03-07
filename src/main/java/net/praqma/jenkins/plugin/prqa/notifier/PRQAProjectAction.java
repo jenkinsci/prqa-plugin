@@ -7,7 +7,7 @@ import hudson.model.ProminentProjectAction;
 import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
 import java.io.IOException;
-import net.praqma.jenkins.plugin.prqa.Config;
+import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import org.kohsuke.stapler.StaplerRequest;
@@ -20,6 +20,7 @@ import org.kohsuke.stapler.StaplerResponse;
 public class PRQAProjectAction extends Actionable implements ProminentProjectAction {
 
     private final AbstractProject<?,?> project;
+    private static final String ICON_NAME="/plugin/prqa-plugin/images/32x32/prqa.png";    
         
     public PRQAProjectAction(AbstractProject<?,?> project) {
         this.project = project;
@@ -37,7 +38,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 
     @Override
     public String getIconFileName() {
-        return Config.ICON_NAME;
+        return ICON_NAME;
     }
 
     @Override

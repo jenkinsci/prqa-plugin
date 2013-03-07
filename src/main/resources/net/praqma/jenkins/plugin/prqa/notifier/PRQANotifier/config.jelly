@@ -6,6 +6,12 @@
                 <h3>${%Setup}</h3>
             </td>
         </tr>
+        <tr>
+            <td colspan="2">
+                <h3>${%Values:} blaha1 ${instance.blaha1} blaha2 ${instance.blaha2} blaha3 ${instance.blaha3}</h3>
+            </td>
+        </tr>
+        
         <f:entry title="${%Product}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
             <f:select/>            
         </f:entry>
@@ -13,7 +19,38 @@
         <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
             <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
         </f:entry>
+        <!--
+        <f:radioBlock title="${%File list}">
+            <f:entry name="blaha">
+                <f:textbox/>
+            </f:entry>
+            
+                
+            
+        </f:radioBlock>
+                <f:radioBlock title="${%Project file - Option}">
+            <f:textbox>
+                
+            </f:textbox>
+        </f:radioBlock>
+        -->
+        <f:radioBlock title="${%Project file}" checked="true">
+            <f:entry title="Path to project file" field="blaha3">
+                <f:textbox/>
+            </f:entry>
+        </f:radioBlock>
         
+        <f:radioBlock title="${%File list}">
+            <f:entry title="Path to file list" field="blaha1">
+                <f:textbox/>
+            </f:entry>
+            <f:entry title="Path to settings file" field="blaha2">
+                <f:textbox/>
+            </f:entry>
+        </f:radioBlock>
+
+        
+
 
         
         <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">

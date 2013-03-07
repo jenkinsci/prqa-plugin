@@ -28,39 +28,48 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import net.praqma.jenkins.plugin.prqa.notifier.PRQABuildAction;
-import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
-import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAReportSettings;
-import net.praqma.prqa.reports.PRQAReport;
-import net.praqma.prqa.status.PRQAComplianceStatus;
-import net.praqma.util.execute.CmdResult;
+import net.praqma.prqa.exceptions.PrqaSetupException;
+import net.praqma.prqa.products.Product;
 
 /**
  *
  * @author Praqma
  */
-public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
-
-    private PRQAReport report;
-    private BuildListener listener;
-    boolean isUnix;
- 
-    public PRQARemoteReport(PRQAReport report, BuildListener listener, boolean isUnix) {
-        this.report = report;
-        this.listener = listener;
-        this.isUnix = isUnix;
+public class PRQARemoteToolCheck implements FileCallable<String> {
+    
+    public final BuildListener listener;
+    public final boolean isUnix;
+    public HashMap<String,String> environment;
+    public final PRQAApplicationSettings appSettings;
+    public final PRQAReportSettings reportSettings;
+    public final Product product;
+    
+    public PRQARemoteToolCheck() {         
+        this.listener = null;
+        this.isUnix = false;
+        this.environment = null;
+        this.appSettings = null;
+        this.reportSettings = null;        
+        this.product = null;
     }
     
-    private HashMap<String,String> expandEnvironment(HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSetting) {
+    public PRQARemoteToolCheck(Product product, HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSettings, BuildListener listener, boolean isUnix) {
+        this.listener = listener;
+        this.isUnix = isUnix;
+        this.environment = environment;
+        this.appSettings = appSettings;
+        this.reportSettings = reportSettings;
+        this.product = product;
+    }
+    
+    public HashMap<String,String> expandEnvironment(HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSetting, boolean isUnix) {
         String pathVar = "path";
         Map<String,String> localEnv = System.getenv();
-
-
+        
         for(String s : localEnv.keySet()) {
             if(s.equalsIgnoreCase(pathVar)) {
                 pathVar = s;
@@ -107,47 +116,18 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             environment.put(pathVar, currentPath);
             
         }
-        return environment;
-        
+        return environment;      
     }
     
     @Override
-    public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {        
+    public String invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
         try {
-            
-            HashMap<String,String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(), report.getSettings());
-
-            report.setEnvironment(expandedEnvironment);
-            report.setWorkspace(f);
-
-            listener.getLogger().println("===Printing Environment===");
-            for(String s : report.printEnvironmentAsFromPJUTils()) {
-                listener.getLogger().println(s);
-            }
-            listener.getLogger().println("===Printing Environment===");
-
-            listener.getLogger().println("Analysis command:");
-            listener.getLogger().println(report.createAnalysisCommand(isUnix));
-            report.analyze(isUnix);
-            
-            listener.getLogger().println("Report command:");
-            listener.getLogger().println(report.createReportCommand(isUnix));
-            report.report(isUnix);
-            
-            if(report.createUploadCommand() == null) {
-                listener.getLogger().println("No QAVerify upload selected");
-            } else {
-                listener.getLogger().println("Uploading with command:");
-                listener.getLogger().println(report.createUploadCommand());
-                CmdResult uploadResult = report.upload();
-            }
-            
-            return report.getComplianceStatus();
-        } catch (PrqaException exception) {
-            throw new IOException("Failed to obtain compliance status", exception);
-        } catch (Exception ex) {
-            throw new IOException( String.format( "Caught exception of type %s",ex.getClass().getName() ), ex);
+            listener.getLogger().println("Getting product version for QAW!");
+            return product.getProductVersion(expandEnvironment(environment, appSettings, reportSettings, isUnix), f);
+        } catch (PrqaSetupException setupException) {
+            listener.getLogger().println("Throwing exception");
+            throw new IOException("Tool misconfiguration detected", setupException);
         }
     }
-    
+  
 }

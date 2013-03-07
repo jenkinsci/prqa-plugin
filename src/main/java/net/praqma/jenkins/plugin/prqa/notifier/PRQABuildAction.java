@@ -5,7 +5,7 @@ import hudson.tasks.Publisher;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import java.io.IOException;
-import net.praqma.prga.excetions.PrqaException;
+import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAStatusCollection;
@@ -174,15 +174,6 @@ public class PRQABuildAction implements Action {
                         try
                         {
                             PRQAComplianceStatus cs = (PRQAComplianceStatus)stat;
-                            /*
-                            if(cs.getMessagesByLevel() == null && cat.equals(StatusCategory.Messages)) {
-                                res = stat.getReadout(cat);
-                            } else if(!cs.allEmpty() && cat.equals(StatusCategory.Messages)) {
-                                res = cs.getMessageCount(thresholdSetting); 
-                            } else {
-                                res = stat.getReadout(cat);
-                            }
-                            */
                             if(cat.equals(StatusCategory.Messages)) {
                                 res = cs.getMessagesWithinThreshold();
                             } else {

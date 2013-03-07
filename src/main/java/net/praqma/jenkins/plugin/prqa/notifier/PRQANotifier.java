@@ -23,14 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.praqma.jenkins.plugin.prqa.Config;
+import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteReport;
+import net.praqma.jenkins.plugin.prqa.PRQARemoteToolCheck;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
-import net.praqma.prga.excetions.PrqaException;
+import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQA;
 import net.praqma.prqa.PRQAApplicationSettings;
@@ -41,11 +42,18 @@ import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAReportSettings;
 import net.praqma.prqa.PRQAUploadSettings;
 import net.praqma.prqa.QAVerifyServerSettings;
+import net.praqma.prqa.exceptions.PrqaSetupException;
+import net.praqma.prqa.exceptions.PrqaUploadException;
+import net.praqma.prqa.products.QAC;
+import net.praqma.prqa.products.QACpp;
 import net.praqma.prqa.products.QAR;
+import net.praqma.prqa.products.QAW;
 import net.praqma.prqa.reports.PRQAReport;
-import net.praqma.prqa.reports.PRQAReport2;
+import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.StatusCategory;
+import net.praqma.util.ExceptionUtils;
+import net.praqma.util.execute.AbnormalProcessTerminationException;
 import net.praqma.util.structure.Tuple;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -99,6 +107,9 @@ public class PRQANotifier extends Publisher {
     public final String sourceOrigin;
     
     public final String qaVerifyProjectName;
+    
+    
+    public final String blaha1,blaha2,blaha3;
 
     @DataBoundConstructor
     public PRQANotifier(final String product, boolean totalBetter, 
@@ -108,7 +119,7 @@ public class PRQANotifier extends Publisher {
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
             String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin, EnumSet<QARReportType> chosenReportTypes,
-            boolean enableDataFlowAnalysis, final int threshholdlevel) {
+            boolean enableDataFlowAnalysis, final int threshholdlevel, String blaha1, String blaha2, String blaha3) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -131,6 +142,9 @@ public class PRQANotifier extends Publisher {
         this.chosenReportTypes = chosenReportTypes;
         this.enableDataFlowAnalysis = enableDataFlowAnalysis;
         this.threshholdlevel = threshholdlevel;
+        this.blaha1 = blaha1;
+        this.blaha2 = blaha2;
+        this.blaha3 = blaha3;
         
         this.generateReports = generateReports;
  
@@ -309,8 +323,11 @@ public class PRQANotifier extends Publisher {
             suite = qacSuite;
         }
         
-        out.println(Config.getPluginVersion());
-        QAR qar = new QAR(PRQA.create(productUsed), projectFile, QARReportType.Compliance);
+        out.println(VersionInfo.getPluginVersion());
+        
+        
+        
+        QAR qar = new QAR(productUsed, projectFile, QARReportType.Compliance);
         
         if(generateReports) {
             out.println(Messages.PRQANotifier_ReportGenerateText());
@@ -329,6 +346,8 @@ public class PRQANotifier extends Publisher {
             } 
         }
         
+        
+        
         PRQAReportSettings settings = new PRQAReportSettings(chosenServer, projectFile,
                 performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
                 enableDataFlowAnalysis, chosenReportTypes, productUsed);
@@ -339,32 +358,52 @@ public class PRQANotifier extends Publisher {
         QAVerifyServerSettings qavSettings = null;
         if(conf != null) {
             qavSettings = new QAVerifyServerSettings(conf.getHostName(), conf.getPortNumber(), conf.getProtocol(), conf.getPassword(), conf.getUserName());                    
-        }        
-
-        try {
-            PRQAReport2 report2;
-            if(suite != null) {
-                out.println("Creating report WITH environment injected");
-                
-                HashMap<String,String> test = suite.createEnvironmentVariables(build.getWorkspace().getRemote());
-                out.println("Created environment: "+test.size());
-                report2 = new PRQAReport2(settings, qavSettings, uploadSettings, appSettings, suite.createEnvironmentVariables(build.getWorkspace().getRemote()));
-            } else {
-                out.println("Creating report WITHOUT environment injected");
-                report2 = new PRQAReport2(settings, qavSettings, uploadSettings, appSettings, null);
-            }
-            listener.getLogger().println("Launching on linux???: "+launcher.isUnix());
-            status = build.getWorkspace().act(new PRQARemoteReport(report2, listener, launcher.isUnix()));
-            status.setMessagesWithinThreshold(status.getMessageCount(threshholdlevel));
-            
+        }
         
+        HashMap<String,String> environment = null;
+        if(suite != null) {
+            environment = suite.createEnvironmentVariables(build.getWorkspace().getRemote());
+        }
+        
+        boolean success = true;
+        
+        try {
+            
+            PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);            
+            if(productUsed.equals("qac")) {
+                String qacVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAC(), environment, appSettings, settings, listener, launcher.isUnix()));
+                out.println("QAC OK - "+qacVersion);
+            } else if(productUsed.equals("qacpp")) {
+                String qacppVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QACpp(), environment, appSettings, settings, listener, launcher.isUnix()));
+                out.println("QACpp OK - "+qacppVersion);
+            }
+            
+            String qawVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAW(), environment, appSettings, settings, listener, launcher.isUnix()));
+            out.println("QAW OK - "+qawVersion);
+            
+            String qarVersion = build.getWorkspace().act(new PRQARemoteToolCheck(qar, environment, appSettings, settings, listener, launcher.isUnix()));
+            out.println("QAR OK - "+qarVersion);
+            
+            status = build.getWorkspace().act(new PRQARemoteReport(report, listener, launcher.isUnix()));
+            status.setMessagesWithinThreshold(status.getMessageCount(threshholdlevel));
+        } catch (IOException ex) {
+            Throwable myCase = ExceptionUtils.unpackFrom(IOException.class, ex);
+            if(myCase instanceof PrqaSetupException) {
+                out.println(myCase.getMessage());
+                out.println("Most likely cause is a misconfigured tool, refer to documentation for how they should be configured.");
+            } else if(myCase instanceof PrqaUploadException) {
+                out.println("Upload failed");
+                out.println(myCase.getMessage());
+            }  
+            success = false;
+            return false;
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             ex.printStackTrace(out);
             return false;
         } finally {
             try {
-                if(generateReports) {
+                if(generateReports && success) {
                     copyReportsToArtifactsDir(settings, build);
                 }
                 copyReourcesToArtifactsDir("*.log", build);
@@ -620,6 +659,8 @@ public class PRQANotifier extends Publisher {
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
             JSONArray arr = formData.getJSONArray("chosenReport");
             QARReportType[] types = getOptionalReportTypes().toArray(new QARReportType[getOptionalReportTypes().size()]);
+            
+            System.out.println(formData);
             
             instance.setChosenReportTypes(QARReportType.REQUIRED_TYPES.clone());
             
