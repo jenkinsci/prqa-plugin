@@ -131,7 +131,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
                 throw new PrqaSetupException("You have not configured QA·Verify client home - Check your tool settings");
             }
             
-            if(!StringUtils.isBlank(appSettings.qavClientHome)) {
+            if(!StringUtils.isBlank(appSettings.qavClientHome) && reportSetting.publishToQAV) {
                 String qavClientHome = null;
                 if(isUnix) {
                     qavClientHome = PRQAApplicationSettings.addSlash(appSettings.qavClientHome, delimiter) + "bin";

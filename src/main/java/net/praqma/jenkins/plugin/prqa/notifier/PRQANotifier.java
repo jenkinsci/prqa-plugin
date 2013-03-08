@@ -382,19 +382,21 @@ public class PRQANotifier extends Publisher {
             status = build.getWorkspace().act(new PRQARemoteReport(report, listener, launcher.isUnix()));
             status.setMessagesWithinThreshold(status.getMessageCount(threshholdlevel));
         } catch (IOException ex) {
-            Throwable myCase = ExceptionUtils.unpackFrom(IOException.class, ex);
-            
-            if(myCase instanceof PrqaSetupException) {
-                out.println(myCase.getMessage());
+            Throwable myCase = ExceptionUtils.unpackFrom(IOException.class, ex);            
+            if(myCase instanceof PrqaSetupException) {                
                 out.println("Most likely cause is a misconfigured tool, refer to documentation for how they should be configured.");
+                out.println(myCase.getMessage());
+                log.log(Level.SEVERE, "Logging PrqaSetupException", myCase); 
             } else if(myCase instanceof PrqaUploadException) {
                 out.println("Upload failed");
                 out.println(myCase.getMessage());
+                log.log(Level.SEVERE, "Logging PrqaUploadException", myCase); 
+            } else if(myCase instanceof PrqaException) {                
+                out.println(myCase.getMessage());
+                log.log(Level.SEVERE, "Logging PrqaException", myCase); 
             } else {
                 out.println("Execution error - Writing to log");
-                log.log(Level.SEVERE, "Unhandled IOException", ex);
-                ex.printStackTrace(out);
-                
+                log.log(Level.SEVERE, "Unhandled IOException", ex);             
             }  
             success = false;
             return false;

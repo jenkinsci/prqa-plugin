@@ -136,10 +136,8 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             
             return report.getComplianceStatus();
         } catch (PrqaException exception) {
-            throw new IOException("Failed to obtain compliance status", exception);
-        } catch (Exception ex) {
-            throw new IOException( String.format( "Caught exception of type %s",ex.getClass().getName() ), ex);
-        }
+            throw new IOException(exception.getMessage(), exception);
+        } 
     }
     
 }
