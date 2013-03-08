@@ -388,10 +388,6 @@ public class PRQANotifier extends Publisher {
         } catch (IOException ex) {
             Throwable myCase = ExceptionUtils.unpackFrom(IOException.class, ex);   
             
-            if(myCase != null) {
-                out.println(myCase.getClass().getName());
-            }
-            
             if(myCase instanceof PrqaSetupException) {                
                 out.println("Most likely cause is a misconfigured tool, refer to documentation for how they should be configured.");
                 out.println(myCase.getMessage());
