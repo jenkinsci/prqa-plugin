@@ -120,12 +120,6 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             report.setEnvironment(expandedEnvironment);
             report.setWorkspace(f);
 
-            listener.getLogger().println("===Printing Environment===");
-            for(String s : report.printEnvironmentAsFromPJUTils()) {
-                listener.getLogger().println(s);
-            }
-            listener.getLogger().println("===Printing Environment===");
-
             listener.getLogger().println("Analysis command:");
             listener.getLogger().println(report.createAnalysisCommand(isUnix));
             report.analyze(isUnix);
