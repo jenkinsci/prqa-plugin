@@ -128,9 +128,7 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             listener.getLogger().println(report.createReportCommand(isUnix));
             report.report(isUnix);
             
-            if(report.createUploadCommand() == null) {
-                listener.getLogger().println("No QAVerify upload selected");
-            } else {
+            if(report.createUploadCommand() != null) {
                 listener.getLogger().println("Uploading with command:");
                 listener.getLogger().println(report.createUploadCommand());
                 CmdResult uploadResult = report.upload();

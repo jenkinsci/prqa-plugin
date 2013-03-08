@@ -393,6 +393,7 @@ public class PRQANotifier extends Publisher {
             } else {
                 out.println("Execution error - Writing to log");
                 log.log(Level.SEVERE, "Unhandled IOException", ex);
+                myCase.printStackTrace(out);
                 
             }  
             success = false;
