@@ -443,12 +443,10 @@ public class PRQANotifier extends Publisher {
         
         PRQAReading lar = previousResult != null ? previousResult.getFirst() : null;
         
-        //None, Threshold, Improvement;
-        
+        //None, Threshold, Improvement;        
         ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
         ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
-        ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);
-        
+        ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);        
         
         //First compare file compliance
         try {
@@ -486,7 +484,8 @@ public class PRQANotifier extends Publisher {
                 }
             }
         } catch (PrqaException ex) {
-            out.println(ex);
+            out.println("Report generation ok. Caught exception evaluation results. Trace written to log");
+            log.log(Level.SEVERE, "Storing unexpected result evalution exception", ex);            
         }
 
         int current = ((PRQAComplianceStatus)status).getMessageCount(threshholdlevel);
