@@ -396,7 +396,8 @@ public class PRQANotifier extends Publisher {
             return false;
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
-            out.println("Message was: "+ex.getMessage());
+            out.println("This should not be happinging, writing error to log");
+            ex.printStackTrace(out);
             log.log(Level.SEVERE, "Unhandled exception", ex);    
             return false;
         } finally {

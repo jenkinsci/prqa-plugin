@@ -161,26 +161,28 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
     }        
     
     private void _checkImportantEnvVars(HashMap<String,String> env, Product product) throws PrqaSetupException {
-        if(product instanceof QAC) {            
-            for(String s : QAC.envVarsForTool) {
-                String value = env.get(s);
-                if(value == null) {
-                    throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
-                }                
-                File f = new File(value);
-                if(!f.exists()) {
-                    throw new PrqaSetupException(String.format("The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
-                }
-            }            
-        } else if(product instanceof QACpp) {            
-            for(String s : QACpp.envVarsForTool) {
-                String value = env.get(s);
-                if(value == null) {
-                    throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
-                }
-                File f = new File(value);
-                if(!f.exists()) {
-                    throw new PrqaSetupException(String.format( "The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
+        if(env != null) {
+            if(product instanceof QAC) {            
+                for(String s : QAC.envVarsForTool) {
+                    String value = env.get(s);
+                    if(value == null) {
+                        throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
+                    }                
+                    File f = new File(value);
+                    if(!f.exists()) {
+                        throw new PrqaSetupException(String.format("The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
+                    }
+                }            
+            } else if(product instanceof QACpp) {            
+                for(String s : QACpp.envVarsForTool) {
+                    String value = env.get(s);
+                    if(value == null) {
+                        throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
+                    }
+                    File f = new File(value);
+                    if(!f.exists()) {
+                        throw new PrqaSetupException(String.format( "The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
+                    }
                 }
             }
         }
