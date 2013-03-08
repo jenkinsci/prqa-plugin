@@ -55,7 +55,6 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
         this.tool = tool;
     }
     
-    //TODO: Must use system specific file delimitation before release
     @Override
     public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
         HashMap<String,String> environment =  null;

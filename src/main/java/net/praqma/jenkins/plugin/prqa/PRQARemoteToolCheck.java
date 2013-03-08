@@ -34,6 +34,9 @@ import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAReportSettings;
 import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.products.Product;
+import net.praqma.prqa.products.QAC;
+import net.praqma.prqa.products.QACpp;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -57,6 +60,16 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
         this.product = null;
     }
     
+    
+    /**
+     * Class that performs the remote tool check
+     * @param product
+     * @param environment
+     * @param appSettings
+     * @param reportSettings
+     * @param listener
+     * @param isUnix 
+     */
     public PRQARemoteToolCheck(Product product, HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSettings, BuildListener listener, boolean isUnix) {
         this.listener = listener;
         this.isUnix = isUnix;
@@ -66,7 +79,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
         this.product = product;
     }
     
-    public HashMap<String,String> expandEnvironment(HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSetting, boolean isUnix) {
+    public HashMap<String,String> expandEnvironment(HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSetting, boolean isUnix) throws PrqaSetupException {
         String pathVar = "path";
         Map<String,String> localEnv = System.getenv();
         
@@ -103,29 +116,84 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 
                 currentPath = environment.get("QACPPBIN") + pathSep + currentPath;
                 environment.put("QACPPTEMP", System.getProperty("java.io.tmpdir"));
-
             }
             
-            currentPath = PRQAApplicationSettings.addSlash(appSettings.qarHome, delimiter) + "bin" + pathSep + currentPath;
-            if(isUnix) {
-                currentPath = PRQAApplicationSettings.addSlash(appSettings.qavClientHome, delimiter) + "bin" + pathSep + currentPath;
-            } else {
-                currentPath = appSettings.qavClientHome + pathSep + currentPath;
+            
+            String qarPath = PRQAApplicationSettings.addSlash(appSettings.qarHome, delimiter) + "bin";
+            File qarFolder = new File(qarPath);
+            if(!qarFolder.exists()) {
+                throw new PrqaSetupException( String.format( "Non existant QAR home directory (%s) - Check your tool settings", qarPath) );
             }
-            currentPath = PRQAApplicationSettings.addSlash(appSettings.qawHome, delimiter) + "bin" + pathSep + currentPath;
+            
+            currentPath = qarPath + pathSep + currentPath;
+            
+            if(StringUtils.isBlank(appSettings.qavClientHome) && reportSetting.publishToQAV) {
+                throw new PrqaSetupException("You have not configured QA·Verify client home - Check your tool settings");
+            }
+            
+            if(!StringUtils.isBlank(appSettings.qavClientHome)) {
+                String qavClientHome = null;
+                if(isUnix) {
+                    qavClientHome = PRQAApplicationSettings.addSlash(appSettings.qavClientHome, delimiter) + "bin";
+                } else {
+                    qavClientHome = appSettings.qavClientHome;
+                }
+                
+                File qavClientFolder = new File(qavClientHome);
+                if(!qavClientFolder.exists()) {
+                    throw new PrqaSetupException( String.format( "Non existant QA Verify client home directory (%s) does not exist - Check your tool settings", qavClientHome) );
+                }
+
+                currentPath = qavClientHome + pathSep + currentPath;
+            }
+            
+            String qawHome = PRQAApplicationSettings.addSlash(appSettings.qawHome, delimiter) + "bin";
+            File qawHomeFolder = new File(qawHome);
+            if(!qawHomeFolder.exists()) {
+                throw new PrqaSetupException( String.format( "Non existant QAW home directory (%s) - Check your tool settings", qawHome) );
+            }
+            
+            currentPath = qawHome + pathSep + currentPath;
             environment.put(pathVar, currentPath);
             
         }
         return environment;      
+    }        
+    
+    private void _checkImportantEnvVars(HashMap<String,String> env, Product product) throws PrqaSetupException {
+        if(product instanceof QAC) {            
+            for(String s : QAC.envVarsForTool) {
+                String value = env.get(s);
+                if(value == null) {
+                    throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
+                }                
+                File f = new File(value);
+                if(!f.exists()) {
+                    throw new PrqaSetupException(String.format("The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
+                }
+            }            
+        } else if(product instanceof QACpp) {            
+            for(String s : QACpp.envVarsForTool) {
+                String value = env.get(s);
+                if(value == null) {
+                    throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
+                }
+                File f = new File(value);
+                if(!f.exists()) {
+                    throw new PrqaSetupException(String.format( "The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
+                }
+            }
+        }
     }
     
     @Override
     public String invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
         try {
-            listener.getLogger().println("Getting product version for QAW!");
-            return product.getProductVersion(expandEnvironment(environment, appSettings, reportSettings, isUnix), f);
-        } catch (PrqaSetupException setupException) {
-            listener.getLogger().println("Throwing exception");
+            
+            HashMap<String,String> envExpanded = expandEnvironment(environment, appSettings, reportSettings, isUnix);
+            _checkImportantEnvVars(envExpanded, product);            
+            return product.getProductVersion(envExpanded, f, isUnix);
+        } catch (PrqaSetupException setupException) {            
             throw new IOException("Tool misconfiguration detected", setupException);
         }
     }
