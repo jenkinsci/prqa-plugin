@@ -390,14 +390,16 @@ public class PRQANotifier extends Publisher {
             } else if(myCase instanceof PrqaUploadException) {
                 out.println("Upload failed");
                 out.println(myCase.getMessage());
+            } else {
+                out.println("Execution error - Writing to log");
+                log.log(Level.SEVERE, "Unhandled IOException", ex);
+                
             }  
             success = false;
-            out.println(ex);
             return false;
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             out.println("This should not be happinging, writing error to log");
-            ex.printStackTrace(out);
             log.log(Level.SEVERE, "Unhandled exception", ex);    
             return false;
         } finally {
@@ -406,7 +408,7 @@ public class PRQANotifier extends Publisher {
                     copyReportsToArtifactsDir(settings, build);
                 }
                 
-                if(publishToQAV) {
+                if(publishToQAV && success) {
                     copyReourcesToArtifactsDir("*.log", build);
                 }
             } catch (Exception ex) {
