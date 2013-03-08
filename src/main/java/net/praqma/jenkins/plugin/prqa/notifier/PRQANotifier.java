@@ -23,15 +23,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteReport;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteToolCheck;
+import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
+import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
-import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAContext;
@@ -41,6 +41,8 @@ import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAReportSettings;
 import net.praqma.prqa.PRQAUploadSettings;
 import net.praqma.prqa.QAVerifyServerSettings;
+import net.praqma.prqa.exceptions.PrqaException;
+import net.praqma.prqa.exceptions.PrqaParserException;
 import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.exceptions.PrqaUploadException;
 import net.praqma.prqa.products.QAC;
@@ -291,14 +293,16 @@ public class PRQANotifier extends Publisher {
             
             if(deleteCounter > 0) {
                 listener.getLogger().println( String.format("Succesfully deleted %s report fragments", deleteCounter) );
+                
             }
             
-        } catch (IOException ex) {
-            ex.printStackTrace(listener.getLogger());
-            Logger.getLogger(PRQANotifier.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {            
+            listener.getLogger().println("Failed to clean up stale report files");
+            log.log(Level.SEVERE, "Cleanup crew missing!", ex);
+            
         } catch (InterruptedException ex) {
-            ex.printStackTrace(listener.getLogger());
-            Logger.getLogger(PRQANotifier.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Failed to clean up stale report files");
+            log.log(Level.SEVERE, "Cleanup crew missing!", ex);
         }
         
         
@@ -382,7 +386,12 @@ public class PRQANotifier extends Publisher {
             status = build.getWorkspace().act(new PRQARemoteReport(report, listener, launcher.isUnix()));
             status.setMessagesWithinThreshold(status.getMessageCount(threshholdlevel));
         } catch (IOException ex) {
-            Throwable myCase = ExceptionUtils.unpackFrom(IOException.class, ex);            
+            Throwable myCase = ExceptionUtils.unpackFrom(IOException.class, ex);   
+            
+            if(myCase != null) {
+                out.println(myCase.getClass().getName());
+            }
+            
             if(myCase instanceof PrqaSetupException) {                
                 out.println("Most likely cause is a misconfigured tool, refer to documentation for how they should be configured.");
                 out.println(myCase.getMessage());
@@ -391,12 +400,12 @@ public class PRQANotifier extends Publisher {
                 out.println("Upload failed");
                 out.println(myCase.getMessage());
                 log.log(Level.SEVERE, "Logging PrqaUploadException", myCase); 
-            } else if(myCase instanceof PrqaException) {                
+            } else if(myCase instanceof PrqaParserException) {                
                 out.println(myCase.getMessage());
                 log.log(Level.SEVERE, "Logging PrqaException", myCase); 
-            } else {
-                out.println("Execution error - Writing to log");
-                log.log(Level.SEVERE, "Unhandled IOException", ex);             
+            } else if(myCase instanceof PrqaException) {
+                out.println(myCase.getMessage());
+                log.log(Level.SEVERE, "Logging PrqaException", ex);             
             }  
             success = false;
             return false;
