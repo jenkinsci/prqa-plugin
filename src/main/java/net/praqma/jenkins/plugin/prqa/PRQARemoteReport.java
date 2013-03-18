@@ -121,8 +121,16 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             report.setWorkspace(f);
 
             listener.getLogger().println("Analysis command:");
-            listener.getLogger().println(report.createAnalysisCommand(isUnix));
-            report.analyze(isUnix);
+            
+            /**
+             * If the project file is null at this point. It means that this is a report based on a settings file.
+             * 
+             * We skip the analysis phase
+             */
+            if(report.getSettings().projectFile != null) {
+                listener.getLogger().println(report.createAnalysisCommand(isUnix));
+                report.analyze(isUnix);
+            }
             
             listener.getLogger().println("Report command:");
             listener.getLogger().println(report.createReportCommand(isUnix));

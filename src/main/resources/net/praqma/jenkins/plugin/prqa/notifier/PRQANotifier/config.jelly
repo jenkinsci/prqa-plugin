@@ -1,5 +1,12 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    
+    <style>
+        td.setting-name {
+            vertical-align:middle;
+        }
+        
+    </style>
     <f:block>
         <tr>
             <td colspan="2">
@@ -9,7 +16,8 @@
                 
         <f:entry title="${%Product}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
             <f:select/>            
-        </f:entry>
+        </f:entry>    
+        <f:descriptorRadioList descriptors="${descriptor.getReportSources()}" varName="source" instance="${instance.source}" title="${%Select report source}" help="/plugin/prqa-plugin/config/help-configProductType.html"/>
         
         <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
             <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>

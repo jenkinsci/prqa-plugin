@@ -111,11 +111,14 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
         }
 
         @Override
-        public ToolInstallation newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+        public QACToolSuite newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             QACToolSuite suite = req.bindJSON(QACToolSuite.class, formData);
             save();
-            return suite;
+            return suite;        
+            //return super.newInstance(req, formData);
         }
+        
+        
         
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {

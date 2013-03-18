@@ -29,7 +29,6 @@ import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
-import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
 import net.praqma.prqa.CodeUploadSetting;
@@ -63,45 +62,34 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
 public class PRQANotifier extends Publisher {
-    /*
-    public final String qacTool;
-    public final String qacppTool;
-    */
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
-    
     private PrintStream out;
     private List<PRQAGraph> graphTypes;
     private HashMap<StatusCategory,Number> thresholds;
     private EnumSet<QARReportType> chosenReportTypes;
     public final int threshholdlevel;
- 
     public final Boolean totalBetter;
     public final Integer totalMax;
     public final String product;
-    
     public final String chosenServer;
- 
     public final String settingFileCompliance;
     public final String settingMaxMessages;
     public final String settingProjectCompliance;
-    
     public final Double fileComplianceIndex;
     public final Double projectComplianceIndex;
-    
     public final String projectFile;
     public final String vcsConfigXml;
     public final boolean performCrossModuleAnalysis;
     public final boolean publishToQAV;
     public final boolean singleSnapshotMode;
-
     public final boolean enableDependencyMode;
     public final boolean enableDataFlowAnalysis;
     public final boolean generateReports;
     private CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
-
     public final String sourceOrigin;
     public final String qaVerifyProjectName;
-    public final String blaha1,blaha2,blaha3;
+    public final PRQAReportSource source;
+    
 
     @DataBoundConstructor
     public PRQANotifier(final String product, boolean totalBetter, 
@@ -111,7 +99,7 @@ public class PRQANotifier extends Publisher {
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
             String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin, EnumSet<QARReportType> chosenReportTypes,
-            boolean enableDataFlowAnalysis, final int threshholdlevel, String blaha1, String blaha2, String blaha3) {
+            boolean enableDataFlowAnalysis, final int threshholdlevel, PRQAReportSource source) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -134,10 +122,7 @@ public class PRQANotifier extends Publisher {
         this.chosenReportTypes = chosenReportTypes;
         this.enableDataFlowAnalysis = enableDataFlowAnalysis;
         this.threshholdlevel = threshholdlevel;
-        this.blaha1 = blaha1;
-        this.blaha2 = blaha2;
-        this.blaha3 = blaha3;
-        
+        this.source = source;
         this.generateReports = generateReports;
  
         if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
@@ -347,10 +332,17 @@ public class PRQANotifier extends Publisher {
         }
         
         
-        
-        PRQAReportSettings settings = new PRQAReportSettings(chosenServer, projectFile,
-                performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
-                enableDataFlowAnalysis, chosenReportTypes, productUsed);
+        PRQAReportSettings settings = null;
+        if(source instanceof PRQAReportProjectFileSource) {
+            settings = new PRQAReportSettings(chosenServer, projectFile,
+                    performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
+                    enableDataFlowAnalysis, chosenReportTypes, productUsed);
+        } else {
+            PRQAReportFileListSource flSource = (PRQAReportFileListSource)source; 
+            settings = new PRQAReportSettings(chosenServer, flSource.fileList, performCrossModuleAnalysis, 
+                    publishToQAV, enableDependencyMode, enableDataFlowAnalysis, 
+                    chosenReportTypes, productUsed, flSource.settingsFile);
+        }
         
         PRQAUploadSettings uploadSettings = new PRQAUploadSettings(vcsConfigXml, singleSnapshotMode, codeUploadSetting, sourceOrigin, qaVerifyProjectName);
         
@@ -588,8 +580,8 @@ public class PRQANotifier extends Publisher {
 
     /**
      * This class is used by Jenkins to define the plugin.
-     * 
-     * @author jes
+     * @author jes     * 
+
      */
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
@@ -656,6 +648,7 @@ public class PRQANotifier extends Publisher {
             }
         }
         
+        
         @Override
         public String getDisplayName() {
             return "Programming Research Report";
@@ -713,6 +706,10 @@ public class PRQANotifier extends Publisher {
                 settings.add(setting.toString());
             }
             return settings;
+        }
+        
+        public List<PRQAReportSourceDescriptor<?>> getReportSources() {
+            return PRQAReportSource.getDescriptors();
         }
         
         public List<QAVerifyServerConfiguration> getServers() {

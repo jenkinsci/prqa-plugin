@@ -72,7 +72,7 @@ public abstract class PRQAGraph implements Serializable {
         return categories.contains(cat);
     }
     
-    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb) throws IOException {
+    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb, Double threshHoldMax) throws IOException {
         Number max = null;
         Number min = null;
         int width = Integer.parseInt(req.getParameter("width"));
@@ -99,7 +99,7 @@ public abstract class PRQAGraph implements Serializable {
             }
             
             if(max != null && min != null) {
-                ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), getTitle() == null ? category.toString() : getTitle() , null, max.intValue(), min.intValue()), width, height );     
+                ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), getTitle() == null ? category.toString() : getTitle() , null, threshHoldMax != null ? threshHoldMax.intValue() : max.intValue(), min.intValue()), width, height );     
             }
         }
         

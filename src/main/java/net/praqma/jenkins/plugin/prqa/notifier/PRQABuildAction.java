@@ -5,10 +5,11 @@ import hudson.tasks.Publisher;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import java.io.IOException;
-import net.praqma.prqa.exceptions.PrqaException;
+import java.util.HashMap;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAStatusCollection;
+import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
@@ -140,6 +141,37 @@ public class PRQABuildAction implements Action {
     public StatusCategory[] getComplianceCategories() {
         return StatusCategory.values();
     }
+    
+    /**
+     * Determines weather to draw threhshold graphs. Uses the most recent build as base.
+     * @param req
+     * @param rsp
+     * @return 
+     */
+    private HashMap<StatusCategory,Boolean>  _doDrawThresholds(StaplerRequest req, StaplerResponse rsp) {
+        PRQANotifier notifier = (PRQANotifier)getPublisher();
+        HashMap<StatusCategory,Boolean> stats = new HashMap<StatusCategory, Boolean>();
+        if(notifier != null) {             
+            String className = req.getParameter("graph");
+            PRQAGraph graph =  notifier.getGraph(className);
+            for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
+                if(prqabuild.getResult() != null) {
+                    PRQAReading stat = prqabuild.getResult();
+                    for(StatusCategory cat : graph.getCategories()) {
+                        Number threshold = prqabuild.getThreshold(cat);                                                       
+                        if(threshold != null) {
+                            stats.put(cat, Boolean.TRUE);
+                        } else {
+                            stats.put(cat, Boolean.FALSE);
+                        }
+                    }                    
+                    return stats;                    
+                }
+            }
+        }
+        
+        return stats;
+    }
        
     /**
      * This function works in the following way:
@@ -157,6 +189,8 @@ public class PRQABuildAction implements Action {
      */
     public void doReportGraphs(StaplerRequest req, StaplerResponse rsp) throws IOException {
         PRQANotifier notifier = (PRQANotifier)getPublisher();
+        HashMap<StatusCategory,Boolean> drawMatrix = _doDrawThresholds(req, rsp);
+               
         if(notifier != null) {
             String className = req.getParameter("graph");
             int thresholdSetting = Integer.parseInt(req.getParameter("tsetting"));
@@ -164,6 +198,8 @@ public class PRQABuildAction implements Action {
             PRQAStatusCollection collection = new PRQAStatusCollection();
             DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
             ChartUtil.NumberOnlyBuildLabel label = null;
+            
+            Double tMax = null;
             
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                 if(prqabuild.getResult() != null) {
@@ -183,11 +219,19 @@ public class PRQABuildAction implements Action {
                                                        
                         } catch (PrqaException ex) {
                             continue;
-                        }                        
-                        Number threshold = prqabuild.getThreshold(cat);
-                                
-                        if(threshold != null) {
-                            dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);
+                        }
+                        
+                        if(drawMatrix.containsKey(cat) && drawMatrix.get(cat)) {
+                            Number threshold = prqabuild.getThreshold(cat);                        
+                            if(threshold != null) {
+                                if(tMax == null) {
+                                    tMax = threshold.doubleValue();
+                                } else if(tMax.doubleValue() < threshold.doubleValue()) {
+                                    tMax = threshold.doubleValue();
+                                }
+
+                                dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);
+                            }
                         }
                         dsb.add(res, cat.toString(), label);
                         collection.add(stat);
@@ -196,7 +240,7 @@ public class PRQABuildAction implements Action {
             }
             
             graph.setData(collection);
-            graph.drawGraph(req, rsp, dsb);
+            graph.drawGraph(req, rsp, dsb, tMax);
         }
     }
 }

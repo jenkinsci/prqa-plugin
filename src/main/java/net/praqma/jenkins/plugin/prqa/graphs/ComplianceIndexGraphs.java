@@ -29,7 +29,7 @@ public class ComplianceIndexGraphs extends PRQAGraph {
     }
     
     @Override
-    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb) throws IOException {
+    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb, Double tMax) throws IOException {
         Number max = null;
         Number min = null;
         int width = Integer.parseInt(req.getParameter("width"));
@@ -43,7 +43,8 @@ public class ComplianceIndexGraphs extends PRQAGraph {
                 continue;
             }
         }
-        if(max != null && min != null)
+        if(max != null && min != null) {
             ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), getTitle() , null, max.intValue(), min.intValue()), width, height );
+        }
     }
 }

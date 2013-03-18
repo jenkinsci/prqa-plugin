@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2012 Praqma.
+ * Copyright 2013 Praqma.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,36 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package net.praqma.jenkins.plugin.prqa.graphs;
+package net.praqma.jenkins.plugin.prqa.notifier;
 
-import hudson.util.ChartUtil;
-import hudson.util.DataSetBuilder;
-import java.io.IOException;
-import net.praqma.prqa.PRQAContext;
-import net.praqma.prqa.PRQAStatusCollection;
-import net.praqma.prqa.status.StatusCategory;
+import hudson.model.Descriptor;
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-
 /**
  *
  * @author Praqma
  */
-public class MessagesGraph extends PRQAGraph {
-    public MessagesGraph() {
-        super("Number of messages", PRQAContext.QARReportType.Compliance, StatusCategory.Messages);
+public abstract class PRQAReportSourceDescriptor<T extends PRQAReportSource> extends Descriptor<PRQAReportSource> {
+    public PRQAReportSource newInstance( StaplerRequest req, JSONObject formData, PRQAReportSource instance ) throws FormException { 
+        return super.newInstance( req, formData );
     }
-    
-    @Override
-    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb, Double tMax) throws IOException {
-        super.drawGraph(req, rsp, dsb, tMax);
-    }
+}    
 
-    @Override
-    public void setData(PRQAStatusCollection data) {
-        super.setData(data);
-        data.overrideMin(StatusCategory.Messages, 0);
-    }
-    
-    
-}
