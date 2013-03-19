@@ -193,7 +193,6 @@ public class PRQABuildAction implements Action {
                
         if(notifier != null) {
             String className = req.getParameter("graph");
-            int thresholdSetting = Integer.parseInt(req.getParameter("tsetting"));
             PRQAGraph graph =  notifier.getGraph(className);
             PRQAStatusCollection collection = new PRQAStatusCollection();
             DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
@@ -214,9 +213,7 @@ public class PRQABuildAction implements Action {
                                 res = cs.getMessagesWithinThreshold();
                             } else {
                                res = stat.getReadout(cat); 
-                            }
-                            
-                                                       
+                            }                            
                         } catch (PrqaException ex) {
                             continue;
                         }

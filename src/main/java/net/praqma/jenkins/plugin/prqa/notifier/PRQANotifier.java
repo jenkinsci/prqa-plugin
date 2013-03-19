@@ -29,6 +29,7 @@ import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
+import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
 import net.praqma.prqa.CodeUploadSetting;
@@ -334,7 +335,8 @@ public class PRQANotifier extends Publisher {
         
         PRQAReportSettings settings = null;
         if(source instanceof PRQAReportProjectFileSource) {
-            settings = new PRQAReportSettings(chosenServer, projectFile,
+            PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource)source; 
+            settings = new PRQAReportSettings(chosenServer, pSource.projectFile,
                     performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
                     enableDataFlowAnalysis, chosenReportTypes, productUsed);
         } else {
@@ -400,14 +402,15 @@ public class PRQANotifier extends Publisher {
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             out.println("This should not be happinging, writing error to log");
+            //TODO:REMOVE THIS NEXT LINE BEFORE RELEASE!
+            ex.printStackTrace(out);
             log.log(Level.SEVERE, "Unhandled exception", ex);    
             return false;
         } finally {
             try {
                 if(generateReports && success) {
                     copyReportsToArtifactsDir(settings, build);
-                }
-                
+                }                
                 if(publishToQAV && success) {
                     copyReourcesToArtifactsDir("*.log", build);
                 }

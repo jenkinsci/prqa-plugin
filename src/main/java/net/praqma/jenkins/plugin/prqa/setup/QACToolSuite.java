@@ -27,8 +27,10 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
+import hudson.tools.ToolInstaller;
 import hudson.util.ListBoxModel;
 import java.util.HashMap;
+import java.util.List;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -90,7 +92,7 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             }
         }
         return null;
-    }    
+    } 
     
     public static QACToolSuite[] getInstallations() {
         QACToolSuite[] installations = Jenkins.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
@@ -117,9 +119,7 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             return suite;        
             //return super.newInstance(req, formData);
         }
-        
-        
-        
+
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
             save();

@@ -1,13 +1,15 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    
+    <!--
     <style>
         td.setting-name {
             vertical-align:middle;
         }
         
     </style>
+    -->
     <f:block>
+        
         <tr>
             <td colspan="2">
                 <h3>${%Setup}</h3>
@@ -16,13 +18,16 @@
                 
         <f:entry title="${%Product}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
             <f:select/>            
-        </f:entry>    
-        <f:descriptorRadioList descriptors="${descriptor.getReportSources()}" varName="source" instance="${instance.source}" title="${%Select report source}" help="/plugin/prqa-plugin/config/help-configProductType.html"/>
+        </f:entry>
         
+        <f:entry field="source">
+            <f:descriptorRadioList descriptors="${descriptor.getReportSources()}" varName="source" instance="${instance.source}" title="${%Select report source}" help="/plugin/prqa-plugin/config/help-configProductType.html"/>
+        </f:entry>
+        <!--
         <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
             <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
         </f:entry>
-
+        -->
         <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
             <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
         </f:entry>

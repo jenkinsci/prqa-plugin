@@ -28,17 +28,15 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
-import net.praqma.jenkins.plugin.prqa.notifier.PRQABuildAction;
-import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAReportSettings;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.util.execute.CmdResult;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -120,14 +118,15 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             report.setEnvironment(expandedEnvironment);
             report.setWorkspace(f);
 
-            listener.getLogger().println("Analysis command:");
+            
             
             /**
              * If the project file is null at this point. It means that this is a report based on a settings file.
              * 
              * We skip the analysis phase
              */
-            if(report.getSettings().projectFile != null) {
+            if(!StringUtils.isBlank(report.getSettings().projectFile)) {
+                listener.getLogger().println("Analysis command:");
                 listener.getLogger().println(report.createAnalysisCommand(isUnix));
                 report.analyze(isUnix);
             }
@@ -136,7 +135,7 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             listener.getLogger().println(report.createReportCommand(isUnix));
             report.report(isUnix);
             
-            if(report.createUploadCommand() != null) {
+            if(!StringUtils.isBlank(report.createUploadCommand())) {
                 listener.getLogger().println("Uploading with command:");
                 listener.getLogger().println(report.createUploadCommand());
                 CmdResult uploadResult = report.upload();
