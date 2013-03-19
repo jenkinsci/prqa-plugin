@@ -305,15 +305,17 @@ public class PRQANotifier extends Publisher {
         PRQAToolSuite suite = null;
         QACToolSuite qacSuite = QACToolSuite.getInstallationByName(product);
         
+        out.println(VersionInfo.getPluginVersion());
+        
         if(qacSuite != null) {
             productUsed = qacSuite.tool;
             suite = qacSuite;
-        }
-        
-        out.println(VersionInfo.getPluginVersion());
-        
-        
-        
+        } else {
+            if(!productUsed.equals("qac") || !productUsed.equals("qacpp")) {
+                throw new AbortException("The job uses a product configuration that no longer exists, please reconfigure.");
+            }
+        }  
+        /*
         QAR qar = new QAR(productUsed, projectFile, QARReportType.Compliance);
         
         if(generateReports) {
@@ -322,6 +324,7 @@ public class PRQANotifier extends Publisher {
         } else {
             out.println("No reports selected.");
         }
+        */
         
         QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);        
  
@@ -329,12 +332,12 @@ public class PRQANotifier extends Publisher {
         if(suite != null) {
             if(suite instanceof QACToolSuite) {
                 QACToolSuite cSuite = (QACToolSuite)suite;
-                appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome);            
+                appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome, cSuite.getHome());            
             } 
-        }
-        
+        }        
         
         PRQAReportSettings settings = null;
+        QAR qar = null;
         if(source instanceof PRQAReportProjectFileSource) {
             PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource)source;
             if(pSource == null) {
@@ -343,6 +346,7 @@ public class PRQANotifier extends Publisher {
                 settings = new PRQAReportSettings(chosenServer, pSource.projectFile,
                         performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
                         enableDataFlowAnalysis, chosenReportTypes, productUsed);
+                qar = new QAR(productUsed, pSource.projectFile, QARReportType.Compliance);
             }
         } else {
             PRQAReportFileListSource flSource = (PRQAReportFileListSource)source;
@@ -351,8 +355,16 @@ public class PRQANotifier extends Publisher {
             } else {
                 settings = new PRQAReportSettings(chosenServer, flSource.fileList, performCrossModuleAnalysis, 
                         publishToQAV, enableDependencyMode, enableDataFlowAnalysis, 
-                        chosenReportTypes, productUsed, flSource.settingsFile);                
+                        chosenReportTypes, productUsed, flSource.settingsFile);
+                qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);
             }
+        }
+        
+        if(generateReports) {
+            out.println(Messages.PRQANotifier_ReportGenerateText());
+            out.println(qar);
+        } else {
+            out.println("No reports selected.");
         }
         
         PRQAUploadSettings uploadSettings = new PRQAUploadSettings(vcsConfigXml, singleSnapshotMode, codeUploadSetting, sourceOrigin, qaVerifyProjectName);
@@ -373,10 +385,10 @@ public class PRQANotifier extends Publisher {
         try {            
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);            
             if(productUsed.equals("qac")) {
-                String qacVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAC(), environment, appSettings, settings, listener, launcher.isUnix()));
+                String qacVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAC(appSettings.productHome), environment, appSettings, settings, listener, launcher.isUnix()));
                 out.println("QA·C OK - "+qacVersion);
             } else if(productUsed.equals("qacpp")) {
-                String qacppVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QACpp(), environment, appSettings, settings, listener, launcher.isUnix()));
+                String qacppVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QACpp(appSettings.productHome), environment, appSettings, settings, listener, launcher.isUnix()));
                 out.println("QA·C++ OK - "+qacppVersion);
             }
             

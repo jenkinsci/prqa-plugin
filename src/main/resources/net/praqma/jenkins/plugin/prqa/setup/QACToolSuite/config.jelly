@@ -10,10 +10,10 @@
     <f:entry title="${%Installation name}" field="name">
         <f:textbox></f:textbox>
     </f:entry>
-    <f:entry title="${%PRQA Tool}" field="tool">
+    <f:entry title="${%Product}" field="tool">
         <f:select/>
     </f:entry>    
-    <f:entry title="${%Tool installation path}" field="home">
+    <f:entry title="${%Product installation path}" field="home">
         <f:textbox></f:textbox>
     </f:entry>
     <f:entry title="${%QAR installation home}" field="qarHome">

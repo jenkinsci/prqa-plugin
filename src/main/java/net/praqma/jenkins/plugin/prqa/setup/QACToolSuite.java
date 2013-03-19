@@ -28,13 +28,16 @@ import hudson.Extension;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
 import hudson.tools.ToolInstaller;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -109,12 +112,13 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
         
         @Override
         public String getDisplayName() {
-            return "PRQA Tool";
+            return "PRQA Product Configuration";
         }
 
         @Override
         public QACToolSuite newInstance(StaplerRequest req, JSONObject formData) throws FormException {
             QACToolSuite suite = req.bindJSON(QACToolSuite.class, formData);
+            
             save();
             return suite;        
             //return super.newInstance(req, formData);
@@ -132,6 +136,14 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             model.add("QA·C++","qacpp");
             return model;
         }
-    }
-    
+        
+        public FormValidation doCheckName(@QueryParameter String value) {            
+            QACToolSuite suites = getInstallationByName(value);
+            
+            if(suites != null) {
+                return FormValidation.errorWithMarkup("<p>A configuration with this name already exists. Ignore this message if it appears on load</p>");
+            }
+            return FormValidation.ok();
+        }
+    }    
 }

@@ -170,7 +170,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
                     }                
                     File f = new File(value);
                     if(!f.exists()) {
-                        throw new PrqaSetupException(String.format("The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
+                        throw new PrqaSetupException(String.format("\"Configuration error - Check your QA·C Product installation path\\nThe enviroment created points to a non-existing location\\n Check your tool settings\"", s, env.get(s)));
                     }
                 }            
             } else if(product instanceof QACpp) {            
@@ -181,9 +181,42 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
                     }
                     File f = new File(value);
                     if(!f.exists()) {
-                        throw new PrqaSetupException(String.format( "The enviroment variable %s points to a non-existing location (%s)\n Check your tool settings", s, env.get(s)));
+                        throw new PrqaSetupException(String.format("Configuration error - Check your QA·C++ Product installation path\nThe enviroment created points to a non-existing location\n Check your tool settings"));
                     }
                 }
+            }
+        }
+    }
+    
+    private void _checkBinaryMatch(HashMap<String,String> env, Product product) throws PrqaSetupException {
+        String pathSep = System.getProperty("file.separator");
+        if(isUnix) {
+            if(product instanceof QAC) {
+                File f = new File(env.get("QACBIN")+pathSep+"qac");
+                String path = f.getPath();
+                if(!f.exists()) {
+                    throw new PrqaSetupException( String.format( "QA·C was selected as product, but no qac binary found in location: %s", path) );
+                }
+            } else {
+                File f = new File(env.get("QACPPBIN")+pathSep+"qacpp");
+                String path = f.getPath();
+                if(!f.exists()) {
+                    throw new PrqaSetupException( String.format( "QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
+                } 
+            } 
+        } else {
+            if(product instanceof QAC) {
+                File f = new File(env.get("QACBIN")+pathSep+"qac.exe");
+                String path = f.getPath();
+                if(!f.exists()) {
+                    throw new PrqaSetupException( String.format( "QA·C was selected as product, but no qac binary found in location: %s", path) );
+                }
+            } else {
+                File f = new File(env.get("QACPPBIN")+pathSep+"qacpp.exe");
+                String path = f.getPath();
+                if(!f.exists()) {
+                    throw new PrqaSetupException( String.format( "QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
+                } 
             }
         }
     }
@@ -193,7 +226,10 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
         try {
             
             HashMap<String,String> envExpanded = expandEnvironment(environment, appSettings, reportSettings, isUnix);
-            _checkImportantEnvVars(envExpanded, product);            
+            _checkImportantEnvVars(envExpanded, product);
+            if(product instanceof QAC || product instanceof QACpp) {
+                _checkBinaryMatch(envExpanded, product);
+            }
             return product.getProductVersion(envExpanded, f, isUnix);
         } catch (PrqaSetupException setupException) {            
             throw new IOException("Tool misconfiguration detected", setupException);
