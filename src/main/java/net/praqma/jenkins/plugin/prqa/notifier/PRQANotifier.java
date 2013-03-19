@@ -4,6 +4,7 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
+import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -335,15 +336,23 @@ public class PRQANotifier extends Publisher {
         
         PRQAReportSettings settings = null;
         if(source instanceof PRQAReportProjectFileSource) {
-            PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource)source; 
-            settings = new PRQAReportSettings(chosenServer, pSource.projectFile,
-                    performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
-                    enableDataFlowAnalysis, chosenReportTypes, productUsed);
+            PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource)source;
+            if(pSource == null) {
+                throw new AbortException("No report source configured, check your job configuration, you must select either a project file or a file list");
+            } else {
+                settings = new PRQAReportSettings(chosenServer, pSource.projectFile,
+                        performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
+                        enableDataFlowAnalysis, chosenReportTypes, productUsed);
+            }
         } else {
-            PRQAReportFileListSource flSource = (PRQAReportFileListSource)source; 
-            settings = new PRQAReportSettings(chosenServer, flSource.fileList, performCrossModuleAnalysis, 
-                    publishToQAV, enableDependencyMode, enableDataFlowAnalysis, 
-                    chosenReportTypes, productUsed, flSource.settingsFile);
+            PRQAReportFileListSource flSource = (PRQAReportFileListSource)source;
+            if(flSource == null) {            
+                throw new AbortException("No report source configured, check your job configuration, you must select either a project file or a file list");
+            } else {
+                settings = new PRQAReportSettings(chosenServer, flSource.fileList, performCrossModuleAnalysis, 
+                        publishToQAV, enableDependencyMode, enableDataFlowAnalysis, 
+                        chosenReportTypes, productUsed, flSource.settingsFile);                
+            }
         }
         
         PRQAUploadSettings uploadSettings = new PRQAUploadSettings(vcsConfigXml, singleSnapshotMode, codeUploadSetting, sourceOrigin, qaVerifyProjectName);
