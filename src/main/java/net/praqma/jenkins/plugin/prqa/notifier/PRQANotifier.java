@@ -375,8 +375,8 @@ public class PRQANotifier extends Publisher {
         PRQAComplianceStatus status = null;
         try {
             //Special cases when upgrading or missing selection.
-            if(qacSuite == null && (!productUsed.equals("qacpp") || !productUsed.equals("qacpp"))) {
-                throw new PrqaSetupException("The job uses a product configuration that no longer exists, please reconfigure.");
+            if(qacSuite == null && !(productUsed.equals("qacpp") || productUsed.equals("qac"))) {
+                throw new PrqaSetupException( String.format("The job uses a product configuration (%s) that no longer exists, please reconfigure.", productUsed ) );
             }
             
             if(source == null) {
@@ -385,10 +385,10 @@ public class PRQANotifier extends Publisher {
             
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);            
             if(productUsed.equals("qac")) {
-                String qacVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAC(appSettings.productHome), environment, appSettings, settings, listener, launcher.isUnix()));
+                String qacVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAC(), environment, appSettings, settings, listener, launcher.isUnix()));
                 out.println("QA·C OK - "+qacVersion);
             } else if(productUsed.equals("qacpp")) {
-                String qacppVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QACpp(appSettings.productHome), environment, appSettings, settings, listener, launcher.isUnix()));
+                String qacppVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QACpp(), environment, appSettings, settings, listener, launcher.isUnix()));
                 out.println("QA·C++ OK - "+qacppVersion);
             }
             

@@ -190,33 +190,35 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
     
     private void _checkBinaryMatch(HashMap<String,String> env, Product product) throws PrqaSetupException {
         String pathSep = System.getProperty("file.separator");
-        if(isUnix) {
-            if(product instanceof QAC) {
-                File f = new File(env.get("QACBIN")+pathSep+"qac");
-                String path = f.getPath();
-                if(!f.exists()) {
-                    throw new PrqaSetupException( String.format( "QA·C was selected as product, but no qac binary found in location: %s", path) );
-                }
-            } else {
-                File f = new File(env.get("QACPPBIN")+pathSep+"qacpp");
-                String path = f.getPath();
-                if(!f.exists()) {
-                    throw new PrqaSetupException( String.format( "QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
+        if(env != null) {
+            if(isUnix) {
+                if(product instanceof QAC) {
+                    File f = new File(env.get("QACBIN")+pathSep+"qac");
+                    String path = f.getPath();
+                    if(!f.exists()) {
+                        throw new PrqaSetupException( String.format( "QA·C was selected as product, but no qac binary found in location: %s", path) );
+                    }
+                } else {
+                    File f = new File(env.get("QACPPBIN")+pathSep+"qacpp");
+                    String path = f.getPath();
+                    if(!f.exists()) {
+                        throw new PrqaSetupException( String.format( "QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
+                    } 
                 } 
-            } 
-        } else {
-            if(product instanceof QAC) {
-                File f = new File(env.get("QACBIN")+pathSep+"qac.exe");
-                String path = f.getPath();
-                if(!f.exists()) {
-                    throw new PrqaSetupException( String.format( "QA·C was selected as product, but no qac binary found in location: %s", path) );
-                }
             } else {
-                File f = new File(env.get("QACPPBIN")+pathSep+"qacpp.exe");
-                String path = f.getPath();
-                if(!f.exists()) {
-                    throw new PrqaSetupException( String.format( "QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
-                } 
+                if(product instanceof QAC) {
+                    File f = new File(env.get("QACBIN")+pathSep+"qac.exe");
+                    String path = f.getPath();
+                    if(!f.exists()) {
+                        throw new PrqaSetupException( String.format( "QA·C was selected as product, but no qac binary found in location: %s", path) );
+                    }
+                } else {
+                    File f = new File(env.get("QACPPBIN")+pathSep+"qacpp.exe");
+                    String path = f.getPath();
+                    if(!f.exists()) {
+                        throw new PrqaSetupException( String.format( "QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
+                    } 
+                }
             }
         }
     }
