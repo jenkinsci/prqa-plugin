@@ -30,7 +30,6 @@ import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.*;
-import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.setup.PRQAToolSuite;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
 import net.praqma.prqa.CodeUploadSetting;
@@ -377,8 +376,7 @@ public class PRQANotifier extends Publisher {
             //Special cases when upgrading or missing selection.
             if(qacSuite == null && !(productUsed.equals("qacpp") || productUsed.equals("qac"))) {
                 throw new PrqaSetupException( String.format("The job uses a product configuration (%s) that no longer exists, please reconfigure.", productUsed ) );
-            }
-            
+            }            
             if(source == null) {
                 throw new PrqaSetupException("The jobs project source is not configured\nIf you just upgraded plugin you'll nee to fill out a project file source in the jobs configuration page.");
             }
