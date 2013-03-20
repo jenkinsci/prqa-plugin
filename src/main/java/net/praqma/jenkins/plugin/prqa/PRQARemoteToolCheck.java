@@ -79,6 +79,15 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
         this.product = product;
     }
     
+    /**
+     * Expands the environment if the environment field for this object is set. This is only done when the user uses a product configuration. 
+     * @param environment
+     * @param appSettings
+     * @param reportSetting
+     * @param isUnix
+     * @return
+     * @throws PrqaSetupException 
+     */
     public HashMap<String,String> expandEnvironment(HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSetting, boolean isUnix) throws PrqaSetupException {
         String pathVar = "path";
         Map<String,String> localEnv = System.getenv();
