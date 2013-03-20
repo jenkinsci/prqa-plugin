@@ -136,7 +136,8 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             model.add("QA·C++","qacpp");
             return model;
         }
-        
+        //TODO: Implement this in a proper way. This one returns a warning when config page is reloaded.
+        /*
         public FormValidation doCheckName(@QueryParameter String value) {            
             QACToolSuite suites = getInstallationByName(value);
             
@@ -145,5 +146,6 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             }
             return FormValidation.ok();
         }
+        */ 
     }    
 }

@@ -420,11 +420,12 @@ public class PRQANotifier extends Publisher {
             }  
             success = false;
             return false;
+        } catch (PrqaException pex) {
+            out.println(pex.getMessage());
+            log.log(Level.WARNING, "PrqaException", pex);
         } catch (Exception ex) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             out.println("This should not be happinging, writing error to log");
-            //TODO:REMOVE THIS NEXT LINE BEFORE RELEASE!
-            ex.printStackTrace(out);
             log.log(Level.SEVERE, "Unhandled exception", ex);    
             return false;
         } finally {
