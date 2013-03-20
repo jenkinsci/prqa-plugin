@@ -350,7 +350,7 @@ public class PRQANotifier extends Publisher {
 
         }
         
-        if(generateReports) {
+        if(generateReports && qar != null) {
             out.println(Messages.PRQANotifier_ReportGenerateText());
             out.println(qar);
         } else {
@@ -373,13 +373,15 @@ public class PRQANotifier extends Publisher {
         boolean success = true;
         PRQAComplianceStatus status = null;
         try {
-            //Special cases when upgrading or missing selection.
+            //Special case when upgrading
+            if(source == null) {
+                throw new PrqaSetupException( String.format("The jobs project source is not configured%nIf you just upgraded plugin you'll nee to fill out a project file source in the jobs configuration page."));
+            }
+            
             if(qacSuite == null && !(productUsed.equals("qacpp") || productUsed.equals("qac"))) {
                 throw new PrqaSetupException( String.format("The job uses a product configuration (%s) that no longer exists, please reconfigure.", productUsed ) );
             }            
-            if(source == null) {
-                throw new PrqaSetupException("The jobs project source is not configured\nIf you just upgraded plugin you'll nee to fill out a project file source in the jobs configuration page.");
-            }
+
             
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);            
             if(productUsed.equals("qac")) {
