@@ -301,7 +301,7 @@ public class PRQANotifier extends Publisher {
         
         String productUsed = product;
         out = listener.getLogger();
-        PRQAComplianceStatus status = null;
+        
         PRQAToolSuite suite = null;
         QACToolSuite qacSuite = QACToolSuite.getInstallationByName(product);
         
@@ -310,10 +310,6 @@ public class PRQANotifier extends Publisher {
         if(qacSuite != null) {
             productUsed = qacSuite.tool;
             suite = qacSuite;
-        } else {
-            if(!productUsed.equals("qac") || !productUsed.equals("qacpp")) {
-                throw new AbortException("The job uses a product configuration that no longer exists, please reconfigure.");
-            }
         }  
         /*
         QAR qar = new QAR(productUsed, projectFile, QARReportType.Compliance);
@@ -338,26 +334,21 @@ public class PRQANotifier extends Publisher {
         
         PRQAReportSettings settings = null;
         QAR qar = null;
-        if(source instanceof PRQAReportProjectFileSource) {
+        if(source != null && source instanceof PRQAReportProjectFileSource) {
             PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource)source;
-            if(pSource == null) {
-                throw new AbortException("No report source configured, check your job configuration, you must select either a project file or a file list");
-            } else {
                 settings = new PRQAReportSettings(chosenServer, pSource.projectFile,
                         performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
                         enableDataFlowAnalysis, chosenReportTypes, productUsed);
                 qar = new QAR(productUsed, pSource.projectFile, QARReportType.Compliance);
-            }
-        } else {
+            
+        } else if(source != null && source instanceof PRQAReportFileListSource) {
             PRQAReportFileListSource flSource = (PRQAReportFileListSource)source;
-            if(flSource == null) {            
-                throw new AbortException("No report source configured, check your job configuration, you must select either a project file or a file list");
-            } else {
-                settings = new PRQAReportSettings(chosenServer, flSource.fileList, performCrossModuleAnalysis, 
-                        publishToQAV, enableDependencyMode, enableDataFlowAnalysis, 
-                        chosenReportTypes, productUsed, flSource.settingsFile);
-                qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);
-            }
+
+            settings = new PRQAReportSettings(chosenServer, flSource.fileList, performCrossModuleAnalysis, 
+                    publishToQAV, enableDependencyMode, enableDataFlowAnalysis, 
+                    chosenReportTypes, productUsed, flSource.settingsFile);
+            qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);
+
         }
         
         if(generateReports) {
@@ -381,8 +372,17 @@ public class PRQANotifier extends Publisher {
         }
         
         boolean success = true;
-        
-        try {            
+        PRQAComplianceStatus status = null;
+        try {
+            //Special cases when upgrading or missing selection.
+            if(qacSuite == null && (!productUsed.equals("qacpp") || !productUsed.equals("qacpp"))) {
+                throw new PrqaSetupException("The job uses a product configuration that no longer exists, please reconfigure.");
+            }
+            
+            if(source == null) {
+                throw new PrqaSetupException("The jobs project source is not configured\nIf you just upgraded plugin you'll nee to fill out a project file source in the jobs configuration page.");
+            }
+            
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);            
             if(productUsed.equals("qac")) {
                 String qacVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAC(appSettings.productHome), environment, appSettings, settings, listener, launcher.isUnix()));
@@ -397,14 +397,14 @@ public class PRQANotifier extends Publisher {
             
             String qarVersion = build.getWorkspace().act(new PRQARemoteToolCheck(qar, environment, appSettings, settings, listener, launcher.isUnix()));
             out.println("QAR OK - "+qarVersion);
-            
+
             status = build.getWorkspace().act(new PRQARemoteReport(report, listener, launcher.isUnix()));
             status.setMessagesWithinThreshold(status.getMessageCount(threshholdlevel));
         } catch (IOException ex) {
             Throwable myCase = ExceptionUtils.unpackFrom(IOException.class, ex);   
             
             if(myCase instanceof PrqaSetupException) {                
-                out.println("Most likely cause is a misconfigured tool, refer to documentation for how they should be configured.");
+                out.println( String.format( "Most likely cause is a misconfigured tool, refer to documentation (%s) on how to configure them.", VersionInfo.WIKI_PAGE));
                 out.println(myCase.getMessage());
                 log.log(Level.SEVERE, "Logging PrqaSetupException", myCase); 
             } else if(myCase instanceof PrqaUploadException) {
