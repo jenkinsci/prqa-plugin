@@ -27,12 +27,14 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.util.HashMap;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -141,6 +143,34 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             }
             return FormValidation.ok();
         }
-        */ 
+        */
+        
+        public FormValidation doCheckName(@QueryParameter String name) {
+            if(StringUtils.isBlank(name)) {
+                return FormValidation.errorWithMarkup("Installation name should not be empty.");
+            }
+            return FormValidation.ok();
+        }
+        
+        public FormValidation doCheckHome(@QueryParameter String home) {
+            if(StringUtils.isBlank(home)) {
+                return FormValidation.errorWithMarkup("Product installation path should not be empty.");
+            }
+            return FormValidation.ok();
+        }
+        
+        public FormValidation doCheckQarHome(@QueryParameter String qarHome) {
+            if(StringUtils.isBlank(qarHome)) {
+                return FormValidation.errorWithMarkup("QAR Home should not be empty.");
+            }
+            return FormValidation.ok();
+        }
+        
+        public FormValidation doCheckQawHome(@QueryParameter String qawHome) {
+            if(StringUtils.isBlank(qawHome)) {
+                return FormValidation.errorWithMarkup("QAW Home should not be empty.");
+            }
+            return FormValidation.ok();
+        }
     }    
 }
