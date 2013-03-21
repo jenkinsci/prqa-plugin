@@ -348,9 +348,11 @@ public class PRQANotifier extends Publisher {
                     chosenReportTypes, productUsed, flSource.settingsFile);
             qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);        
         } else {
+            //Use old settings (projectFile ~ Still exists)
             settings = new PRQAReportSettings(chosenServer, projectFile,
                         performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
                         enableDataFlowAnalysis, chosenReportTypes, productUsed);
+            qar = new QAR(productUsed, projectFile, QARReportType.Compliance);
         }
         
         if(generateReports && qar != null) {
@@ -381,15 +383,15 @@ public class PRQANotifier extends Publisher {
             }
             */ 
             
-            if(qacSuite == null && !(productUsed.equals("qacpp") || productUsed.equals("qac"))) {
+            if(qacSuite == null && !(productUsed.equalsIgnoreCase("qacpp") || productUsed.equalsIgnoreCase("qac"))) {
                 throw new PrqaSetupException( String.format("The job uses a product configuration (%s) that no longer exists, please reconfigure.", productUsed ) );
             }
             
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);            
-            if(productUsed.equals("qac")) {
+            if(productUsed.equalsIgnoreCase("qac")) {
                 String qacVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QAC(), environment, appSettings, settings, listener, launcher.isUnix()));
                 out.println("QA·C OK - "+qacVersion);
-            } else if(productUsed.equals("qacpp")) {
+            } else if(productUsed.equalsIgnoreCase("qacpp")) {
                 String qacppVersion = build.getWorkspace().act(new PRQARemoteToolCheck(new QACpp(), environment, appSettings, settings, listener, launcher.isUnix()));
                 out.println("QA·C++ OK - "+qacppVersion);
             }
