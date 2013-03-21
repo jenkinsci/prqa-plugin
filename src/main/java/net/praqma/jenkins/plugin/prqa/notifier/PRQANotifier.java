@@ -346,16 +346,17 @@ public class PRQANotifier extends Publisher {
             settings = new PRQAReportSettings(chosenServer, flSource.fileList, performCrossModuleAnalysis, 
                     publishToQAV, enableDependencyMode, enableDataFlowAnalysis, 
                     chosenReportTypes, productUsed, flSource.settingsFile);
-            qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);
-
+            qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);        
+        } else {
+            settings = new PRQAReportSettings(chosenServer, projectFile,
+                        performCrossModuleAnalysis, publishToQAV, enableDependencyMode, 
+                        enableDataFlowAnalysis, chosenReportTypes, productUsed);
         }
         
         if(generateReports && qar != null) {
             out.println(Messages.PRQANotifier_ReportGenerateText());
             out.println(qar);
-        } else {
-            out.println("No reports selected.");
-        }
+        } 
         
         PRQAUploadSettings uploadSettings = new PRQAUploadSettings(vcsConfigXml, singleSnapshotMode, codeUploadSetting, sourceOrigin, qaVerifyProjectName);
         
@@ -374,14 +375,15 @@ public class PRQANotifier extends Publisher {
         PRQAComplianceStatus status = null;
         try {
             //Special case when upgrading
+            /*
             if(source == null) {
-                throw new PrqaSetupException( String.format("The jobs project source is not configured%nIf you just upgraded plugin you'll nee to fill out a project file source in the jobs configuration page."));
+                throw new PrqaSetupException( String.format("The jobs project source is not configured%nIf you just upgraded plugin you'll nee to fill out a project file source on the job configuration page."));
             }
+            */ 
             
             if(qacSuite == null && !(productUsed.equals("qacpp") || productUsed.equals("qac"))) {
                 throw new PrqaSetupException( String.format("The job uses a product configuration (%s) that no longer exists, please reconfigure.", productUsed ) );
-            }            
-
+            }
             
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);            
             if(productUsed.equals("qac")) {

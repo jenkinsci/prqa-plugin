@@ -27,17 +27,12 @@ import hudson.EnvVars;
 import hudson.Extension;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
-import hudson.tools.ToolInstaller;
-import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.List;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -112,7 +107,7 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
         
         @Override
         public String getDisplayName() {
-            return "PRQA Product Configuration";
+            return "PRQA Tool";
         }
 
         @Override
