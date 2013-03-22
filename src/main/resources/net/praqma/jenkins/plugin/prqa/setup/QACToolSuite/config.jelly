@@ -1,28 +1,33 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <!--
     <style>
-        tr.optional-block-start {
-            visibility:hidden;
+        .not-impl {
+            font-style:italic;
         }
     </style>
-    -->
     <f:entry title="${%Installation name}" field="name">
-        <f:textbox></f:textbox>
+        <f:textbox/>
     </f:entry>
     <f:entry title="${%Product}" field="tool">
         <f:select/>
     </f:entry>    
     <f:entry title="${%Product installation path}" field="home">
-        <f:textbox></f:textbox>
+        <f:textbox/>
     </f:entry>
     <f:entry title="${%QAR installation home}" field="qarHome">
-        <f:textbox></f:textbox>
+        <f:textbox/>
     </f:entry>
     <f:entry title="${%QAW installation home}" field="qawHome">
-        <f:textbox></f:textbox>
+        <f:textbox/>
     </f:entry>    
     <f:entry title="${%QAV Client home}" field="qavHome">
-        <f:textbox></f:textbox>
+        <f:textbox/>
     </f:entry>
+
+    <tr>
+        <td colspan="3">
+            <span class="not-impl">The install automatically feature is not implemented yet.</span>
+        </td>
+    </tr>
+    
 </j:jelly>
