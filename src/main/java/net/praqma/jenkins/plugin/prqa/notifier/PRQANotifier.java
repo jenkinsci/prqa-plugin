@@ -355,7 +355,7 @@ public class PRQANotifier extends Publisher {
             qar = new QAR(productUsed, projectFile, QARReportType.Compliance);
         }
         
-        if(generateReports && qar != null) {
+        if(qar != null) {
             out.println(Messages.PRQANotifier_ReportGenerateText());
             out.println(qar);
         } 
@@ -434,7 +434,7 @@ public class PRQANotifier extends Publisher {
             return false;
         } finally {
             try {
-                if(generateReports && success) {
+                if(/* generateReports && */ success) {
                     copyReportsToArtifactsDir(settings, build);
                 }                
                 if(publishToQAV && success) {
@@ -446,17 +446,19 @@ public class PRQANotifier extends Publisher {
             }
         }
         
-        if(status == null && generateReports) {
+        if(status == null /* && generateReports */) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             return false;
         }
         
         Tuple<PRQAReading,AbstractBuild<?,?>> previousResult = getPreviousReading(build, Result.SUCCESS);
         
+        /*
         if(status == null && !generateReports) {
             out.println(Messages.PRQANotifier_SkipOk());
             return true;
         }
+        */ 
         
         status.setThresholds(thresholds);
        

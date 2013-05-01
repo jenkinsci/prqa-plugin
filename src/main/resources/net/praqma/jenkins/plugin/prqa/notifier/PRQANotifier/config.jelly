@@ -9,13 +9,13 @@
     </style>
     -->
     <f:block>
-        
+        <!--
         <tr>
             <td colspan="2">
                 <h3>${%Setup}</h3>
             </td>
         </tr>
-                
+-->                
         <f:entry title="${%Product}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
             <f:select/>            
         </f:entry>
@@ -42,22 +42,24 @@
     </f:block>
     
     <f:block>
+        <!--
         <f:optionalBlock name="generateReports" title="${%Create Compliance Report}" help="/plugin/prqa-plugin/config/help-configCreateCReport.html" checked="${instance.generateReports}" inline="true">
             <tr>
                 <td colspan="2">
                     <h3>${%Additional reports}</h3>
                 </td>
             </tr>
+            -->
             <j:set var="choosableReports" value="${descriptor.getOptionalReportTypes()}"/>
-            <j:forEach var="item" items="${choosableReports}">
+     
+            <j:forEach var="item" items="${choosableReports}">               
                 <tr>
                     <td colspan="2">
-                        <f:checkbox field="chosenReport" checked="${instance.chosenReportTypes.contains(item)}" name="chosenReport"/>
-                        <f:label>${item}</f:label>                        
+                        <f:checkbox field="chosenReport" checked="${instance.chosenReportTypes.contains(item)}" name="chosenReport" title="${item} Report"/>                        
                     </td>
                 </tr>
             </j:forEach>                    
-
+            
             <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
             <tr>
                 <td colspan="2">
@@ -100,7 +102,7 @@
                     <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}" default="0"/>
                 </div>
             </f:entry>
-        </f:optionalBlock>
+        <!-- </f:optionalBlock> -->
     </f:block>    
     
     <f:block>
