@@ -11,6 +11,10 @@
         <f:entry title="${%Product}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
             <f:select/>            
         </f:entry>
+        <f:entry field="source">
+            <f:descriptorRadioList descriptors="${descriptor.getReportSources()}" varName="source" instance="${instance.source}" title="${%Select report source}" help="/plugin/prqa-plugin/config/help-configProductType.html"/>
+        </f:entry>
+        
         <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
             <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
         </f:entry>

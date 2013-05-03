@@ -30,7 +30,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
- *
  * @author mads
  */
 public class FileComplianceThreshold extends AbstractThreshold {
@@ -81,16 +80,12 @@ public class FileComplianceThreshold extends AbstractThreshold {
             } catch (NumberFormatException ex) {
                 return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
             }
-            
             return FormValidation.ok();
         }
 
         @Override
         public String getHelpFile() {
             return "/plugin/prqa-plugin/config/help-thresholds.html";
-        }
-        
-        
-        
+        }  
     }
 }

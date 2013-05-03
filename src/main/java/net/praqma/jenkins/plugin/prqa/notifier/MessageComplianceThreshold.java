@@ -106,10 +106,8 @@ public class MessageComplianceThreshold extends AbstractThreshold {
             } catch (NumberFormatException ex) {
                 return FormValidation.error(Messages.PRQANotifier_UseNoDecimals());
             }
-            
             return FormValidation.ok();
         }
-        
         
         @Override
         public String getHelpFile() {
