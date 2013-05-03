@@ -535,7 +535,7 @@ public class PRQANotifier extends Publisher {
         boolean res = true;
 
         try {            
-            if(settingProjectCompliance != null && settingMaxMessages != null && settingFileCompliance != null && thresholdsDesc.isEmpty()) {
+            if(settingProjectCompliance != null && settingMaxMessages != null && settingFileCompliance != null && (thresholdsDesc != null && thresholdsDesc.isEmpty())) {
                 res = evaluateOld(settingProjectCompliance, settingMaxMessages, settingFileCompliance, totalMax, 
                         fileComplianceIndex, projectComplianceIndex, lar, status, threshholdlevel);
             } else {
