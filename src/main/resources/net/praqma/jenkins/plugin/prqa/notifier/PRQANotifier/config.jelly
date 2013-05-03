@@ -1,33 +1,16 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <!--
+    
     <style>
         td.setting-name {
             vertical-align:middle;
-        }
-        
+        }        
     </style>
-    -->
-    <f:block>
-        <!--
-        <tr>
-            <td colspan="2">
-                <h3>${%Setup}</h3>
-            </td>
-        </tr>
--->                
+    
+    <f:block> 
         <f:entry title="${%Product}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
             <f:select/>            
         </f:entry>
-        
-        <f:entry field="source">
-            <f:descriptorRadioList descriptors="${descriptor.getReportSources()}" varName="source" instance="${instance.source}" title="${%Select report source}" help="/plugin/prqa-plugin/config/help-configProductType.html"/>
-        </f:entry>
-        <!--
-        <f:entry title="${%Project file}" field="projectFile" help="/plugin/prqa-plugin/config/help-configProjectFile.html">
-            <f:textbox name="prqa.projectFile" value="${instance.projectFile}"/>
-        </f:entry>
-        -->
         <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
             <f:checkbox name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
         </f:entry>
@@ -38,76 +21,26 @@
 
         <f:entry title="${%Enable dataflow analysis}" field="enableDataFlowAnalysis" help="/plugin/prqa-plugin/config/help-configEnableDFA.html">
             <f:checkbox name="enableDataFlowAnalysis" value="${instance.enableDataFlowAnalysis}" checked="${instance.enableDataFlowAnalysis}"/>
-        </f:entry>
+        </f:entry>        
+     </f:block> 
+          
+    <f:block> 
+        <j:set var="choosableReports" value="${descriptor.getOptionalReportTypes()}"/>     
+        <j:forEach var="item" items="${choosableReports}">               
+            <tr>
+                <td colspan="2">
+                    <f:checkbox field="chosenReport" checked="${instance.chosenReportTypes.contains(item)}" name="chosenReport" title="${item} Report"/>                        
+                </td>
+            </tr>
+        </j:forEach>
+    </f:block> 
+
+    <f:block> 
+       <f:hetero-list hasHeader="true" name="thresholdsDesc" addCaption="${%Add threshold}" deleteCaption="${%Remove threshold}" oneEach="true" descriptors="${descriptor.getThresholdSelections()}" items="${instance.thresholdsDesc}"/> 
     </f:block>
-    
-    <f:block>
-        <!--
-        <f:optionalBlock name="generateReports" title="${%Create Compliance Report}" help="/plugin/prqa-plugin/config/help-configCreateCReport.html" checked="${instance.generateReports}" inline="true">
-            <tr>
-                <td colspan="2">
-                    <h3>${%Additional reports}</h3>
-                </td>
-            </tr>
-            -->
-            <j:set var="choosableReports" value="${descriptor.getOptionalReportTypes()}"/>
-     
-            <j:forEach var="item" items="${choosableReports}">               
-                <tr>
-                    <td colspan="2">
-                        <f:checkbox field="chosenReport" checked="${instance.chosenReportTypes.contains(item)}" name="chosenReport" title="${item} Report"/>                        
-                    </td>
-                </tr>
-            </j:forEach>                    
-            
-            <j:set var="comparisonSettings" value="${descriptor.getComparisonSettings()}"/>
-            <tr>
-                <td colspan="2">
-                    <h3>${%Threshold}</h3>
-                </td>
-            </tr>
-            <f:entry title="Threshold level" field="threshholdlevel" help="/plugin/prqa-plugin/config/help-thresholds.html">
-                <f:select/>
-            </f:entry>
 
-            <f:entry title="${%Messages}" field="totalMax" help="/plugin/prqa-plugin/config/help-thresholds.html">
-                <div id="m_div" style="width:200px;">
-                    <select class="setting-input" name="settingMaxMessages">               
-                        <j:forEach var="cSetting" items="${comparisonSettings}">
-                            <f:option selected="${instance.settingMaxMessages==cSetting}" value="${cSetting}">${cSetting}</f:option>
-                        </j:forEach>
-                    </select>
-                    <f:textbox name="prqa.totalMax" value="${instance.totalMax}" default="0"/>
-                </div>
-            </f:entry>
-
-            <f:entry title="${%File Compliance Index}" field="fileComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
-                <div id="f_div" style="width:200px;">
-                    <select class="setting-input" name="settingFileCompliance">               
-                        <j:forEach var="fcSetting" items="${comparisonSettings}">                    
-                            <f:option selected="${instance.settingFileCompliance==fcSetting}" value="${fcSetting}">${fcSetting}</f:option>
-                        </j:forEach>
-                    </select>
-                    <f:textbox name="prqa.fileComplianceIndex" value="${instance.fileComplianceIndex}" default="0"/>
-                </div>
-            </f:entry>
-
-            <f:entry title="${%Project Compliance Index}" field="projectComplianceIndex" help="/plugin/prqa-plugin/config/help-thresholds.html">
-                <div id="p_div" style="width:200px; float:left;">
-                    <select class="setting-input" name="settingProjectCompliance">               
-                        <j:forEach var="pcSetting" items="${comparisonSettings}">
-                            <f:option selected="${instance.settingProjectCompliance==pcSetting}" value="${pcSetting}">${pcSetting}</f:option>
-                        </j:forEach>
-                    </select>
-                    <f:textbox name="prqa.projectComplianceIndex" value="${instance.projectComplianceIndex}" default="0"/>
-                </div>
-            </f:entry>
-        <!-- </f:optionalBlock> -->
-    </f:block>    
-    
     <f:block>
         <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
-            
             <j:set var="zervers" value="${descriptor.getServers()}"/>
             <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServer">
                 <select class="chosenServer" name="chosenServer">
@@ -116,14 +49,14 @@
                     </j:forEach>
                 </select>
             </f:entry>
-            
+
             <j:set var="zettings" value="${descriptor.getUploadSettings()}"/>
             <f:entry title="${%Code upload settings}" help="/plugin/prqa-plugin/config/codeUpload.html" field="codeUploadSetting">
                 <table>
                 <j:forEach var="l" items="${zettings}">
                     <tr>
                     <td><f:label><span style="vertical-align:middle">${l}</span></f:label></td>
-                   
+
                     <j:choose>         
                             <j:when test="${instance.codeUploadSetting.equals(l)}">
                                 <td style="vertical-align:middle"><f:radio name="codeUploadSetting" value="${l}" checked="true"/></td>
@@ -144,15 +77,16 @@
             <f:entry title="${%VCS Config file location}" field="vcsConfigXml" help="/plugin/prqa-plugin/config/help-configVCSConfig.html">
                 <f:textbox value="${instance.vcsConfigXml}"/>
             </f:entry>
-            
+
             <f:entry title="${%Source origin}" field="sourceOrigin" help="/plugin/prqa-plugin/config/help-configSourceOrigin.html">
                 <f:textbox value="${instance.sourceOrigin}"/>
             </f:entry>
-            
+
             <f:entry title="${%Use single snapshot mode}" field="singleSnapshotMode" help="/plugin/prqa-plugin/config/help-configSingleMode.html">
                 <f:checkbox value="${instance.singleSnapshotMode}" checked="${instance.singleSnapshotMode}"/>
             </f:entry>
 
         </f:optionalBlock>
     </f:block>
+
 </j:jelly>

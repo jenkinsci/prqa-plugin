@@ -4,7 +4,6 @@
  */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -66,18 +66,30 @@ public class PRQANotifier extends Publisher {
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
     private PrintStream out;
     private List<PRQAGraph> graphTypes;
+    @Deprecated
     private HashMap<StatusCategory,Number> thresholds;
     private EnumSet<QARReportType> chosenReportTypes;
+    @Deprecated
     public final int threshholdlevel;
+    @Deprecated
     public final Boolean totalBetter;
+    @Deprecated
     public final Integer totalMax;
+    
     public final String product;
     public final String chosenServer;
+    
+    @Deprecated
     public final String settingFileCompliance;
+    @Deprecated
     public final String settingMaxMessages;
+    @Deprecated
     public final String settingProjectCompliance;
+    @Deprecated
     public final Double fileComplianceIndex;
+    @Deprecated
     public final Double projectComplianceIndex;
+    
     public final String projectFile;
     public final String vcsConfigXml;
     public final boolean performCrossModuleAnalysis;
@@ -85,11 +97,13 @@ public class PRQANotifier extends Publisher {
     public final boolean singleSnapshotMode;
     public final boolean enableDependencyMode;
     public final boolean enableDataFlowAnalysis;
+    @Deprecated
     public final boolean generateReports;
     private CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
     public final String sourceOrigin;
     public final String qaVerifyProjectName;
     public final PRQAReportSource source;
+    public final List<AbstractThreshold> thresholdsDesc;
     
 
     @DataBoundConstructor
@@ -100,7 +114,8 @@ public class PRQANotifier extends Publisher {
     String qaVerifyProjectName, String vcsConfigXml, boolean singleSnapshotMode,
             String snapshotName, String chosenServer, boolean enableDependencyMode, 
             String codeUploadSetting, String msgConfigFile, boolean generateReports, String sourceOrigin, EnumSet<QARReportType> chosenReportTypes,
-            boolean enableDataFlowAnalysis, final int threshholdlevel, PRQAReportSource source) {
+            boolean enableDataFlowAnalysis, final int threshholdlevel, PRQAReportSource source, 
+            List<AbstractThreshold> thresholdsDesc) {
         this.product = product;
         this.totalBetter = totalBetter;
         this.totalMax = parseIntegerNullDefault(totalMax);
@@ -110,7 +125,6 @@ public class PRQANotifier extends Publisher {
         this.settingMaxMessages = settingMaxMessages;
         this.settingFileCompliance = settingFileCompliance;
         this.projectFile = projectFile;
-        this.thresholds = new HashMap<StatusCategory, Number>();
         this.publishToQAV = publishToQAV;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
         this.vcsConfigXml = vcsConfigXml;
@@ -125,18 +139,7 @@ public class PRQANotifier extends Publisher {
         this.threshholdlevel = threshholdlevel;
         this.source = source;
         this.generateReports = generateReports;
- 
-        if(ComparisonSettings.valueOf(settingFileCompliance).equals(ComparisonSettings.Threshold)) {
-            thresholds.put(StatusCategory.FileCompliance, this.fileComplianceIndex);
-        }
-        
-        if(ComparisonSettings.valueOf(settingProjectCompliance).equals(ComparisonSettings.Threshold)) {
-            thresholds.put(StatusCategory.ProjectCompliance, this.projectComplianceIndex);
-        }
-        
-        if(ComparisonSettings.valueOf(settingMaxMessages).equals(ComparisonSettings.Threshold)) {
-            thresholds.put(StatusCategory.Messages, this.totalMax);
-        }        
+        this.thresholdsDesc = thresholdsDesc;      
     }
     
     @Override
@@ -146,8 +149,8 @@ public class PRQANotifier extends Publisher {
     
     /*
      *Small utility to handle illegal values. Defaults to null if string is unparsable. 
-     * 
      */
+    @Deprecated
     private static Integer parseIntegerNullDefault(String value) {
         try {
             
@@ -162,7 +165,7 @@ public class PRQANotifier extends Publisher {
             return null;
         }
     }
-    
+    @Deprecated
     private static Double parseDoubleNullDefault(String value) {
         try 
         {
@@ -192,6 +195,110 @@ public class PRQANotifier extends Publisher {
                 out.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
                 
             }
+        }
+    }
+    
+    /**
+     * Process the results
+     */ 
+    private boolean evaluate(PRQAReading previousResult, List<? extends AbstractThreshold> thresholds, PRQAComplianceStatus status) {
+        PRQAComplianceStatus previousComplianceStatus = (PRQAComplianceStatus)previousResult;
+        HashMap<StatusCategory, Number> tholds = new HashMap<StatusCategory, Number>();
+        boolean isUnstable = false;
+        for(AbstractThreshold threshold : thresholds) {
+            addThreshold(threshold, tholds);
+            if(!threshold.validate(previousComplianceStatus, status)) {
+                status.addNotification(threshold.onUnstableMessage(previousComplianceStatus, status));
+                isUnstable = true;
+            } 
+        }
+        status.setThresholds(tholds);
+        return isUnstable;
+    }
+    
+    //TODO: This should be removed when we do the nect point release (1.3.0)
+    @Deprecated
+    private boolean evaluateOld( String settingProjectCompliance, String settingMaxMessages, String settingFileCompliance,
+                                    Integer totalMax, Double fileComplianceIndex, Double projectComplianceIndex, PRQAReading lar,
+    PRQAComplianceStatus status, int threshholdlevel ) {
+        boolean res = false;
+        ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
+        ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
+        ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages); 
+        
+            //First compare file compliance
+        try {
+            Double currentFileCompliance = status.getReadout(StatusCategory.ProjectCompliance).doubleValue();
+            if(fileCompliance == ComparisonSettings.Improvement) {
+                if(lar != null) {
+                    Double previous = lar.getReadout(StatusCategory.FileCompliance).doubleValue();
+                    if(currentFileCompliance < previous) {
+                        status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentFileCompliance, previous));
+                        res = false;
+                    }
+                }
+
+            } else if(fileCompliance == ComparisonSettings.Threshold) {
+                if(currentFileCompliance < fileComplianceIndex) {
+                    status.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentFileCompliance, fileComplianceIndex));
+                    res = false;
+                }
+            }
+            
+            Double currentProjecCompliance = status.getReadout(StatusCategory.ProjectCompliance).doubleValue();
+            if(projCompliance == ComparisonSettings.Threshold) {
+                if(currentProjecCompliance < projectComplianceIndex) {
+                    status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentProjecCompliance, projectComplianceIndex));
+                    res = false;
+                }
+
+            } else if(projCompliance == ComparisonSettings.Improvement) {
+                if(lar != null) {
+                    Double previous = lar.getReadout(StatusCategory.ProjectCompliance).doubleValue();
+                    if(currentProjecCompliance < previous) {
+                        status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentProjecCompliance, previous));
+                        res = false;
+                    }
+                }
+            }
+            
+        int current = ((PRQAComplianceStatus)status).getMessageCount(threshholdlevel);
+        if(maxMsg == ComparisonSettings.Improvement) {
+            if(lar != null) {
+                int previous = ((PRQAComplianceStatus)lar).getMessageCount(threshholdlevel);
+                if(current > previous) {
+                    status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(current, previous));
+                    res = false;
+                }
+            }
+
+        } else if(maxMsg == ComparisonSettings.Threshold) {
+            if(current > totalMax) {
+                status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(current, totalMax));
+                res = false;
+            }
+        }
+        
+        } catch (PrqaException ex) {
+            out.println("Report generation ok. Caught exception evaluation results. Trace written to log");
+            log.log(Level.SEVERE, "Storing unexpected result evalution exception", ex);            
+        }
+        
+        
+        return res;
+    }
+    
+    /**
+     * This method is needed to add the necessary values when drawing the threshold graphs
+     */ 
+    //TODO: Refactor this away as soon as possible.
+    private void addThreshold(AbstractThreshold threshold, HashMap<StatusCategory,Number> tholds) {
+        if(threshold instanceof ProjectComplianceThreshold) {
+            tholds.put(StatusCategory.ProjectCompliance, ((ProjectComplianceThreshold)threshold).value);
+        } else if(threshold instanceof FileComplianceThreshold) {
+            tholds.put(StatusCategory.FileCompliance, ((FileComplianceThreshold)threshold).value);
+        } else {
+            tholds.put(StatusCategory.Messages, ((MessageComplianceThreshold)threshold).value);
         }
     }
 
@@ -230,22 +337,6 @@ public class PRQANotifier extends Publisher {
         }            
         return null;
     }
-    /**
-     * Use this method to get the threshold values associated with the current build.
-     * @param cat
-     * @return the threshold for any given category.
-     */
-    public Number getThreshold(StatusCategory cat) {
-        Number num = null;
-        if(thresholds.containsKey(cat)) {
-            num = thresholds.get(cat);
-        }
-        return num;
-    }
-    
-    public HashMap<StatusCategory, Number> getThresholds() {
-        return this.thresholds;
-    }
     
     public PRQAGraph getGraph(Class clazz, List<PRQAGraph> graphs) {
         for(PRQAGraph p : graphs) {
@@ -278,8 +369,7 @@ public class PRQANotifier extends Publisher {
             }
             
             if(deleteCounter > 0) {
-                listener.getLogger().println( String.format("Succesfully deleted %s report fragments", deleteCounter) );
-                
+                listener.getLogger().println( String.format("Succesfully deleted %s report fragments", deleteCounter) );                
             }
             
         } catch (IOException ex) {            
@@ -290,7 +380,6 @@ public class PRQANotifier extends Publisher {
             listener.getLogger().println("Failed to clean up stale report files");
             log.log(Level.SEVERE, "Cleanup crew missing!", ex);
         }
-        
         
         return true;
     }
@@ -310,16 +399,6 @@ public class PRQANotifier extends Publisher {
             productUsed = qacSuite.tool;
             suite = qacSuite;
         }  
-        /*
-        QAR qar = new QAR(productUsed, projectFile, QARReportType.Compliance);
-        
-        if(generateReports) {
-            out.println(Messages.PRQANotifier_ReportGenerateText());
-            out.println(qar);
-        } else {
-            out.println("No reports selected.");
-        }
-        */
         
         QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);        
  
@@ -355,14 +434,11 @@ public class PRQANotifier extends Publisher {
             qar = new QAR(productUsed, projectFile, QARReportType.Compliance);
         }
         
-        if(qar != null) {
-            out.println(Messages.PRQANotifier_ReportGenerateText());
-            out.println(qar);
-        } 
+        out.println(Messages.PRQANotifier_ReportGenerateText());
+        out.println(qar);
         
         PRQAUploadSettings uploadSettings = new PRQAUploadSettings(vcsConfigXml, singleSnapshotMode, codeUploadSetting, sourceOrigin, qaVerifyProjectName);
-        
-        
+
         QAVerifyServerSettings qavSettings = null;
         if(conf != null) {
             qavSettings = new QAVerifyServerSettings(conf.getHostName(), conf.getPortNumber(), conf.getProtocol(), conf.getPassword(), conf.getUserName());                    
@@ -376,13 +452,7 @@ public class PRQANotifier extends Publisher {
         boolean success = true;
         PRQAComplianceStatus status = null;
         try {
-            //Special case when upgrading
-            /*
-            if(source == null) {
-                throw new PrqaSetupException( String.format("The jobs project source is not configured%nIf you just upgraded plugin you'll nee to fill out a project file source on the job configuration page."));
-            }
-            */ 
-            
+
             if(qacSuite == null && !(productUsed.equalsIgnoreCase("qacpp") || productUsed.equalsIgnoreCase("qac"))) {
                 throw new PrqaSetupException( String.format("The job uses a product configuration (%s) that no longer exists, please reconfigure.", productUsed ) );
             }
@@ -434,7 +504,7 @@ public class PRQANotifier extends Publisher {
             return false;
         } finally {
             try {
-                if(/* generateReports && */ success) {
+                if(success) {
                     copyReportsToArtifactsDir(settings, build);
                 }                
                 if(publishToQAV && success) {
@@ -453,17 +523,6 @@ public class PRQANotifier extends Publisher {
         
         Tuple<PRQAReading,AbstractBuild<?,?>> previousResult = getPreviousReading(build, Result.SUCCESS);
         
-        /*
-        if(status == null && !generateReports) {
-            out.println(Messages.PRQANotifier_SkipOk());
-            return true;
-        }
-        */ 
-        
-        status.setThresholds(thresholds);
-       
-        boolean res = true;        
-        
         if(previousResult != null) {
             out.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousResult.getSecond().number))));
             out.println(previousResult.getFirst());
@@ -473,66 +532,18 @@ public class PRQANotifier extends Publisher {
         
         PRQAReading lar = previousResult != null ? previousResult.getFirst() : null;
         
-        //None, Threshold, Improvement;        
-        ComparisonSettings fileCompliance = ComparisonSettings.valueOf(settingFileCompliance);
-        ComparisonSettings projCompliance = ComparisonSettings.valueOf(settingProjectCompliance);
-        ComparisonSettings maxMsg = ComparisonSettings.valueOf(settingMaxMessages);        
-        
-        //First compare file compliance
-        try {
-            Double currentFileCompliance = status.getReadout(StatusCategory.ProjectCompliance).doubleValue();
-            if(fileCompliance == ComparisonSettings.Improvement) {
-                if(lar != null) {
-                    Double previous = lar.getReadout(StatusCategory.FileCompliance).doubleValue();
-                    if(currentFileCompliance < previous) {
-                        status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentFileCompliance, previous));
-                        res = false;
-                    }
-                }
+        boolean res = true;
 
-            } else if(fileCompliance == ComparisonSettings.Threshold) {
-                if(currentFileCompliance < fileComplianceIndex) {
-                    status.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentFileCompliance, fileComplianceIndex));
-                    res = false;
-                }
+        try {            
+            if(settingProjectCompliance != null && settingMaxMessages != null && settingFileCompliance != null && thresholdsDesc.isEmpty()) {
+                res = evaluateOld(settingProjectCompliance, settingMaxMessages, settingFileCompliance, totalMax, 
+                        fileComplianceIndex, projectComplianceIndex, lar, status, threshholdlevel);
+            } else {
+                res = evaluate((PRQAComplianceStatus)status, thresholdsDesc, status);    
             }
-            
-            Double currentProjecCompliance = status.getReadout(StatusCategory.ProjectCompliance).doubleValue();
-            if(projCompliance == ComparisonSettings.Threshold) {
-                if(currentProjecCompliance < projectComplianceIndex) {
-                    status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentProjecCompliance, projectComplianceIndex));
-                    res = false;
-                }
-
-            } else if(projCompliance == ComparisonSettings.Improvement) {
-                if(lar != null) {
-                    Double previous = lar.getReadout(StatusCategory.ProjectCompliance).doubleValue();
-                    if(currentProjecCompliance < previous) {
-                        status.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentProjecCompliance, previous));
-                        res = false;
-                    }
-                }
-            }
-        } catch (PrqaException ex) {
+        } catch (Exception ex) {
             out.println("Report generation ok. Caught exception evaluation results. Trace written to log");
             log.log(Level.SEVERE, "Storing unexpected result evalution exception", ex);            
-        }
-
-        int current = ((PRQAComplianceStatus)status).getMessageCount(threshholdlevel);
-        if(maxMsg == ComparisonSettings.Improvement) {
-            if(lar != null) {
-                int previous = ((PRQAComplianceStatus)lar).getMessageCount(threshholdlevel);
-                if(current > previous) {
-                    status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(current, previous));
-                    res = false;
-                }
-            }
-
-        } else if(maxMsg == ComparisonSettings.Threshold) {
-            if(current > totalMax) {
-                status.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMet(current, totalMax));
-                res = false;
-            }
         }
         
         out.println(Messages.PRQANotifier_ScannedValues());        
@@ -617,42 +628,8 @@ public class PRQANotifier extends Publisher {
     @Extension
     public static final class DescriptorImpl extends BuildStepDescriptor<Publisher> {
         
-        public FormValidation doCheckFileComplianceIndex(@QueryParameter String value) {
-            try {
-                Double parsedValue = Double.parseDouble(value);
-                if(parsedValue < 0) {
-                    return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
-                }
-            } catch (NumberFormatException ex) {
-                return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
-            }
-            
-            return FormValidation.ok();
-        }
-        
-        public FormValidation doCheckProjectComplianceIndex(@QueryParameter String value) {
-            try {
-                Double parsedValue = Double.parseDouble(value);
-                if(parsedValue < 0) {
-                    return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
-                }
-            } catch (NumberFormatException ex) {
-                return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
-            }
-            
-            return FormValidation.ok();
-        }
-        
-        public FormValidation doCheckTotalMax(@QueryParameter String value) {
-            try {
-                Integer parsedValue = Integer.parseInt(value);
-                if(parsedValue < 0) {
-                    return FormValidation.error(Messages.PRQANotifier_WrongInteger());
-                }
-            } catch (NumberFormatException ex) {
-                return FormValidation.error(Messages.PRQANotifier_UseNoDecimals());
-            }
-            return FormValidation.ok();
+        public List<ThresholdSelectionDescriptor<?>> getThresholdSelections() {
+            return AbstractThreshold.getDescriptors();            
         }
         
         public FormValidation doCheckVcsConfigXml(@QueryParameter String value) {
@@ -678,8 +655,7 @@ public class PRQANotifier extends Publisher {
                 return FormValidation.error(Messages.PRQANotifier_IllegalVcsString());
             }
         }
-        
-        
+
         @Override
         public String getDisplayName() {
             return "Programming Research Report";
@@ -731,14 +707,6 @@ public class PRQANotifier extends Publisher {
             return Arrays.asList(prqaInstallations);
         }
         
-        public List<String> getComparisonSettings() {
-            List<String> settings = new ArrayList<String>();
-            for (ComparisonSettings setting : ComparisonSettings.values()) {
-                settings.add(setting.toString());
-            }
-            return settings;
-        }
-        
         public List<PRQAReportSourceDescriptor<?>> getReportSources() {
             return PRQAReportSource.getDescriptors();
         }
@@ -764,14 +732,6 @@ public class PRQANotifier extends Publisher {
                 model.add(suite.getName());
             }          
             return model;            
-        }
-        
-        public ListBoxModel doFillThreshholdlevelItems() {
-            ListBoxModel model = new ListBoxModel();
-            for(int i=0; i<10; i++) {
-                model.add(""+i);
-            }
-            return model;
         }
     }
 }
