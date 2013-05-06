@@ -50,7 +50,5 @@ public class MessagesGraph extends PRQAGraph {
     public void setData(PRQAStatusCollection data) {
         super.setData(data);
         data.overrideMin(StatusCategory.Messages, 0);
-    }
-    
-    
+    } 
 }

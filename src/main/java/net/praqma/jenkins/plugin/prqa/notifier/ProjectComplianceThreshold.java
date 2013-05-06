@@ -53,9 +53,9 @@ public class ProjectComplianceThreshold extends AbstractThreshold {
     @Override
     public String onUnstableMessage(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
         if(improvement) {
-            return Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentValue, lastStableValue);        
+            return Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentValue.getProjectCompliance(), lastStableValue.getProjectCompliance());        
         } else {
-            return Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentValue, value);        
+            return Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(currentValue.getProjectCompliance(), value);        
         }
         
     }

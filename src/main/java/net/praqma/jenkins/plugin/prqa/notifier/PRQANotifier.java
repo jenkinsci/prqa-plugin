@@ -391,7 +391,7 @@ public class PRQANotifier extends Publisher {
             }
             return 0;
         } else {
-            return 0;
+            return threshholdlevel;
         }
     }
     

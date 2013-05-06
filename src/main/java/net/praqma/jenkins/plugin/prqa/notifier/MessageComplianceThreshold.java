@@ -61,9 +61,9 @@ public class MessageComplianceThreshold extends AbstractThreshold {
     @Override
     public String onUnstableMessage(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
         if(improvement) {
-            return Messages.PRQANotifier_MaxMessagesRequirementNotMet(currentValue, lastStableValue);
+            return Messages.PRQANotifier_MaxMessagesRequirementNotMet(currentValue.getMessageCount(thresholdLevel), lastStableValue.getMessageCount(thresholdLevel));
         } else {
-            return Messages.PRQANotifier_MaxMessagesRequirementNotMet(currentValue, value);
+            return Messages.PRQANotifier_MaxMessagesRequirementNotMet(currentValue.getMessageCount(thresholdLevel), value);
         }
     }
 
