@@ -25,7 +25,6 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
 import hudson.util.FormValidation;
-import java.io.File;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;

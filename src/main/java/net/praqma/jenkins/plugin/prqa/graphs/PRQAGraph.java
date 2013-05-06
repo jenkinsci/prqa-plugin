@@ -29,6 +29,7 @@ import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
+import java.util.logging.*;
 
 /**
  *
@@ -39,6 +40,7 @@ public abstract class PRQAGraph implements Serializable {
     protected PRQAStatusCollection data;
     protected String title;
     protected PRQAContext.QARReportType type;
+    private static final Logger log = Logger.getLogger(PRQAGraph.class.getName());
    
     public PRQAContext.QARReportType getType() {
         return type;
@@ -73,6 +75,7 @@ public abstract class PRQAGraph implements Serializable {
     }
     
     public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb, Double threshHoldMax) throws IOException {
+        try {
         Number max = null;
         Number min = null;
         int width = Integer.parseInt(req.getParameter("width"));
@@ -97,13 +100,17 @@ public abstract class PRQAGraph implements Serializable {
                     setTitle(String.format("Level %s-9 Messages per Build",tsetting));
                 }
             }
-            
+            log.fine("Iterating using category: "+category);
             if(max != null && min != null) {
                 ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), getTitle() == null ? category.toString() : getTitle() , null, threshHoldMax != null ? threshHoldMax.intValue() : max.intValue(), min.intValue()), width, height );     
             }
+        
         }
         
-
+        } catch (RuntimeException ex) {
+            log.logp(Level.SEVERE, this.getClass().getName(), "drawGraph", "Failed to draw a graph",ex);
+            throw ex;
+        }
     }
     
     protected JFreeChart createChart( CategoryDataset dataset, String title, String yaxis, int max, int min ) {
@@ -139,7 +146,7 @@ public abstract class PRQAGraph implements Serializable {
 
         final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
         rangeAxis.setStandardTickUnits( NumberAxis.createIntegerTickUnits() );
-        rangeAxis.setUpperBound( max );
+        //rangeAxis.setUpperBound( max );
         rangeAxis.setLowerBound( min );
         
         final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();

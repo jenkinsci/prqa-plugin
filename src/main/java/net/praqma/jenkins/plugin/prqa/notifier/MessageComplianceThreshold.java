@@ -24,14 +24,12 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
-import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import java.util.logging.Logger;
 import net.praqma.prqa.status.PRQAComplianceStatus;
-import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-import org.kohsuke.stapler.StaplerRequest;
 
 /**
  *
@@ -41,6 +39,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
 
     public final Integer value;
     public final int thresholdLevel;
+    private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
 
     @DataBoundConstructor
     public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
@@ -52,9 +51,11 @@ public class MessageComplianceThreshold extends AbstractThreshold {
 
     @Override
     public Boolean validateImprovement(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
-        if(lastStableValue == null)
+        if(lastStableValue == null) {
             return Boolean.TRUE;
-        return currentValue.getMessageCount(thresholdLevel) <= lastStableValue.getMessageCount(thresholdLevel);
+        } else {
+            return currentValue.getMessageCount(thresholdLevel) <= lastStableValue.getMessageCount(thresholdLevel);
+        }
     }
 
     @Override
@@ -68,12 +69,16 @@ public class MessageComplianceThreshold extends AbstractThreshold {
 
     @Override
     public Boolean validateThreshold(PRQAComplianceStatus currentValue) {
-        return currentValue.getMessageCount(thresholdLevel) <= value;
+        Boolean res = currentValue.getMessageCount(thresholdLevel) <= value;
+        log.fine( String.format("Found %s mesages, comparing to: %s",currentValue.getMessageCount(thresholdLevel), value));        
+        log.fine( String.format("ValidateThreshold returned %s",res));
+        return res;
     }
     
     @Override
     public Boolean validate(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
-        currentValue.setMessagesWithinThreshold(thresholdLevel);
+        int msgWithin = currentValue.getMessageCount(thresholdLevel);
+        currentValue.setMessagesWithinThreshold(msgWithin);
         if(improvement) {
             return validateImprovement(lastStableValue, currentValue);
         } else {

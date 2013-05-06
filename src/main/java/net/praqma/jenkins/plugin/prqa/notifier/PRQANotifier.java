@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -190,10 +189,8 @@ public class PRQANotifier extends Publisher {
             for(int i = 0; i<files.length; i++) { 
                 String artifactDir = build.getArtifactsDir().getPath();
                 FilePath targetDir = new FilePath(new File(artifactDir+"/"+files[i].getName()));
-
                 files[i].copyTo(targetDir);
-                out.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
-                
+                out.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));                
             }
         }
     }
@@ -204,19 +201,19 @@ public class PRQANotifier extends Publisher {
     private boolean evaluate(PRQAReading previousResult, List<? extends AbstractThreshold> thresholds, PRQAComplianceStatus status) {
         PRQAComplianceStatus previousComplianceStatus = (PRQAComplianceStatus)previousResult;
         HashMap<StatusCategory, Number> tholds = new HashMap<StatusCategory, Number>();
-        boolean isUnstable = false;
+        boolean isStable = true;
         for(AbstractThreshold threshold : thresholds) {
             addThreshold(threshold, tholds);
             if(!threshold.validate(previousComplianceStatus, status)) {
                 status.addNotification(threshold.onUnstableMessage(previousComplianceStatus, status));
-                isUnstable = true;
+                isStable = false;
             } 
         }
         status.setThresholds(tholds);
-        return isUnstable;
+        return isStable;
     }
     
-    //TODO: This should be removed when we do the nect point release (1.3.0)
+    //TODO: This should be removed when we do the next point release (1.3.0)
     @Deprecated
     private boolean evaluateOld( String settingProjectCompliance, String settingMaxMessages, String settingFileCompliance,
                                     Integer totalMax, Double fileComplianceIndex, Double projectComplianceIndex, PRQAReading lar,
@@ -384,6 +381,20 @@ public class PRQANotifier extends Publisher {
         return true;
     }
     
+    public int getThreshholdlevel() {
+        if(thresholdsDesc != null && thresholdsDesc.size() > 0) {
+            for(AbstractThreshold abt : thresholdsDesc) {
+                if(abt instanceof MessageComplianceThreshold) {
+                    MessageComplianceThreshold mct = (MessageComplianceThreshold)abt;
+                    return mct.thresholdLevel;
+                }               
+            }
+            return 0;
+        } else {
+            return 0;
+        }
+    }
+    
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws InterruptedException, IOException {
         
@@ -516,7 +527,7 @@ public class PRQANotifier extends Publisher {
             }
         }
         
-        if(status == null /* && generateReports */) {
+        if(status == null) {
             out.println(Messages.PRQANotifier_FailedGettingResults());
             return false;
         }
@@ -534,12 +545,21 @@ public class PRQANotifier extends Publisher {
         
         boolean res = true;
 
+        log.fine("settingsProjectCompliance is null: " + (settingProjectCompliance == null));
+        log.fine("settingMaxMessages is null: " + (settingMaxMessages == null));
+        log.fine("settingFileCompliance is null: " + (settingFileCompliance == null));
+        log.fine("thresholdsDesc is null: " + (thresholdsDesc == null));
+        if(thresholdsDesc != null) {
+            log.fine("thresholdsDescSize: "+thresholdsDesc.size());
+        }
+        
         try {            
-            if(settingProjectCompliance != null && settingMaxMessages != null && settingFileCompliance != null && (thresholdsDesc != null && thresholdsDesc.isEmpty())) {
+            if(settingProjectCompliance != null && settingMaxMessages != null && settingFileCompliance != null && (thresholdsDesc == null || thresholdsDesc.isEmpty())) {
                 res = evaluateOld(settingProjectCompliance, settingMaxMessages, settingFileCompliance, totalMax, 
                         fileComplianceIndex, projectComplianceIndex, lar, status, threshholdlevel);
             } else {
-                res = evaluate((PRQAComplianceStatus)status, thresholdsDesc, status);    
+                res = evaluate((PRQAComplianceStatus)status, thresholdsDesc, status);
+                log.fine("Evaluated to: "+res);
             }
         } catch (Exception ex) {
             out.println("Report generation ok. Caught exception evaluation results. Trace written to log");
