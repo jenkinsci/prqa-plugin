@@ -27,9 +27,12 @@ import hudson.Extension;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import net.praqma.prqa.status.PRQAComplianceStatus;
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.StaplerRequest;
 
 /**
  *
@@ -38,19 +41,16 @@ import org.kohsuke.stapler.QueryParameter;
 public class MessageComplianceThreshold extends AbstractThreshold {
 
     public final Integer value;
-    public final int thresholdLevel;
     private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
 
     @DataBoundConstructor
     public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
         super(improvement);
         this.value = value;
-        this.thresholdLevel = thresholdLevel;
-        
-    }
+    }    
 
     @Override
-    public Boolean validateImprovement(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
+    public Boolean validateImprovement(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue, int thresholdLevel) {
         if(lastStableValue == null) {
             return Boolean.TRUE;
         } else {
@@ -59,7 +59,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
     }
 
     @Override
-    public String onUnstableMessage(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
+    public String onUnstableMessage(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue, int thresholdLevel) {
         if(improvement) {
             return Messages.PRQANotifier_MaxMessagesRequirementNotMet(currentValue.getMessageCount(thresholdLevel), lastStableValue.getMessageCount(thresholdLevel));
         } else {
@@ -68,7 +68,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Boolean validateThreshold(PRQAComplianceStatus currentValue) {
+    public Boolean validateThreshold(PRQAComplianceStatus currentValue, int thresholdLevel) {
         Boolean res = currentValue.getMessageCount(thresholdLevel) <= value;
         log.fine( String.format("Found %s mesages, comparing to: %s",currentValue.getMessageCount(thresholdLevel), value));        
         log.fine( String.format("ValidateThreshold returned %s",res));
@@ -76,15 +76,16 @@ public class MessageComplianceThreshold extends AbstractThreshold {
     }
     
     @Override
-    public Boolean validate(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
+    public Boolean validate(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue, int thresholdLevel) {
         int msgWithin = currentValue.getMessageCount(thresholdLevel);
         currentValue.setMessagesWithinThreshold(msgWithin);
         if(improvement) {
-            return validateImprovement(lastStableValue, currentValue);
+            return validateImprovement(lastStableValue, currentValue, thresholdLevel);
         } else {
-            return validateThreshold(currentValue);
-        }
+            return validateThreshold(currentValue, thresholdLevel);
+        }        
     }
+    
     
     @Extension
     public static final class DescriptorImpl extends ThresholdSelectionDescriptor<MessageComplianceThreshold> {
@@ -92,14 +93,6 @@ public class MessageComplianceThreshold extends AbstractThreshold {
         @Override
         public String getDisplayName() {
             return "Message Compliance Threshold";
-        }
-        
-        public ListBoxModel doFillThresholdLevelItems() {
-            ListBoxModel model = new ListBoxModel();
-            for (int i = 0; i < 10; i++) {
-                model.add("" + i);
-            }
-            return model;
         }
         
         public FormValidation doCheckValue(@QueryParameter String value) {

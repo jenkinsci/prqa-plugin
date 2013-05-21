@@ -43,14 +43,14 @@ public class FileComplianceThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Boolean validateImprovement(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
+    public Boolean validateImprovement(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue, int thresholdLevel) {
         if(lastStableValue == null)
             return Boolean.TRUE;
         return currentValue.getFileCompliance() >= lastStableValue.getFileCompliance();
     }
 
     @Override
-    public String onUnstableMessage(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue) {
+    public String onUnstableMessage(PRQAComplianceStatus lastStableValue, PRQAComplianceStatus currentValue, int thresholdLevel) {
         if(!improvement) {
             return Messages.PRQANotifier_FileComplianceRequirementNotMet(currentValue.getFileCompliance(), lastStableValue.getFileCompliance());
         } else {
@@ -59,7 +59,7 @@ public class FileComplianceThreshold extends AbstractThreshold {
     }
 
     @Override
-    public Boolean validateThreshold(PRQAComplianceStatus currentValue) {
+    public Boolean validateThreshold(PRQAComplianceStatus currentValue, int thresholdLevel) {
         return currentValue.getFileCompliance() >= value;
     }
 

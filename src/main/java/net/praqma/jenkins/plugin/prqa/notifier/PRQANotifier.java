@@ -68,7 +68,6 @@ public class PRQANotifier extends Publisher {
     @Deprecated
     private HashMap<StatusCategory,Number> thresholds;
     private EnumSet<QARReportType> chosenReportTypes;
-    @Deprecated
     public final int threshholdlevel;
     @Deprecated
     public final Boolean totalBetter;
@@ -204,8 +203,8 @@ public class PRQANotifier extends Publisher {
         boolean isStable = true;
         for(AbstractThreshold threshold : thresholds) {
             addThreshold(threshold, tholds);
-            if(!threshold.validate(previousComplianceStatus, status)) {
-                status.addNotification(threshold.onUnstableMessage(previousComplianceStatus, status));
+            if(!threshold.validate(previousComplianceStatus, status, threshholdlevel)) {
+                status.addNotification(threshold.onUnstableMessage(previousComplianceStatus, status, threshholdlevel));
                 isStable = false;
             } 
         }
@@ -280,8 +279,6 @@ public class PRQANotifier extends Publisher {
             out.println("Report generation ok. Caught exception evaluation results. Trace written to log");
             log.log(Level.SEVERE, "Storing unexpected result evalution exception", ex);            
         }
-        
-        
         return res;
     }
     
@@ -379,20 +376,6 @@ public class PRQANotifier extends Publisher {
         }
         
         return true;
-    }
-    
-    public int getThreshholdlevel() {
-        if(thresholdsDesc != null && thresholdsDesc.size() > 0) {
-            for(AbstractThreshold abt : thresholdsDesc) {
-                if(abt instanceof MessageComplianceThreshold) {
-                    MessageComplianceThreshold mct = (MessageComplianceThreshold)abt;
-                    return mct.thresholdLevel;
-                }               
-            }
-            return 0;
-        } else {
-            return threshholdlevel;
-        }
     }
     
     @Override
@@ -651,7 +634,7 @@ public class PRQANotifier extends Publisher {
         public List<ThresholdSelectionDescriptor<?>> getThresholdSelections() {
             return AbstractThreshold.getDescriptors();            
         }
-        
+               
         public FormValidation doCheckVcsConfigXml(@QueryParameter String value) {
             try {
                 if(value.endsWith(".xml") || StringUtils.isBlank(value)) {
@@ -679,6 +662,14 @@ public class PRQANotifier extends Publisher {
         @Override
         public String getDisplayName() {
             return "Programming Research Report";
+        }
+        
+        public ListBoxModel doFillThreshholdlevelItems() {
+            ListBoxModel model = new ListBoxModel();
+            for (int i = 0; i < 10; i++) {
+                model.add("" + i);
+            }
+            return model;
         }
 
         @Override

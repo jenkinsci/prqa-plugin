@@ -45,6 +45,9 @@
     </f:section>
     
     <f:section title="Threshold">
+        <f:entry title="${%Message threshold level}" field="threshholdlevel">
+            <f:select/>
+        </f:entry>
         <f:block> 
            <f:hetero-list hasHeader="true" name="thresholdsDesc" addCaption="${%Add threshold}" deleteCaption="${%Remove threshold}" oneEach="true" descriptors="${descriptor.getThresholdSelections()}" items="${instance.thresholdsDesc}"/> 
         </f:block>
