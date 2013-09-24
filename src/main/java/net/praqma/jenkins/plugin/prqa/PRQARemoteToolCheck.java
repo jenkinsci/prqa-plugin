@@ -179,7 +179,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
                     }                
                     File f = new File(value);
                     if(!f.exists()) {
-                        throw new PrqaSetupException(String.format("\"Configuration error - Check your QA·C Product installation path\\nThe enviroment created points to a non-existing location\\n Check your tool settings\"", s, env.get(s)));
+                        throw new PrqaSetupException(String.format("Configuration error - Check your QA·C Product installation path%nThe enviroment created points to a non-existing location%nCheck your tool settings%nThe tool location missing was: %s",f.getAbsolutePath()));
                     }
                 }            
             } else if(product instanceof QACpp) {            
@@ -190,7 +190,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
                     }
                     File f = new File(value);
                     if(!f.exists()) {
-                        throw new PrqaSetupException(String.format("Configuration error - Check your QA·C++ Product installation path\nThe enviroment created points to a non-existing location\n Check your tool settings"));
+                        throw new PrqaSetupException(String.format("Configuration error - Check your QA·C++ Product installation path%nThe enviroment created points to a non-existing location%n Check your tool settings%nThe tool location missing was: %s",f.getAbsolutePath()));
                     }
                 }
             }

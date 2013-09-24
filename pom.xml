@@ -116,7 +116,7 @@
         <dependency>
             <groupId>net.praqma</groupId>
             <artifactId>prqa</artifactId>
-            <version>1.4-SNAPSHOT</version>
+            <version>1.4</version>
         </dependency>
     </dependencies>
     
