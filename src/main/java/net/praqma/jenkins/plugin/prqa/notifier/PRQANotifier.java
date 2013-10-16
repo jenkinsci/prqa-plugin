@@ -61,6 +61,7 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
+//TODO: I intend to REMOVE all the deprecated fields in the realease for the new PRQA API
 public class PRQANotifier extends Publisher {
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
     private PrintStream out;

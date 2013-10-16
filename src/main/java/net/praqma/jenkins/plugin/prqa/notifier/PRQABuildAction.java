@@ -192,6 +192,7 @@ public class PRQABuildAction implements Action {
         HashMap<StatusCategory,Boolean> drawMatrix = _doDrawThresholds(req, rsp);
                
         if(notifier != null) {
+            Integer tSetting = Integer.parseInt(req.getParameter("tsetting"));
             String className = req.getParameter("graph");
             PRQAGraph graph =  notifier.getGraph(className);
             PRQAStatusCollection collection = new PRQAStatusCollection();
@@ -210,7 +211,7 @@ public class PRQABuildAction implements Action {
                         {
                             PRQAComplianceStatus cs = (PRQAComplianceStatus)stat;
                             if(cat.equals(StatusCategory.Messages)) {
-                                res = cs.getMessagesWithinThreshold();
+                                res = cs.getMessageCount(tSetting);
                             } else {
                                res = stat.getReadout(cat); 
                             }                            
