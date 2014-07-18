@@ -34,7 +34,7 @@
                         <f:label for="servers.password">${%Password}</f:label>
                     </td>
                     <td>
-                        <f:password name="servers.password" field="password" value="${servers.password}" default=""></f:password>
+                        <f:password name="servers.password" field="password" value="${servers.password}" ></f:password>
                     </td>
                 </tr>
                 <tr>

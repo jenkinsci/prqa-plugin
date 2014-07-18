@@ -1,0 +1,98 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+         
+ <style>      
+table.outer{
+		width:100%;
+		}
+    </style>    
+     <f:section title="Analyzer Setup">
+     
+     
+     
+     <f:entry title="${%PRQA Tool Installation}" field="product" help="/plugin/prqa-plugin/config/help-configProductType.html">
+        <f:select/>            
+     </f:entry>
+      <f:block>    	
+        <f:entry field="fileProjectSource">
+            <f:descriptorRadioList descriptors="${descriptor.getFileProjectSources()}" varName="fileProjectSource" instance="${instance.fileProjectSource}"  help="/plugin/prqa-plugin/config/help-configProductType.html"/>
+        </f:entry>                      
+      </f:block>
+      
+      <f:entry title="${%Perform Cross-Module analysis}" field="performCrossModuleAnalysis" help="/plugin/prqa-plugin/config/help-configPerformCMA.html">
+            <f:checkbox  name="performCrossModuleAnalysis" value="${instance.performCrossModuleAnalysis}" checked="${instance.performCrossModuleAnalysis}"/>
+      </f:entry>
+      
+      <f:entry title="${%Enable dependency based analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-configEnableDMode.html">
+            <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
+      </f:entry>
+      
+       <f:entry title="${%Enable dataflow analysis}" field="enableDataFlowAnalysis" help="/plugin/prqa-plugin/config/help-configEnableDFA.html">
+            <f:checkbox name="enableDataFlowAnalysis" value="${instance.enableDataFlowAnalysis}" checked="${instance.enableDataFlowAnalysis}"/>
+      </f:entry>
+          <f:block> 
+          <table>
+            <j:set var="choosableReports" value="${descriptor.getOptionalReportTypes()}"/>     
+            <j:forEach var="item" items="${choosableReports}">               
+                <tr>
+                    <td colspan="2">
+                        <f:checkbox field="chosenReport" checked="${instance.chosenReportTypes.contains(item)}" name="chosenReport" title="${item} Report"/>                        
+                    </td>
+                </tr>
+            </j:forEach>
+            </table>
+        </f:block>
+        <f:block>
+        <table class="outer">
+        <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
+
+                <j:set var="zervers" value="${descriptor.getServers()}"/>
+                <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServer">
+                    <select class="chosenServer" name="chosenServer">
+                        <j:forEach var="l" items="${zervers}">
+                            <f:option selected="${instance.chosenServer.equals(l.toString())}" value="${l}">${l}</f:option>
+                        </j:forEach>
+                    </select>
+                </f:entry>
+
+                <j:set var="zettings" value="${descriptor.getUploadSettings()}"/>
+                <f:entry title="${%Code upload settings}" help="/plugin/prqa-plugin/config/codeUpload.html" field="codeUploadSetting">
+                    <table class="inner">
+                    <j:forEach var="l" items="${zettings}">
+                        <tr>
+                        <td><f:label><span style="vertical-align:middle">${l}</span></f:label></td>
+
+                        <j:choose>         
+                                <j:when test="${instance.codeUploadSetting.equals(l)}">
+                                    <td style="vertical-align:middle"><f:radio name="codeUploadSetting" value="${l}" checked="true"/></td>
+                                </j:when>
+                                <j:otherwise>
+                                    <td style="vertical-align:middle"><f:radio name="codeUploadSetting" value="${l}" checked="false"/></td>
+                                </j:otherwise>
+                        </j:choose>                        
+                        </tr>
+                    </j:forEach>
+                    </table>
+                </f:entry>
+
+                <f:entry title="${%QA&#xb7;Verify project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
+                    <f:textbox value="${instance.qaVerifyProjectName}"/>
+                </f:entry>
+
+                <f:entry title="${%VCS Config file location}" field="vcsConfigXml" help="/plugin/prqa-plugin/config/help-configVCSConfig.html">
+                    <f:textbox value="${instance.vcsConfigXml}"/>
+                </f:entry>
+
+                <f:entry title="${%Source origin}" field="sourceOrigin" help="/plugin/prqa-plugin/config/help-configSourceOrigin.html">
+                    <f:textbox value="${instance.sourceOrigin}"/>
+                </f:entry>
+
+                <f:entry title="${%Use single snapshot mode}" field="singleSnapshotMode" help="/plugin/prqa-plugin/config/help-configSingleMode.html">
+                    <f:checkbox value="${instance.singleSnapshotMode}" checked="${instance.singleSnapshotMode}"/>
+                </f:entry>
+
+        </f:optionalBlock>
+         </table>
+        </f:block>
+     </f:section>
+</j:jelly>

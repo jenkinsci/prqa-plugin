@@ -1,0 +1,20 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <style>
+        .not-impl {
+            font-style:italic;
+        }
+    </style>
+    
+    <f:entry title="${%QA·Framework Installation name}" field="qafName">
+        <f:textbox/>
+    </f:entry>    
+    <f:entry title="${%QA·Framework Installation path}" field="qafHome">
+        <f:textbox/>
+    </f:entry>
+    <tr>
+        <td colspan="3">
+            <span class="not-impl">The install automatically feature is not implemented yet.</span>
+        </td>
+    </tr>
+</j:jelly>

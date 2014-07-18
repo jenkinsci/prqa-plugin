@@ -25,6 +25,7 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
 import hudson.util.FormValidation;
+
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
@@ -33,7 +34,7 @@ import org.kohsuke.stapler.QueryParameter;
  *
  * @author Praqma
  */
-public class PRQAReportProjectFileSource extends PRQAReportSource {
+public class PRQAReportProjectFileSource extends PRQAFileProjectSource {
     
     public final String projectFile;
     
@@ -43,7 +44,7 @@ public class PRQAReportProjectFileSource extends PRQAReportSource {
     }
     
     @Extension
-    public final static class DescriptorImpl extends PRQAReportSourceDescriptor<PRQAReportProjectFileSource> {
+    public final static class DescriptorImpl extends PRQAFileProjectSourceDescriptor<PRQAReportProjectFileSource> {
 
         public DescriptorImpl() {
             super();

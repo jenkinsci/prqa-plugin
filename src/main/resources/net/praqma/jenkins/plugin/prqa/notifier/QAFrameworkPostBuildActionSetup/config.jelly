@@ -1,0 +1,61 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+   
+ <style>      
+table.outer{
+        width:100%;
+        }
+    </style> 
+   <f:section title="Setup">
+   
+   
+         <f:block>
+		    <f:entry title="${%QA·Framework Installation}" field="qaInstallation" help="/plugin/prqa-plugin/config/help-qaInstallation.html"> 
+		        <f:select/>
+		    </f:entry>
+		    <f:entry title="${%QA·Framework Project}" field="qaProject" help="/plugin/prqa-plugin/config/help-qaProject.html">
+		        <f:textbox/> 
+		    </f:entry>
+
+            <f:block>
+
+                    <f:optionalBlock name="performCrossModuleAnalysis" title="${%Perform Cross-Module analysis}" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
+                        <f:entry title="${%CMA project name}" field="CMAProjectName" help="/plugin/prqa-plugin/config/help-qaCMAProjectName.html">
+                            <f:textbox value="${instance.CMAProjectName}"/>
+                        </f:entry>
+                    </f:optionalBlock>
+
+            </f:block>
+
+		    <f:entry title="${%Enable dependency based analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
+		        <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
+		     </f:entry>
+ 		  
+ 				<f:entry title="${%Generate report}" field="generateReport" >
+		        	<f:checkbox name="generateReport" value="${instance.generateReport}" checked="${instance.generateReport}"/>
+		     	</f:entry>
+
+         <f:block>
+            <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
+                <j:set var="zervers" value="${descriptor.getServers()}"/>
+                <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServer">
+                    <select class="chosenServer" name="chosenServer">
+                        <j:forEach var="l" items="${zervers}">
+                            <f:option selected="${instance.chosenServer.equals(l.toString())}" value="${l}">${l}</f:option>
+                        </j:forEach>
+                    </select>
+                </f:entry>
+
+                <f:entry title="${%QA&#xb7;Verify Config file location}" field="qaVerifyConfigFile" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
+                    <f:textbox value="${instance.qaVerifyConfigFile}"/>
+                </f:entry>
+
+                <f:entry title="${%VCS Config file location}" field="vcsConfigXml" help="/plugin/prqa-plugin/config/help-configVCSConfigQaF.html">
+                    <f:textbox value="${instance.vcsConfigXml}"/>
+                </f:entry>
+            </f:optionalBlock>
+        </f:block>
+
+	   </f:block>
+   </f:section>
+</j:jelly>

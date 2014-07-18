@@ -30,8 +30,8 @@ import org.kohsuke.stapler.StaplerRequest;
  *
  * @author Praqma
  */
-public abstract class PRQAReportSourceDescriptor<T extends PRQAReportSource> extends Descriptor<PRQAReportSource> {
-    public PRQAReportSource newInstance( StaplerRequest req, JSONObject formData, PRQAReportSource instance ) throws FormException { 
+public abstract class PRQAReportSourceDescriptor<T extends PostBuildActionSetup> extends Descriptor<PostBuildActionSetup> {
+    public PostBuildActionSetup newInstance( StaplerRequest req, JSONObject formData, PostBuildActionSetup instance ) throws FormException { 
         return super.newInstance( req, formData );
     }
 }    

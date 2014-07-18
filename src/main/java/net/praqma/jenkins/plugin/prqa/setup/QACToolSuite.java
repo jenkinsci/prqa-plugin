@@ -46,14 +46,16 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
     public final String qarHome;
     public final String qawHome;
     public final String qavHome;
+//    public final String qafHome;
     public final String tool;
         
     @DataBoundConstructor
     public QACToolSuite(final String name, final String home, final String qarHome, final String qawHome, final String qavHome, final String tool) {
-        super(name, home);
+        super(name, home,null);
         this.qarHome = qarHome;
         this.qawHome = qawHome;
         this.qavHome = qavHome;
+//        this.qafHome = qafHome;
         this.tool = tool;
     }
     
@@ -172,5 +174,12 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
             }
             return FormValidation.ok();
         }
+//        public FormValidation doCheckFrameworkName(@QueryParameter String frameworkName) {
+//            if(StringUtils.isBlank(frameworkName)) {
+//                return FormValidation.errorWithMarkup("Installation name should not be empty.");
+//            }
+//            return FormValidation.ok();
+//        }
+       
     }    
 }

@@ -35,18 +35,18 @@ import jenkins.model.Jenkins;
  *
  * @author Praqma
  */
-public class PRQAReportSource implements Describable<PRQAReportSource>, ExtensionPoint {
+public class PostBuildActionSetup implements Describable<PostBuildActionSetup>, ExtensionPoint {
 
     @Override
-    public Descriptor<PRQAReportSource> getDescriptor() {
-        return (Descriptor<PRQAReportSource>) Jenkins.getInstance().getDescriptorOrDie( getClass() );
+    public Descriptor<PostBuildActionSetup> getDescriptor() {
+        return (Descriptor<PostBuildActionSetup>) Jenkins.getInstance().getDescriptorOrDie( getClass() );
     }
     
     /**PRQAReportSource
-    * All registered {@link PRQAReportSource}s.
+    * All registered {@link PostBuildActionSetup}s.
     */
-   public static DescriptorExtensionList<PRQAReportSource, PRQAReportSourceDescriptor<PRQAReportSource>> all() {
-           return Jenkins.getInstance().<PRQAReportSource, PRQAReportSourceDescriptor<PRQAReportSource>> getDescriptorList( PRQAReportSource.class );
+   public static DescriptorExtensionList<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> all() {
+           return Jenkins.getInstance().<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> getDescriptorList( PostBuildActionSetup.class );
    }
    
    public static List<PRQAReportSourceDescriptor<?>> getDescriptors() {

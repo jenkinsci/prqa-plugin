@@ -3,7 +3,7 @@
     <f:entry title="${%Max messages target}" field="value" >
         <f:textbox/>
     </f:entry>
-    <f:entry title="${%Continous improvement}" field="improvement" >
+    <f:entry title="${%Continuous improvement}" field="improvement" >
         <f:checkbox/>
     </f:entry>
     

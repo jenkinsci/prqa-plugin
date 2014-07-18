@@ -24,6 +24,7 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.model.Descriptor;
+import net.praqma.jenkins.plugin.prqa.threshold.AbstractThreshold;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
 

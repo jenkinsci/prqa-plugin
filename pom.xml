@@ -7,9 +7,9 @@
         <version>1.480.3</version>
     </parent>
 
-    <groupId>net.praqma</groupId>
+    <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>2.0.8</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
@@ -17,7 +17,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    
+
     <profiles>
         <profile>
             <id>copertura</id>
@@ -47,8 +47,7 @@
             </build>
         </profile>
     </profiles>
-            
-  
+ 
     <build>
         <plugins>
             <plugin>
@@ -68,61 +67,59 @@
             <url>http://repo.jenkins-ci.org/public/</url>
         </repository>
         <repository>
-            <id>praqma</id>
-            <url>http://code.praqma.net/repo/maven/</url>
+            <id>bintray</id>
+            <url>https://bintray.com/prqa/maven</url>
         </repository>
-        
     </repositories>
-    
+
     <pluginRepositories>
         <pluginRepository>
             <id>repo.jenkins-ci.org</id>
             <url>http://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
-        
-       
-    <licenses> 
-        <license> 
-            <name>MIT</name> 
+
+    <licenses>
+        <license>
+            <name>MIT</name>
             <url>http://www.opensource.org/licenses/mit-license.php</url> 
-        </license> 
+        </license>
     </licenses>
-    
-    <developers> 
-        <developer> 
-            <id>jstruck</id> 
-            <name>Jes Struck</name> 
-            <email>coolers@praqma.net</email> 
-            <organization>Praqma A/S</organization>
-            <roles> 
-                <role>developer</role> 
-            </roles> 
-            <timezone>+1</timezone> 
+
+    <developers>
+        <developer>
+            <id>isanych</id>
+            <name>Igor Kostenko</name>
+            <email>igor_kostenko@programmingresearch.com</email>
+            <organization>Programming Research</organization>
+            <roles>
+                <role>maintainer</role>
+            </roles>
+            <timezone>0</timezone>
         </developer>
         <developer>
-            <id>MadsNielsen</id>
-            <name>Mads Nielsen</name>
-            <email>man@praqma.net</email>
-            <organization>Praqma A/S</organization>
+            <id>AlexIon</id>
+            <name>Alexandru Ion</name>
+            <email>alexandru.ion@rinf.ro</email>
+            <organization>RINF</organization>
             <roles>
-                <role>delveoper</role>
+                <role>developer</role>
             </roles>
-            <timezone>+1</timezone>               
+            <timezone>+2</timezone>
         </developer>
     </developers>
-    
-    <dependencies>        
+
+    <dependencies>
         <dependency>
-            <groupId>net.praqma</groupId>
+            <groupId>com.programmingresearch</groupId>
             <artifactId>prqa</artifactId>
-            <version>1.4</version>
+            <version>2.0.8</version>
         </dependency>
     </dependencies>
-    
+
     <scm>
         <connection>scm:git:ssh://github.com/jenkinsci/prqa-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/prqa-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/prqa-plugin</url>
-    </scm>    
+    </scm>
 </project>
