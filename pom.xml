@@ -60,7 +60,7 @@
             </plugin>
         </plugins>
     </build>
-    
+
     <repositories>
         <repository>
             <id>repo.jenkins-ci.org</id>
@@ -68,7 +68,7 @@
         </repository>
         <repository>
             <id>bintray</id>
-            <url>https://bintray.com/prqa/maven</url>
+            <url>http://dl.bintray.com/prqa/maven</url>
         </repository>
     </repositories>
 
