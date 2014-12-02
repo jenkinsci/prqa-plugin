@@ -58,8 +58,6 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 	public boolean enableDataFlowAnalysis;
 	public PRQAFileProjectSource fileProjectSource;
 
-	// publish to qav
-
 	public final boolean publishToQAV;
 	public String chosenServer;
 	public CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
@@ -95,10 +93,6 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 	public boolean isPublishToQAV() {
 		return publishToQAV;
 	}
-
-//	public void setPublishToQAV(boolean publishToQAV) {
-//		this.publishToQAV = publishToQAV;
-//	}
 
 	public String getChosenServer() {
 		return chosenServer;

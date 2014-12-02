@@ -39,6 +39,7 @@ import org.kohsuke.stapler.StaplerRequest;
 @Extension
 public class PRQAGlobalConfig extends GlobalConfiguration {
     
+	
     public enum ViewServerProtocol {
         http,
         https,

@@ -24,7 +24,6 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
-import hudson.model.Descriptor.FormException;
 import hudson.model.Hudson;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
@@ -43,10 +42,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-/**
- * 
- * @author Praqma
- */
+
 public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
 	public String qaInstallation;

@@ -31,10 +31,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import net.praqma.prqa.PRQAApplicationSettings;
+import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
@@ -45,11 +45,9 @@ import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.JDOMException;
 
-/**
- * 
- * @author Praqma
- */
 public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatus> {
+
+	private static final long serialVersionUID = 1L;
 
 	private QAFrameworkReport report;
 	private BuildListener listener;
@@ -61,24 +59,31 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 		this.isUnix = isUnix;
 	}
 
-	private Map<String, String> expandEnvironment(Map<String, String> environment, PRQAApplicationSettings appSettings, QaFrameworkReportSettings reportSetting) {
+	private Map<String, String> expandEnvironment(Map<String, String> environment, PRQAApplicationSettings appSettings,
+			QaFrameworkReportSettings reportSetting) {
 		if (environment == null) {
 			return Collections.emptyMap();
 		}
 		String delimiter = System.getProperty("file.separator");
-		environment
-				.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), delimiter) + "common" + delimiter + "bin");
+		environment.put(QACli.QAF_BIN_PATH,
+				PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), delimiter) + "common"
+						+ delimiter + "bin");
 		return environment;
 	}
 
 	@Override
 	public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
 
-		Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(), report.getSettings());
+		Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(),
+				report.getSettings());
 
 		report.setEnvironment(expandedEnvironment);
 		report.setWorkspace(f);
 		PrintStream out = listener.getLogger();
+		
+		out.println("WOrkspace form invoke:"+f);
+		out.println("WOrkspace form invoke:"+f.getAbsolutePath());
+		out.println("WOrkspace form invoke:"+f.getCanonicalPath());
 
 		/**
 		 * If the project file is null at this point. It means that this is a
@@ -87,7 +92,7 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 		 * We skip the analysis phase
 		 */
 		try {
-			if (StringUtils.isBlank(report.getSettings().qaInstallation)) {
+			if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
 				throw new PrqaException("Incorrect configuration!");
 			}
 
@@ -97,10 +102,8 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 			CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
 			logCmdResult(cmaAnalysisResult, out);
 
-			List<CmdResult> reportsGenerationResults = report.reportQacli(isUnix, out);
-			for (CmdResult result : reportsGenerationResults) {
-				logCmdResult(result, out);
-			}
+			CmdResult reportsGenerationResult = report.reportQacli(isUnix, out);
+			logCmdResult(reportsGenerationResult, out);
 
 			CmdResult addConfigurationFilesToProjectResult;
 			try {
@@ -128,4 +131,7 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 		out.println(result.stdoutBuffer.toString());
 	}
 
+	public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
+		report.setQaFrameworkVersion(qaFrameworkVersion);
+	}
 }

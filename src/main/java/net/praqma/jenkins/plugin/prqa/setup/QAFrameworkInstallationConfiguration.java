@@ -24,15 +24,8 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Strings;
 
-/**
- * 
- * @author Praqma
- */
 public class QAFrameworkInstallationConfiguration extends ToolInstallation implements PRQAToolSuite {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	public final String qafHome;
 	public final String qafName;
@@ -141,7 +134,6 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 
 		private boolean isValidString(String valid) {
 			boolean isValid = true;
-			// String ltrim = valid.replaceAll("^\\s+", "");
 			String trim = valid.trim();
 			if (Strings.isNullOrEmpty(trim) || !valid.equals(trim) || trim.length() < 1)
 				isValid = false;

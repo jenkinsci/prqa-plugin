@@ -38,148 +38,155 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- *
+ * 
  * @author Praqma
  */
 public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
-    
-    public final String qarHome;
-    public final String qawHome;
-    public final String qavHome;
-//    public final String qafHome;
-    public final String tool;
-        
-    @DataBoundConstructor
-    public QACToolSuite(final String name, final String home, final String qarHome, final String qawHome, final String qavHome, final String tool) {
-        super(name, home,null);
-        this.qarHome = qarHome;
-        this.qawHome = qawHome;
-        this.qavHome = qavHome;
-//        this.qafHome = qafHome;
-        this.tool = tool;
-    }
-    
-    @Override
-    public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
-        HashMap<String,String> environment =  null;
-        if(tool.equals("qac")) {
-            environment = new HashMap<String, String>();
-            environment.put("QACPATH", getHome());
-            environment.put("QACOUTPATH", workspaceRoot); //This one MUST be our workspace 
-        } else if(tool.equals("qacpp")) {
-            environment = new HashMap<String, String>();
-            environment.put("QACPPPATH", getHome());
-            environment.put("QACPPOUTPATH", workspaceRoot); //This one MUST be our workspace
-        } 
-        return environment;
-    }        
-    
-    public HashMap<String,String> convert(EnvVars vars) {
-        HashMap<String, String> varsMap = new HashMap<String, String>();
-        for(String s:  vars.keySet()) {
-            varsMap.put(s, vars.get(s));
-        }
-        return varsMap;
-    }
-    
-    public static QACToolSuite getInstallationByName(String name) {
-        if(StringUtils.isBlank(name)) {
-            return null;
-        } else {
-            QACToolSuite[] installations = Jenkins.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
-            for(QACToolSuite install : installations) {
-                if(install.getName().equals(name)) {
-                    return install;
-                }
-            }
-        }
-        return null;
-    } 
-    
-    public static QACToolSuite[] getInstallations() {
-        QACToolSuite[] installations = Jenkins.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
-        return installations;
-    }
-        
-    @Extension
-    public static final class DescriptorImpl extends ToolDescriptor<QACToolSuite>  {
 
-        public DescriptorImpl() {
-            super();
-            load();
-        }
-        
-        @Override
-        public String getDisplayName() {
-            return "PRQA Tool";
-        }
+	private static final long serialVersionUID = 1L;
 
-        @Override
-        public QACToolSuite newInstance(StaplerRequest req, JSONObject formData) throws FormException {
-            QACToolSuite suite = req.bindJSON(QACToolSuite.class, formData);
-            
-            save();
-            return suite;        
-            //return super.newInstance(req, formData);
-        }
+	public final String qarHome;
+	public final String qawHome;
+	public final String qavHome;
+	public final String tool;
 
-        @Override
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-            save();
-            return super.configure(req, json);
-        }
-        
-        public ListBoxModel doFillToolItems () {
-            ListBoxModel model = new ListBoxModel();            
-            model.add("QA·C","qac");
-            model.add("QA·C++","qacpp");
-            return model;
-        }
-        //TODO: Implement this in a proper way. This one returns a warning when config page is reloaded.
-        /*
-        public FormValidation doCheckName(@QueryParameter String value) {            
-            QACToolSuite suites = getInstallationByName(value);
-            
-            if(suites != null) {
-                return FormValidation.errorWithMarkup("<p>A configuration with this name already exists. Ignore this message if it appears on load</p>");
-            }
-            return FormValidation.ok();
-        }
-        */
-        
-        public FormValidation doCheckName(@QueryParameter String name) {
-            if(StringUtils.isBlank(name)) {
-                return FormValidation.errorWithMarkup("Installation name should not be empty.");
-            }
-            return FormValidation.ok();
-        }
-        
-        public FormValidation doCheckHome(@QueryParameter String home) {
-            if(StringUtils.isBlank(home)) {
-                return FormValidation.errorWithMarkup("Product installation path should not be empty.");
-            }
-            return FormValidation.ok();
-        }
-        
-        public FormValidation doCheckQarHome(@QueryParameter String qarHome) {
-            if(StringUtils.isBlank(qarHome)) {
-                return FormValidation.errorWithMarkup("QAR Home should not be empty.");
-            }
-            return FormValidation.ok();
-        }
-        
-        public FormValidation doCheckQawHome(@QueryParameter String qawHome) {
-            if(StringUtils.isBlank(qawHome)) {
-                return FormValidation.errorWithMarkup("QAW Home should not be empty.");
-            }
-            return FormValidation.ok();
-        }
-//        public FormValidation doCheckFrameworkName(@QueryParameter String frameworkName) {
-//            if(StringUtils.isBlank(frameworkName)) {
-//                return FormValidation.errorWithMarkup("Installation name should not be empty.");
-//            }
-//            return FormValidation.ok();
-//        }
-       
-    }    
+	@DataBoundConstructor
+	public QACToolSuite(final String name, final String home, final String qarHome, final String qawHome,
+			final String qavHome, final String tool) {
+		super(name, home, null);
+		this.qarHome = qarHome;
+		this.qawHome = qawHome;
+		this.qavHome = qavHome;
+		this.tool = tool;
+	}
+
+	@Override
+	public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
+		HashMap<String, String> environment = null;
+		if (tool.equals("qac")) {
+			environment = new HashMap<String, String>();
+			environment.put("QACPATH", getHome());
+			environment.put("QACOUTPATH", workspaceRoot); // This one MUST be
+															// our workspace
+		} else if (tool.equals("qacpp")) {
+			environment = new HashMap<String, String>();
+			environment.put("QACPPPATH", getHome());
+			environment.put("QACPPOUTPATH", workspaceRoot); // This one MUST be
+															// our workspace
+		}
+		return environment;
+	}
+
+	public HashMap<String, String> convert(EnvVars vars) {
+		HashMap<String, String> varsMap = new HashMap<String, String>();
+		for (String s : vars.keySet()) {
+			varsMap.put(s, vars.get(s));
+		}
+		return varsMap;
+	}
+
+	public static QACToolSuite getInstallationByName(String name) {
+		if (StringUtils.isBlank(name)) {
+			return null;
+		} else {
+			QACToolSuite[] installations = Jenkins.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class)
+					.getInstallations();
+			for (QACToolSuite install : installations) {
+				if (install.getName().equals(name)) {
+					return install;
+				}
+			}
+		}
+		return null;
+	}
+
+	public static QACToolSuite[] getInstallations() {
+		QACToolSuite[] installations = Jenkins.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class)
+				.getInstallations();
+		return installations;
+	}
+
+	@Extension
+	public static final class DescriptorImpl extends ToolDescriptor<QACToolSuite> {
+
+		public DescriptorImpl() {
+			super();
+			load();
+		}
+
+		@Override
+		public String getDisplayName() {
+			return "PRQA Tool";
+		}
+
+		@Override
+		public QACToolSuite newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+			QACToolSuite suite = req.bindJSON(QACToolSuite.class, formData);
+
+			save();
+			return suite;
+			// return super.newInstance(req, formData);
+		}
+
+		@Override
+		public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+			save();
+			return super.configure(req, json);
+		}
+
+		public ListBoxModel doFillToolItems() {
+			ListBoxModel model = new ListBoxModel();
+			model.add("QA·C", "qac");
+			model.add("QA·C++", "qacpp");
+			return model;
+		}
+
+		// TODO: Implement this in a proper way. This one returns a warning when
+		// config page is reloaded.
+		/*
+		 * public FormValidation doCheckName(@QueryParameter String value) {
+		 * QACToolSuite suites = getInstallationByName(value);
+		 * 
+		 * if(suites != null) { return FormValidation.errorWithMarkup(
+		 * "<p>A configuration with this name already exists. Ignore this message if it appears on load</p>"
+		 * ); } return FormValidation.ok(); }
+		 */
+
+		public FormValidation doCheckName(@QueryParameter String name) {
+			if (StringUtils.isBlank(name)) {
+				return FormValidation.errorWithMarkup("Installation name should not be empty.");
+			}
+			return FormValidation.ok();
+		}
+
+		public FormValidation doCheckHome(@QueryParameter String home) {
+			if (StringUtils.isBlank(home)) {
+				return FormValidation.errorWithMarkup("Product installation path should not be empty.");
+			}
+			return FormValidation.ok();
+		}
+
+		public FormValidation doCheckQarHome(@QueryParameter String qarHome) {
+			if (StringUtils.isBlank(qarHome)) {
+				return FormValidation.errorWithMarkup("QAR Home should not be empty.");
+			}
+			return FormValidation.ok();
+		}
+
+		public FormValidation doCheckQawHome(@QueryParameter String qawHome) {
+			if (StringUtils.isBlank(qawHome)) {
+				return FormValidation.errorWithMarkup("QAW Home should not be empty.");
+			}
+			return FormValidation.ok();
+		}
+		// public FormValidation doCheckFrameworkName(@QueryParameter String
+		// frameworkName) {
+		// if(StringUtils.isBlank(frameworkName)) {
+		// return
+		// FormValidation.errorWithMarkup("Installation name should not be empty.");
+		// }
+		// return FormValidation.ok();
+		// }
+
+	}
 }

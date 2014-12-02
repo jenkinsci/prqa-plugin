@@ -44,6 +44,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
 
+	private static final long serialVersionUID = 1L;
+	
     private PRQAReport report;
     private BuildListener listener;
     boolean isUnix;
