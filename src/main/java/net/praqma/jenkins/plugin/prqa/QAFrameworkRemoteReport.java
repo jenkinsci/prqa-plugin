@@ -116,7 +116,7 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 			CmdResult uploadResult = report.uploadQacli(out);
 			logCmdResult(uploadResult, out);
 
-			return report.getComplianceStatus();
+			return report.getComplianceStatus(out);
 		} catch (PrqaException exception) {
 			throw new IOException(exception.getMessage(), exception);
 		} catch (Exception ex) {

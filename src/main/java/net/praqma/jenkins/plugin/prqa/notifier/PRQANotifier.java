@@ -401,7 +401,7 @@ public class PRQANotifier extends Publisher {
 		} else if (sourceQAFramework != null && sourceQAFramework instanceof PRQAReportPRQAToolSource) {
 
 			PRQAReportPRQAToolSource prqaReportPRQAToolSource = (PRQAReportPRQAToolSource) sourceQAFramework;
-			
+
 			String productUsed = prqaReportPRQAToolSource.product;
 			outStream = listener.getLogger();
 
@@ -906,7 +906,7 @@ public class PRQANotifier extends Publisher {
 
 		try {
 			QaFrameworkVersion qaFrameworkVersion = new QaFrameworkVersion(build.getWorkspace().act(remoteToolCheck));
-			success = checkQacliVersion(qaFrameworkVersion);
+			success = isQafVersionSupported(qaFrameworkVersion);
 			if (!success) {
 				build.setResult(Result.FAILURE);
 				throw new PrqaException("Build failure. Plese upgrade to a newer version of Qa Framework");
@@ -929,32 +929,20 @@ public class PRQANotifier extends Publisher {
 		return currentBuild;
 	}
 
-	private boolean checkQacliVersion(QaFrameworkVersion qaFrameworkVersion) {
+	private boolean isQafVersionSupported(QaFrameworkVersion qaFrameworkVersion) {
 
-		if (qaFrameworkVersion == null || Strings.isNullOrEmpty(qaFrameworkVersion.getQaFrameworkVersion())) {
+		if (qaFrameworkVersion == null) {
 			return false;
 		}
 		outStream.println("QA CLI is a tool for Source Code Analysis Framework.");
 		outStream.println("Version: " + qaFrameworkVersion.getQaFrameworkVersion());
-		boolean isAnOlderVersion = isAnOlderVersion(qaFrameworkVersion.getQaFrameworkVersion());
-		if (isAnOlderVersion) {
+		if (!qaFrameworkVersion.isQAFVersionSupported()) {
 			outStream.println(String.format(
 					"Your QA·CLI version is %s.In order to use our product install a newer version of QA·Framework!",
 					qaFrameworkVersion.getQaFrameworkVersion()));
 			return false;
 		}
 		return true;
-	}
-
-	private boolean isAnOlderVersion(String qacliVersion) {
-
-		String shortVersion = qacliVersion.substring(0, qacliVersion.lastIndexOf("."));
-		String lockedVersion = "1.0.0";
-		boolean isAnOlderVersion = false;
-		if (shortVersion.equals(lockedVersion)) {
-			isAnOlderVersion = true;
-		}
-		return isAnOlderVersion;
 	}
 
 	private void copyArtifacts(AbstractBuild<?, ?> build, QaFrameworkReportSettings qaReportSettings) {
