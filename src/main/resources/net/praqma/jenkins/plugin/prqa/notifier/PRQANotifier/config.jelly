@@ -7,7 +7,7 @@
         }        
     </style>
 	
-    <f:entry title="${%Run PRQA Analysis only when build is successfull}" field="runWhenSuccess" help="/plugin/prqa-plugin/config/help-runWhenSuccess.html">
+    <f:entry title="${%Run PRQA Analysis only when build is successful}" field="runWhenSuccess" help="/plugin/prqa-plugin/config/help-runWhenSuccess.html">
 		        <f:checkbox name="runWhenSuccess" value="${instance.runWhenSuccess}" checked="${instance.runWhenSuccess}"/>
 		     </f:entry> 
     
