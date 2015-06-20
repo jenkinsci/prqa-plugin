@@ -46,6 +46,10 @@ table.outer{
                     </select>
                 </f:entry>
 
+                <f:entry title="${%QA&#xb7;Verify project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
+                    <f:textbox value="${instance.qaVerifyProjectName}"/>
+                </f:entry>
+
                 <f:entry title="${%QA&#xb7;Verify Config file location}" field="qaVerifyConfigFile" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
                     <f:textbox value="${instance.qaVerifyConfigFile}"/>
                 </f:entry>

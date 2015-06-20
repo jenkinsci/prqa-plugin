@@ -880,7 +880,7 @@ public class PRQANotifier extends Publisher {
 					qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
 					qaFrameworkPostBuildActionSetup.CMAProjectName, qaFrameworkPostBuildActionSetup.generateReport,
 					qaFrameworkPostBuildActionSetup.publishToQAV, qaFrameworkPostBuildActionSetup.qaVerifyConfigFile,
-					qaFrameworkPostBuildActionSetup.vcsConfigXml, product);
+					qaFrameworkPostBuildActionSetup.vcsConfigXml, product, qaFrameworkPostBuildActionSetup.qaVerifyProjectName);
 		}
 		throw new PrqaSetupException("Please set a project in Qa Framework section configuration!");
 	}

@@ -55,12 +55,13 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 	public String chosenServer;
 	public String qaVerifyConfigFile;
 	public String vcsConfigXml;
+        public String qaVerifyProjectName;
 
 	@DataBoundConstructor
 	public QAFrameworkPostBuildActionSetup(
 
 	String qaInstallation, String qaProject, boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableDependencyMode, boolean generateReport,
-			boolean publishToQAV, String chosenServer, String qaVerifyConfigFile, String vcsConfigXml) {
+			boolean publishToQAV, String chosenServer, String qaVerifyConfigFile, String vcsConfigXml, String qaVerifyProjectName) {
 
 		this.qaInstallation = qaInstallation;
 		this.qaProject = qaProject;
@@ -72,6 +73,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 		this.chosenServer = chosenServer;
 		this.qaVerifyConfigFile = qaVerifyConfigFile;
 		this.vcsConfigXml = vcsConfigXml;
+                this.qaVerifyProjectName = qaVerifyProjectName;
 	}
 
 	public String getChosenServer() {
