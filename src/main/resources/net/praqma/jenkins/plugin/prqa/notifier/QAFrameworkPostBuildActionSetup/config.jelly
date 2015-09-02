@@ -29,12 +29,8 @@ table.outer{
 
 		    <f:entry title="${%Enable dependency based analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
 		        <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
-		     </f:entry>
- 		  
- 				<f:entry title="${%Generate report}" field="generateReport" >
-		        	<f:checkbox name="generateReport" value="${instance.generateReport}" checked="${instance.generateReport}"/>
-		     	</f:entry>
-
+		    </f:entry>
+                    
          <f:block>
             <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
                 <j:set var="zervers" value="${descriptor.getServers()}"/>
