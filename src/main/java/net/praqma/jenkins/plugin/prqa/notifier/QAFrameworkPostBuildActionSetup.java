@@ -47,6 +47,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
 	public String qaInstallation;
 	public String qaProject;
+        public String unifiedProjectName;
+        public boolean downloadUnifiedProjectDefinition;
 	public boolean performCrossModuleAnalysis;
 	public String CMAProjectName;
 	public boolean enableDependencyMode;
@@ -60,11 +62,13 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 	@DataBoundConstructor
 	public QAFrameworkPostBuildActionSetup(
 
-	String qaInstallation, String qaProject, boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableDependencyMode, boolean generateReport,
+	String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName, boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableDependencyMode, boolean generateReport,
 			boolean publishToQAV, String chosenServer, String qaVerifyConfigFile, String vcsConfigXml, String qaVerifyProjectName) {
 
 		this.qaInstallation = qaInstallation;
 		this.qaProject = qaProject;
+                this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
+                this.unifiedProjectName = unifiedProjectName;
 		this.performCrossModuleAnalysis = performCrossModuleAnalysis;
 		this.CMAProjectName = CMAProjectName;
 		this.enableDependencyMode = enableDependencyMode;
@@ -115,7 +119,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 	public void setQaProject(String qaProject) {
 		this.qaProject = qaProject;
 	}
-
+        
+	public void setDownloadUnifiedProjectDefinition(boolean downloadUnifiedProjectDefinition) {
+		this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
+	}
+        
 	public void setPerformCrossModuleAnalysis(boolean performCrossModuleAnalysis) {
 		this.performCrossModuleAnalysis = performCrossModuleAnalysis;
 	}
@@ -131,11 +139,23 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 	public String getQaProject() {
 		return qaProject;
 	}
-
-	public String getCMAProjectName() {
+        
+	public String getUnifiedProjectName() {
+		return unifiedProjectName;
+	}
+        
+	public void setUnifiedProjectName(String uProjectName) {
+		unifiedProjectName = uProjectName;
+	}
+        
+	public boolean isDownloadUnifiedProjectDefinition() {
+		return downloadUnifiedProjectDefinition;
+	}
+        
+        public String getCMAProjectName() {
 		return CMAProjectName;
 	}
-
+    
 	public void setCMAProjectName(String cMAProjectName) {
 		CMAProjectName = cMAProjectName;
 	}
@@ -194,7 +214,16 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 			}
 			return FormValidation.ok();
 		}
-
+		public FormValidation doCheckUnifiedProjectName(@QueryParameter String unifiedProjectName) {
+			if (StringUtils.isBlank(unifiedProjectName)) {
+				return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
+			}
+			if (unifiedProjectName.startsWith(" ")) {
+				return FormValidation.errorWithMarkup("Unified Project name should not be begin with an empty space!");
+			}
+			return FormValidation.ok();
+		}
+                
 		public FormValidation doCheckQaVerifyConfigFile(@QueryParameter String qaVerifyConfigFile) {
 			if (StringUtils.isBlank(qaVerifyConfigFile)) {
 				return FormValidation.errorWithMarkup("This field is mandatory and should not be empty!");
