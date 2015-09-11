@@ -95,7 +95,10 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 			if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
 				throw new PrqaException("Incorrect configuration!");
 			}
-
+                        
+			CmdResult pullUnifyProject = report.pullUnifyProjectQacli(isUnix, out);
+			logCmdResult(pullUnifyProject, out);
+                        
 			CmdResult analyzeResult = report.analyzeQacli(isUnix, out);
 			logCmdResult(analyzeResult, out);
 

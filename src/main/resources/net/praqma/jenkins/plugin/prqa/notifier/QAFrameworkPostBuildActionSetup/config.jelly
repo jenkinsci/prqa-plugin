@@ -19,7 +19,7 @@
             
             <f:block>
                 
-                <f:optionalBlock name="Download Unified Project Definition" title="${%Download Unified Project Definition}" help="/plugin/prqa-plugin/config/help-downloadUnifiedProject.html" checked="${instance.downloadUnifiedProjectDefinition}" inline="true">
+                <f:optionalBlock name="downloadUnifiedProjectDefinition" title="${%Download Unified Project Definition}" help="/plugin/prqa-plugin/config/help-downloadUnifiedProject.html" checked="${instance.downloadUnifiedProjectDefinition}" inline="true">
                     <f:entry title="${%Unified Project Name}" field="unifiedProjectName" help="/plugin/prqa-plugin/config/help-unifiedProjectName.html">
                         <f:textbox value="${instance.unifiedProjectName}"/>
                     </f:entry>    
