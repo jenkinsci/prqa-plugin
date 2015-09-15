@@ -59,13 +59,14 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 	public String qaVerifyConfigFile;
 	public String vcsConfigXml;
         public String qaVerifyProjectName;
+        public String uploadSnapshotName;
 
 	@DataBoundConstructor
 	public QAFrameworkPostBuildActionSetup(
 
 	String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName, boolean performCrossModuleAnalysis, String CMAProjectName, 
                 boolean enableProjectCma, boolean enableDependencyMode, boolean generateReport, boolean publishToQAV, String chosenServer, String qaVerifyConfigFile, 
-                String vcsConfigXml, String qaVerifyProjectName) {
+                String vcsConfigXml, String qaVerifyProjectName, String uploadSnapshotName) {
 
 		this.qaInstallation = qaInstallation;
 		this.qaProject = qaProject;
@@ -81,6 +82,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 		this.qaVerifyConfigFile = qaVerifyConfigFile;
 		this.vcsConfigXml = vcsConfigXml;
                 this.qaVerifyProjectName = qaVerifyProjectName;
+                this.uploadSnapshotName = uploadSnapshotName;
 	}
 
 	public String getChosenServer() {
@@ -235,7 +237,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 			}
 			return FormValidation.ok();
 		}
-                
+/*                
 		public FormValidation doCheckQaVerifyConfigFile(@QueryParameter String qaVerifyConfigFile) {
 			if (StringUtils.isBlank(qaVerifyConfigFile)) {
 				return FormValidation.errorWithMarkup("This field is mandatory and should not be empty!");
@@ -249,7 +251,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 			}
 			return FormValidation.ok();
 		}
-
+*/
 		public ListBoxModel doFillQaInstallationItems() {
 			ListBoxModel model = new ListBoxModel();
 

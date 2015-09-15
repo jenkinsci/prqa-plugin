@@ -808,6 +808,7 @@ public class PRQANotifier extends Publisher {
 
         outStream.println(Messages.PRQANotifier_ReportGenerateText());
         outStream.println("workspace location " + build.getWorkspace().getRemote());
+        outStream.println("Build Number -> " + build.getNumber());
 
         HashMap<String, String> environmentVariables = null;
 
@@ -842,9 +843,9 @@ public class PRQANotifier extends Publisher {
         Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, Result.SUCCESS);
 
         if (previousBuildResultTuple != null) {
-            outStream.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(
-                    previousBuildResultTuple.getSecond().number))));
+            outStream.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousBuildResultTuple.getSecond().number))));
             outStream.println(previousBuildResultTuple.getFirst());
+            
         } else {
             outStream.println(Messages.PRQANotifier_NoPreviousResults());
         }
@@ -892,7 +893,8 @@ public class PRQANotifier extends Publisher {
                     qaFrameworkPostBuildActionSetup.enableDependencyMode, qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
                     qaFrameworkPostBuildActionSetup.CMAProjectName, qaFrameworkPostBuildActionSetup.generateReport,
                     qaFrameworkPostBuildActionSetup.publishToQAV, qaFrameworkPostBuildActionSetup.qaVerifyConfigFile,
-                    qaFrameworkPostBuildActionSetup.vcsConfigXml, product, qaFrameworkPostBuildActionSetup.qaVerifyProjectName);
+                    qaFrameworkPostBuildActionSetup.vcsConfigXml, product, qaFrameworkPostBuildActionSetup.qaVerifyProjectName, 
+                    qaFrameworkPostBuildActionSetup.uploadSnapshotName, Integer.toString(build.getNumber()));
         }
         throw new PrqaSetupException("Please set a project in Qa Framework section configuration!");
     }
