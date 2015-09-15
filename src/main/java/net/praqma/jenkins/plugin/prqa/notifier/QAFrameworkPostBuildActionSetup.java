@@ -51,6 +51,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         public boolean downloadUnifiedProjectDefinition;
 	public boolean performCrossModuleAnalysis;
 	public String CMAProjectName;
+        public boolean enableProjectCma;
 	public boolean enableDependencyMode;
 	public boolean generateReport;
 	public boolean publishToQAV;
@@ -62,8 +63,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 	@DataBoundConstructor
 	public QAFrameworkPostBuildActionSetup(
 
-	String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName, boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableDependencyMode, boolean generateReport,
-			boolean publishToQAV, String chosenServer, String qaVerifyConfigFile, String vcsConfigXml, String qaVerifyProjectName) {
+	String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName, boolean performCrossModuleAnalysis, String CMAProjectName, 
+                boolean enableProjectCma, boolean enableDependencyMode, boolean generateReport, boolean publishToQAV, String chosenServer, String qaVerifyConfigFile, 
+                String vcsConfigXml, String qaVerifyProjectName) {
 
 		this.qaInstallation = qaInstallation;
 		this.qaProject = qaProject;
@@ -71,6 +73,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
                 this.unifiedProjectName = unifiedProjectName;
 		this.performCrossModuleAnalysis = performCrossModuleAnalysis;
 		this.CMAProjectName = CMAProjectName;
+                this.enableProjectCma = enableProjectCma;
 		this.enableDependencyMode = enableDependencyMode;
 		this.generateReport = generateReport;
 		this.publishToQAV = publishToQAV;
@@ -132,6 +135,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 		this.enableDependencyMode = enableDependencyMode;
 	}
 
+	public void setEnableProjectCma(boolean enableProjectCma) {
+		this.enableProjectCma = enableProjectCma;
+	}
+        
+        
 	public String getQaInstallation() {
 		return qaInstallation;
 	}
@@ -167,7 +175,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 	public boolean isEnableDependencyMode() {
 		return enableDependencyMode;
 	}
-
+        
+	public boolean isEnableProjectCma() {
+		return enableProjectCma;
+	}
+        
 	public boolean isGenerateReport() {
 		return generateReport;
 	}

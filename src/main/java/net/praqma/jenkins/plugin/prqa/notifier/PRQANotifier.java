@@ -246,6 +246,7 @@ public class PRQANotifier extends Publisher {
 
             QaFrameworkReportSettings qaFrameworkSettings = (QaFrameworkReportSettings) settings;
             File workspace = new File(build.getWorkspace().toURI().getPath());
+            
             File artefact = build.getArtifactsDir();
             try {
                 copyGeneratedReportsToJobWorkspace(workspace, qaFrameworkSettings.getQaProject());
@@ -258,7 +259,12 @@ public class PRQANotifier extends Publisher {
 
     private void copyGeneratedReportsToJobWorkspace(File workspace, String qaProject) throws IOException {
         String reportsPath = "prqa/reports";
-        File qaFReports = new File(qaProject + "//" + reportsPath);
+        File qaFReports = new File(qaProject + "/" + reportsPath);
+        
+        if (!qaFReports.isDirectory()) {
+            qaFReports = new File(workspace + "/" + qaProject + "/" + reportsPath);
+        }
+           
         if (qaFReports != null && qaFReports.isDirectory()) {
             File[] files = qaFReports.listFiles();
             if (files.length < 1) {
@@ -299,20 +305,25 @@ public class PRQANotifier extends Publisher {
             }
         });
 
-        boolean hasCppReport = false;
-        boolean hasCReport = false;
+        boolean hasCRReport = false;
+        boolean hasSUPReport = false;
+        boolean hasRCReport = false;
 
         for (File file : workspaceFiles) {
             if (file.lastModified() < elapsedTime) {
                 break;
             }
-            if (file.getName().contains("_cpp_") && hasCppReport == false) {
+            if (file.getName().contains("CRR") && hasCRReport == false) {
                 FileUtils.copyFileToDirectory(file, artefact);
-                hasCppReport = true;
+                hasCRReport = true;
             }
-            if (file.getName().contains("_c_") && hasCReport == false) {
+            if (file.getName().contains("SUP") && hasSUPReport == false) {
                 FileUtils.copyFileToDirectory(file, artefact);
-                hasCReport = true;
+                hasSUPReport = true;
+            }
+            if (file.getName().contains("RCR") && hasRCReport == false) {
+                FileUtils.copyFileToDirectory(file, artefact);
+                hasRCReport = true;
             }
         }
     }
@@ -877,15 +888,18 @@ public class PRQANotifier extends Publisher {
 
             return new QaFrameworkReportSettings(qaFrameworkPostBuildActionSetup.qaInstallation,
                     qaFrameworkPostBuildActionSetup.qaProject, qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition, 
-                    qaFrameworkPostBuildActionSetup.unifiedProjectName, qaFrameworkPostBuildActionSetup.enableDependencyMode,
-                    qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
+                    qaFrameworkPostBuildActionSetup.unifiedProjectName, qaFrameworkPostBuildActionSetup.enableProjectCma,
+                    qaFrameworkPostBuildActionSetup.enableDependencyMode, qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
                     qaFrameworkPostBuildActionSetup.CMAProjectName, qaFrameworkPostBuildActionSetup.generateReport,
                     qaFrameworkPostBuildActionSetup.publishToQAV, qaFrameworkPostBuildActionSetup.qaVerifyConfigFile,
                     qaFrameworkPostBuildActionSetup.vcsConfigXml, product, qaFrameworkPostBuildActionSetup.qaVerifyProjectName);
         }
         throw new PrqaSetupException("Please set a project in Qa Framework section configuration!");
     }
-
+    
+    
+// Function to pull details from QAV Configuration.
+    
     private QAVerifyServerSettings setQaVerifyServerSettings(String configurationByName) {
 
         QAVerifyServerConfiguration qaVerifyServerConfiguration = PRQAGlobalConfig.get().getConfigurationByName(
