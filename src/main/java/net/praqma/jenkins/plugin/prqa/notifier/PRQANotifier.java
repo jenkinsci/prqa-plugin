@@ -426,8 +426,7 @@ public class PRQANotifier extends Publisher {
                 suite = qacSuite;
             }
 
-            QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(
-                    prqaReportPRQAToolSource.chosenServer);
+            QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(prqaReportPRQAToolSource.chosenServer);
 
             PRQAApplicationSettings appSettings = null;
             if (suite != null) {
@@ -478,7 +477,7 @@ public class PRQANotifier extends Publisher {
 
             QAVerifyServerSettings qavSettings = null;
             if (conf != null) {
-                qavSettings = new QAVerifyServerSettings(conf.getHostName(), conf.getPortNumber(), conf.getProtocol(),
+                qavSettings = new QAVerifyServerSettings(conf.getHostName(), conf.getViewerPortNumber(), conf.getProtocol(),
                         conf.getPassword(), conf.getUserName());
             }
 
@@ -808,7 +807,6 @@ public class PRQANotifier extends Publisher {
 
         outStream.println(Messages.PRQANotifier_ReportGenerateText());
         outStream.println("workspace location " + build.getWorkspace().getRemote());
-        outStream.println("Build Number -> " + build.getNumber());
 
         HashMap<String, String> environmentVariables = null;
 
@@ -892,8 +890,9 @@ public class PRQANotifier extends Publisher {
                     qaFrameworkPostBuildActionSetup.unifiedProjectName, qaFrameworkPostBuildActionSetup.enableProjectCma,
                     qaFrameworkPostBuildActionSetup.enableDependencyMode, qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
                     qaFrameworkPostBuildActionSetup.CMAProjectName, qaFrameworkPostBuildActionSetup.generateReport,
-                    qaFrameworkPostBuildActionSetup.publishToQAV, product, qaFrameworkPostBuildActionSetup.qaVerifyProjectName, 
-                    qaFrameworkPostBuildActionSetup.uploadSnapshotName, Integer.toString(build.getNumber()), qaFrameworkPostBuildActionSetup.uploadSourceCode);
+                    qaFrameworkPostBuildActionSetup.publishToQAV, qaFrameworkPostBuildActionSetup.loginToQAV, product, 
+                    qaFrameworkPostBuildActionSetup.qaVerifyProjectName, qaFrameworkPostBuildActionSetup.uploadSnapshotName, 
+                    Integer.toString(build.getNumber()), qaFrameworkPostBuildActionSetup.uploadSourceCode);
         }
         throw new PrqaSetupException("Please set a project in Qa Framework section configuration!");
     }
@@ -907,7 +906,7 @@ public class PRQANotifier extends Publisher {
                 configurationByName);
         if (qaVerifyServerConfiguration != null) {
             return new QAVerifyServerSettings(qaVerifyServerConfiguration.getHostName(),
-                    qaVerifyServerConfiguration.getPortNumber(), qaVerifyServerConfiguration.getProtocol(),
+                    qaVerifyServerConfiguration.getViewerPortNumber(), qaVerifyServerConfiguration.getProtocol(),
                     qaVerifyServerConfiguration.getPassword(), qaVerifyServerConfiguration.getUserName());
         }
         return new QAVerifyServerSettings();
@@ -967,7 +966,7 @@ public class PRQANotifier extends Publisher {
 
         try {
             copyReportsToArtifactsDir(qaReportSettings, build);
-            if (qaReportSettings.isPublishToQAV()) {
+            if (qaReportSettings.isPublishToQAV() && qaReportSettings.isLoginToQAV()) {
                 copyReourcesToArtifactsDir("*.log", build);
             }
         } catch (Exception ex) {

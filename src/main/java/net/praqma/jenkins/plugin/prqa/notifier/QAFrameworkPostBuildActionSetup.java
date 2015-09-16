@@ -42,218 +42,228 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-
 public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
-	public String qaInstallation;
-	public String qaProject;
-        public String unifiedProjectName;
-        public boolean downloadUnifiedProjectDefinition;
-	public boolean performCrossModuleAnalysis;
-	public String CMAProjectName;
-        public boolean enableProjectCma;
-	public boolean enableDependencyMode;
-	public boolean generateReport;
-	public boolean publishToQAV;
-	public String chosenServer;
-        public String qaVerifyProjectName;
-        public String uploadSnapshotName;
-        public String buildNumber;
-        public String uploadSourceCode;
+    public String qaInstallation;
+    public String qaProject;
+    public String unifiedProjectName;
+    public boolean downloadUnifiedProjectDefinition;
+    public boolean performCrossModuleAnalysis;
+    public String CMAProjectName;
+    public boolean enableProjectCma;
+    public boolean enableDependencyMode;
+    public boolean generateReport;
+    public boolean publishToQAV;
+    public boolean loginToQAV;
+    public String chosenServer;
+    public String qaVerifyProjectName;
+    public String uploadSnapshotName;
+    public String buildNumber;
+    public String uploadSourceCode;
 
-	@DataBoundConstructor
-	public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName, 
-                boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableProjectCma, boolean enableDependencyMode, boolean generateReport, 
-                boolean publishToQAV, String chosenServer, String qaVerifyProjectName, String uploadSnapshotName, 
-                String buildNumber, String uploadSourceCode) {
+    @DataBoundConstructor
+    public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
+            boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableProjectCma, boolean enableDependencyMode, boolean generateReport,
+            boolean publishToQAV, boolean loginToQAV, String chosenServer, String qaVerifyProjectName, String uploadSnapshotName,
+            String buildNumber, String uploadSourceCode) {
 
-		this.qaInstallation = qaInstallation;
-		this.qaProject = qaProject;
-                this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
-                this.unifiedProjectName = unifiedProjectName;
-		this.performCrossModuleAnalysis = performCrossModuleAnalysis;
-		this.CMAProjectName = CMAProjectName;
-                this.enableProjectCma = enableProjectCma;
-		this.enableDependencyMode = enableDependencyMode;
-		this.generateReport = generateReport;
-		this.publishToQAV = publishToQAV;
-		this.chosenServer = chosenServer;
-                this.qaVerifyProjectName = qaVerifyProjectName;
-                this.uploadSnapshotName = uploadSnapshotName;
-                this.buildNumber = buildNumber;
-                this.uploadSourceCode = uploadSourceCode;
-	}
+        this.qaInstallation = qaInstallation;
+        this.qaProject = qaProject;
+        this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
+        this.unifiedProjectName = unifiedProjectName;
+        this.performCrossModuleAnalysis = performCrossModuleAnalysis;
+        this.CMAProjectName = CMAProjectName;
+        this.enableProjectCma = enableProjectCma;
+        this.enableDependencyMode = enableDependencyMode;
+        this.generateReport = generateReport;
+        this.publishToQAV = publishToQAV;
+        this.loginToQAV = loginToQAV;
+        this.chosenServer = chosenServer;
+        this.qaVerifyProjectName = qaVerifyProjectName;
+        this.uploadSnapshotName = uploadSnapshotName;
+        this.buildNumber = buildNumber;
+        this.uploadSourceCode = uploadSourceCode;
+    }
 
-	public String getChosenServer() {
-		return chosenServer;
-	}
+    public String getChosenServer() {
+        return chosenServer;
+    }
 
-	public void setChosenServer(String chosenServer) {
-		this.chosenServer = chosenServer;
-	}
+    public void setChosenServer(String chosenServer) {
+        this.chosenServer = chosenServer;
+    }
 
-	public boolean isPublishToQAV() {
-		return publishToQAV;
-	}
+    public boolean isPublishToQAV() {
+        return publishToQAV;
+    }
 
-	public void setPublishToQAV(boolean publishToQAV) {
-		this.publishToQAV = publishToQAV;
-	}
+    public boolean isLoginToQAV() {
+        return loginToQAV;
+    }
 
-	public void setQaInstallation(String qaInstallation) {
-		this.qaInstallation = qaInstallation;
-	}
+    public void setPublishToQAV(boolean publishToQAV) {
+        this.publishToQAV = publishToQAV;
+    }
+    
+    public void setLoginToQAV(boolean loginToQAV) {
+        this.loginToQAV = loginToQAV;
+    }
+    
+    
+    public void setQaInstallation(String qaInstallation) {
+        this.qaInstallation = qaInstallation;
+    }
 
-	public void setQaProject(String qaProject) {
-		this.qaProject = qaProject;
-	}
-        
-	public void setDownloadUnifiedProjectDefinition(boolean downloadUnifiedProjectDefinition) {
-		this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
-	}
-        
-	public void setPerformCrossModuleAnalysis(boolean performCrossModuleAnalysis) {
-		this.performCrossModuleAnalysis = performCrossModuleAnalysis;
-	}
+    public void setQaProject(String qaProject) {
+        this.qaProject = qaProject;
+    }
 
-	public void setEnableDependencyMode(boolean enableDependencyMode) {
-		this.enableDependencyMode = enableDependencyMode;
-	}
+    public void setDownloadUnifiedProjectDefinition(boolean downloadUnifiedProjectDefinition) {
+        this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
+    }
 
-	public void setEnableProjectCma(boolean enableProjectCma) {
-		this.enableProjectCma = enableProjectCma;
-	}
-        
-        
-	public String getQaInstallation() {
-		return qaInstallation;
-	}
+    public void setPerformCrossModuleAnalysis(boolean performCrossModuleAnalysis) {
+        this.performCrossModuleAnalysis = performCrossModuleAnalysis;
+    }
 
-	public String getQaProject() {
-		return qaProject;
-	}
-        
-	public String getUnifiedProjectName() {
-		return unifiedProjectName;
-	}
-        
-	public void setUnifiedProjectName(String uProjectName) {
-		unifiedProjectName = uProjectName;
-	}
-        
-	public boolean isDownloadUnifiedProjectDefinition() {
-		return downloadUnifiedProjectDefinition;
-	}
-        
-        public String getCMAProjectName() {
-		return CMAProjectName;
-	}
-        
-	public void setCMAProjectName(String cMAProjectName) {
-		CMAProjectName = cMAProjectName;
-	}
+    public void setEnableDependencyMode(boolean enableDependencyMode) {
+        this.enableDependencyMode = enableDependencyMode;
+    }
 
-	public boolean isPerformCrossModuleAnalysis() {
-		return performCrossModuleAnalysis;
-	}
+    public void setEnableProjectCma(boolean enableProjectCma) {
+        this.enableProjectCma = enableProjectCma;
+    }
 
-	public boolean isEnableDependencyMode() {
-		return enableDependencyMode;
-	}
-        
-	public boolean isEnableProjectCma() {
-		return enableProjectCma;
-	}
-        
-	public boolean isGenerateReport() {
-		return generateReport;
-	}
+    public String getQaInstallation() {
+        return qaInstallation;
+    }
 
-	public void setGenerateReport(boolean generateReport) {
-		this.generateReport = generateReport;
-	}
-        
-        public String getUploadSourceCode() {
-		return uploadSourceCode;
-	}
+    public String getQaProject() {
+        return qaProject;
+    }
 
-	public void setUploadSourceCode(String uploadSourceCode) {
-		uploadSourceCode = uploadSourceCode;
-	}        
-        
-	@Extension
-	public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
+    public String getUnifiedProjectName() {
+        return unifiedProjectName;
+    }
 
-		public boolean enabled = false;
+    public void setUnifiedProjectName(String uProjectName) {
+        unifiedProjectName = uProjectName;
+    }
 
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
-			save();
-			return super.configure(req, json);
-		}
+    public boolean isDownloadUnifiedProjectDefinition() {
+        return downloadUnifiedProjectDefinition;
+    }
 
-		public DescriptorImpl() {
-			super();
-			load();
-		}
+    public String getCMAProjectName() {
+        return CMAProjectName;
+    }
 
-		@Override
-		public String getDisplayName() {
-			return " QA·Framework";
-		}
+    public void setCMAProjectName(String cMAProjectName) {
+        CMAProjectName = cMAProjectName;
+    }
 
-		public FormValidation doCheckQAInstallation(@QueryParameter String value) {
-			if (StringUtils.isBlank(value)) {
-				return FormValidation.error("Error");
-			} else {
-				return FormValidation.ok();
-			}
-		}
+    public boolean isPerformCrossModuleAnalysis() {
+        return performCrossModuleAnalysis;
+    }
 
-		public FormValidation doCheckCMAProjectName(@QueryParameter String CMAProjectName) {
-			if (StringUtils.isBlank(CMAProjectName)) {
-				return FormValidation.errorWithMarkup("CMA project name should not be empty!");
-			}
-			if (CMAProjectName.startsWith(" ")) {
-				return FormValidation.errorWithMarkup("CMA project name should not be begin with an empty space!");
-			}
-			return FormValidation.ok();
-		}
-		public FormValidation doCheckUnifiedProjectName(@QueryParameter String unifiedProjectName) {
-			if (StringUtils.isBlank(unifiedProjectName)) {
-				return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
-			}
-			if (unifiedProjectName.startsWith(" ")) {
-				return FormValidation.errorWithMarkup("Unified Project name should not be begin with an empty space!");
-			}
-			return FormValidation.ok();
-		}
-                
-		public ListBoxModel doFillQaInstallationItems() {
-			ListBoxModel model = new ListBoxModel();
+    public boolean isEnableDependencyMode() {
+        return enableDependencyMode;
+    }
 
-			for (QAFrameworkInstallationConfiguration suiteQAFramework : getQAFrameworkTools()) {
-				model.add(suiteQAFramework.getName());
-			}
-			return model;
-		}
+    public boolean isEnableProjectCma() {
+        return enableProjectCma;
+    }
 
-		public List<QAFrameworkInstallationConfiguration> getQAFrameworkTools() {
-			QAFrameworkInstallationConfiguration[] prqaInstallations = Hudson.getInstance()
-					.getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
-			return Arrays.asList(prqaInstallations);
-		}
+    public boolean isGenerateReport() {
+        return generateReport;
+    }
 
-		public List<ThresholdSelectionDescriptor<?>> getThresholdSelections() {
-			return AbstractThreshold.getDescriptors();
-		}
+    public void setGenerateReport(boolean generateReport) {
+        this.generateReport = generateReport;
+    }
 
-		public List<QAVerifyServerConfiguration> getServers() {
-			return PRQAGlobalConfig.get().getServers();
-		}
+    public String getUploadSourceCode() {
+        return uploadSourceCode;
+    }
 
-		public List<PRQAFileProjectSourceDescriptor<?>> getFileProjectSources() {
-			return PRQAFileProjectSource.getDescriptors();
-		}
-	}
+    public void setUploadSourceCode(String uploadSourceCode) {
+        uploadSourceCode = uploadSourceCode;
+    }
+
+    @Extension
+    public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
+
+        public boolean enabled = false;
+
+        @Override
+        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+            save();
+            return super.configure(req, json);
+        }
+
+        public DescriptorImpl() {
+            super();
+            load();
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "QA·Framework";
+        }
+
+        public FormValidation doCheckQAInstallation(@QueryParameter String value) {
+            if (StringUtils.isBlank(value)) {
+                return FormValidation.error("Error");
+            } else {
+                return FormValidation.ok();
+            }
+        }
+
+        public FormValidation doCheckCMAProjectName(@QueryParameter String CMAProjectName) {
+            if (StringUtils.isBlank(CMAProjectName)) {
+                return FormValidation.errorWithMarkup("CMA project name should not be empty!");
+            }
+            if (CMAProjectName.startsWith(" ")) {
+                return FormValidation.errorWithMarkup("CMA project name should not be begin with an empty space!");
+            }
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckUnifiedProjectName(@QueryParameter String unifiedProjectName) {
+            if (StringUtils.isBlank(unifiedProjectName)) {
+                return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
+            }
+            if (unifiedProjectName.startsWith(" ")) {
+                return FormValidation.errorWithMarkup("Unified Project name should not be begin with an empty space!");
+            }
+            return FormValidation.ok();
+        }
+
+        public ListBoxModel doFillQaInstallationItems() {
+            ListBoxModel model = new ListBoxModel();
+
+            for (QAFrameworkInstallationConfiguration suiteQAFramework : getQAFrameworkTools()) {
+                model.add(suiteQAFramework.getName());
+            }
+            return model;
+        }
+
+        public List<QAFrameworkInstallationConfiguration> getQAFrameworkTools() {
+            QAFrameworkInstallationConfiguration[] prqaInstallations = Hudson.getInstance()
+                    .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
+            return Arrays.asList(prqaInstallations);
+        }
+
+        public List<ThresholdSelectionDescriptor<?>> getThresholdSelections() {
+            return AbstractThreshold.getDescriptors();
+        }
+
+        public List<QAVerifyServerConfiguration> getServers() {
+            return PRQAGlobalConfig.get().getServers();
+        }
+
+        public List<PRQAFileProjectSourceDescriptor<?>> getFileProjectSources() {
+            return PRQAFileProjectSource.getDescriptors();
+        }
+    }
 }
