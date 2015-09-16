@@ -108,14 +108,14 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 			CmdResult reportsGenerationResult = report.reportQacli(isUnix, out);
 			logCmdResult(reportsGenerationResult, out);
 
-			CmdResult addConfigurationFilesToProjectResult;
+/*			CmdResult addConfigurationFilesToProjectResult;
 			try {
 				addConfigurationFilesToProjectResult = report.addUploadConfigurationFilesToProject(out);
 			} catch (JDOMException e) {
 				throw new IOException(e.getMessage());
 			}
 			logCmdResult(addConfigurationFilesToProjectResult, out);
-
+*/
 			CmdResult uploadResult = report.uploadQacli(out);
 			logCmdResult(uploadResult, out);
 

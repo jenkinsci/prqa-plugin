@@ -76,15 +76,7 @@
                             <f:radio name="uploadSourceCode" title="Only not in VCS" value="NOT_IN_VCS" checked="${instance.uploadSourceCode == 'NOT_IN_VCS'}" />
                         </f:entry>
                     </f:entry>
-
-                    <f:entry title="${%QA&#xb7;Verify Config file location}" field="qaVerifyConfigFile" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
-                        <f:textbox value="${instance.qaVerifyConfigFile}"/>
-                    </f:entry>
-                    
-                    <f:entry title="${%VCS Config file location}" field="vcsConfigXml" help="/plugin/prqa-plugin/config/help-configVCSConfigQaF.html">
-                        <f:textbox value="${instance.vcsConfigXml}"/>
-                    </f:entry>
-                    
+                   
                     
                 </f:optionalBlock>
             </f:block>
