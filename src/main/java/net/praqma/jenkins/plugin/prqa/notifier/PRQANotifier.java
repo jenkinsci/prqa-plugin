@@ -271,7 +271,12 @@ public class PRQANotifier extends Publisher {
                 return;
             }
             if (workspace != null && workspace.isDirectory()) {
-                FileUtils.copyDirectory(qaFReports, workspace);
+                for (File reportFile : files) {
+                    if (reportFile.getName().contains("RCR") || reportFile.getName().contains("SUR") || reportFile.getName().contains("CRR") || 
+                            reportFile.getName().contains("MDR")) {
+                        FileUtils.copyFileToDirectory(reportFile, workspace);
+                    }
+                }
             }
         }
     }
@@ -963,7 +968,7 @@ public class PRQANotifier extends Publisher {
         outStream.println("Version: " + qaFrameworkVersion.getQaFrameworkVersion());
         if (!qaFrameworkVersion.isQAFVersionSupported()) {
             outStream.println(String.format(
-                    "Your QA·CLI version is %s.In order to use our product install a newer version of QA·Framework!",
+                    "Your QA·CLI version is %s.In order to use our product install a newer version of PRQA·Framework!",
                     qaFrameworkVersion.getQaFrameworkVersion()));
             return false;
         }

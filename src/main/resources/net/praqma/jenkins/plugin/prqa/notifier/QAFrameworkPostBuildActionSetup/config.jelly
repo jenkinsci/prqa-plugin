@@ -9,10 +9,10 @@
     <f:section title="Setup">
    
         <f:block>
-            <f:entry title="${%QA·Framework Installation}" field="qaInstallation" help="/plugin/prqa-plugin/config/help-qaInstallation.html"> 
+            <f:entry title="${%PRQA·Framework Installation}" field="qaInstallation" help="/plugin/prqa-plugin/config/help-qaInstallation.html"> 
                 <f:select/>
             </f:entry>
-            <f:entry title="${%QA·Framework Project}" field="qaProject" help="/plugin/prqa-plugin/config/help-qaProject.html">
+            <f:entry title="${%PRQA·Framework Project}" field="qaProject" help="/plugin/prqa-plugin/config/help-qaProject.html">
                 <f:textbox/> 
             </f:entry>
 

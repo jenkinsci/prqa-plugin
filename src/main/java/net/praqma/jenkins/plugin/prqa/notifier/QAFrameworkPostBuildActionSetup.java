@@ -238,7 +238,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
         @Override
         public String getDisplayName() {
-            return "QA·Framework";
+            return "PRQA·Framework";
         }
 
         public FormValidation doCheckQAInstallation(@QueryParameter String value) {
