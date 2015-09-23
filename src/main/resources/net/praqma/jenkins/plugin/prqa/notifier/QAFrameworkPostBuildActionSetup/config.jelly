@@ -56,6 +56,15 @@
             </f:block>
 
             <f:block>
+                <table>
+                    <f:optionalBlock name="generateCrr" title="${%Code Review Report}" checked="${instance.generateCrr}" inline="true" /> 
+                    <f:optionalBlock name="generateMdr" title="${%Metrics Data Report}" checked="${instance.generateMdr}" inline="true" />
+                    <f:optionalBlock name="generateSup" title="${%Suppression Report}" checked="${instance.generateSup}" inline="true" />
+                </table>
+            </f:block>
+
+
+            <f:block>
                 <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">                   
                     <f:entry title="${%Project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
                         <f:textbox value="${instance.qaVerifyProjectName}"/>

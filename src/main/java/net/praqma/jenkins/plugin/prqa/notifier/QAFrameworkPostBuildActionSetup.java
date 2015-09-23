@@ -60,12 +60,15 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String uploadSnapshotName;
     public String buildNumber;
     public String uploadSourceCode;
+    public boolean generateCrr;
+    public boolean generateMdr;
+    public boolean generateSup;
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
             boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableProjectCma, boolean enableDependencyMode, boolean generateReport,
             boolean publishToQAV, boolean loginToQAV, String chosenServer, String qaVerifyProjectName, String uploadSnapshotName,
-            String buildNumber, String uploadSourceCode) {
+            String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup) {
 
         this.qaInstallation = qaInstallation;
         this.qaProject = qaProject;
@@ -83,6 +86,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.uploadSnapshotName = uploadSnapshotName;
         this.buildNumber = buildNumber;
         this.uploadSourceCode = uploadSourceCode;
+        this.generateCrr = generateCrr;
+        this.generateMdr = generateMdr;
+        this.generateSup = generateSup;
     }
 
     public String getChosenServer() {
@@ -185,7 +191,31 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String getUploadSourceCode() {
         return uploadSourceCode;
     }
-
+    
+    public boolean isGenerateCrr() {
+        return generateCrr;
+    }
+    
+    public boolean isGenerateMdr() {
+        return generateMdr;
+    }
+    
+    public boolean isGenerateSup() {
+        return generateSup;
+    }
+    
+    public void setGenerateCrr(boolean generateCrr) {
+        this.generateCrr = generateCrr;
+    }
+    
+    public void setGenerateMdr(boolean generateMdr) {
+        this.generateMdr = generateMdr;
+    }
+    
+    public void setGenerateSup(boolean generateSup) {
+        this.generateSup = generateSup;
+    }
+    
     public void setUploadSourceCode(String uploadSourceCode) {
         uploadSourceCode = uploadSourceCode;
     }
