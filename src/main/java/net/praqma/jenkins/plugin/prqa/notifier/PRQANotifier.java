@@ -153,35 +153,33 @@ public class PRQANotifier extends Publisher {
             PRQAComplianceStatus currentComplianceStatus) {
         PRQAComplianceStatus previousComplianceStatus = (PRQAComplianceStatus) previousStabileComplianceStatus;
         HashMap<StatusCategory, Number> tholds = new HashMap<StatusCategory, Number>();
-        boolean isStable = true;
         if (thresholds == null) {
-            return isStable;
+            return true;
         }
         for (AbstractThreshold threshold : thresholds) {
             if (threshold.improvement) {
                 if (!isBuildStableForContinuousImprovement(threshold, currentComplianceStatus, previousComplianceStatus)) {
-                    isStable = false;
+                    return false;
                 }
             } else {
                 addThreshold(threshold, tholds);
-                if (!threshold.validate(previousComplianceStatus, currentComplianceStatus, threshholdlevel)) {
-                    isStable = false;
-                }
                 currentComplianceStatus.setThresholds(tholds);
+                if (!threshold.validate(previousComplianceStatus, currentComplianceStatus, threshholdlevel)) {
+                    return false;
+                }
             }
         }
-        return isStable;
+        return true;
     }
 
     private boolean isBuildStableForContinuousImprovement(AbstractThreshold treshold,
             PRQAComplianceStatus currentComplianceStatus, PRQAComplianceStatus previousComplianceStatus) {
-        boolean isStable = true;
         if (treshold instanceof MessageComplianceThreshold) {
             if (currentComplianceStatus.getMessages() > previousComplianceStatus.getMessages()) {
                 currentComplianceStatus.addNotification(Messages
                         .PRQANotifier_MaxMessagesContinuousImprovementRequirementNotMet(
                                 previousComplianceStatus.getMessages(), currentComplianceStatus.getMessages()));
-                isStable = false;
+                return false;
             }
         } else if (treshold instanceof FileComplianceThreshold) {
             if (currentComplianceStatus.getFileCompliance() < previousComplianceStatus.getFileCompliance()) {
@@ -190,7 +188,7 @@ public class PRQANotifier extends Publisher {
                                 previousComplianceStatus.getFileCompliance() + "%",
                                 currentComplianceStatus.getFileCompliance())
                         + "%");
-                isStable = false;
+                return false;
             }
         } else if (treshold instanceof ProjectComplianceThreshold) {
             if (currentComplianceStatus.getProjectCompliance() < previousComplianceStatus.getProjectCompliance()) {
@@ -199,10 +197,10 @@ public class PRQANotifier extends Publisher {
                                 previousComplianceStatus.getProjectCompliance() + "%",
                                 currentComplianceStatus.getProjectCompliance())
                         + "%");
-                isStable = false;
+                return false;
             }
         }
-        return isStable;
+        return true;
     }
 
     /**
@@ -275,8 +273,8 @@ public class PRQANotifier extends Publisher {
             }
             if (workspace.isDirectory()) {
                 for (File reportFile : files) {
-                    if (reportFile.getName().contains("RCR") || reportFile.getName().contains("SUR") || reportFile.getName().contains("CRR") || 
-                            reportFile.getName().contains("MDR")) {
+                    if (reportFile.getName().contains("RCR") || reportFile.getName().contains("SUR") || reportFile.getName().contains("CRR")
+                            || reportFile.getName().contains("MDR")) {
                         FileUtils.copyFileToDirectory(reportFile, workspace);
                     }
                 }
@@ -408,7 +406,7 @@ public class PRQANotifier extends Publisher {
         return true;
     }
     // TODO: Refactor this method is way too long
-    
+
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
