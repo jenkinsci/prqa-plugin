@@ -83,7 +83,7 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 
 		@Override
 		public String getDisplayName() {
-			return "QA·Framework";
+			return "PRQA·Framework";
 		}
 
 		@Override
@@ -156,20 +156,20 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 
 		public FormValidation doCheckQafHome(@QueryParameter String qafHome) {
 			if (StringUtils.isBlank(qafHome)) {
-				return FormValidation.errorWithMarkup("QA·Framework Installation path should not be empty!");
+				return FormValidation.errorWithMarkup("PRQA·Framework Installation path should not be empty!");
 			}
 			if (qafHome.startsWith(" ")) {
-				return FormValidation.errorWithMarkup("QA·Framework Installation path should not be begin with an empty space!");
+				return FormValidation.errorWithMarkup("PRQA·Framework Installation path should not be begin with an empty space!");
 			}
 			return FormValidation.ok();
 		}
 
 		public FormValidation doCheckQafName(@QueryParameter String qafName) {
 			if (StringUtils.isBlank(qafName)) {
-				return FormValidation.errorWithMarkup("The name shall not be empty and shall be unique in the set of QA·Framework installations!");
+				return FormValidation.errorWithMarkup("The name shall not be empty and shall be unique in the set of PRQA·Framework installations!");
 			}
 			if (qafName.startsWith(" ")) {
-				return FormValidation.errorWithMarkup("QA·Framework Installation name should not be begin with an empty space!");
+				return FormValidation.errorWithMarkup("PRQA·Framework Installation name should not be begin with an empty space!");
 			}
 			return FormValidation.ok();
 		}

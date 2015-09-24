@@ -79,7 +79,6 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 		this.enableDependencyMode = enableDependencyMode;
 		this.enableDataFlowAnalysis = enableDataFlowAnalysis;
 		this.fileProjectSource = fileProjectSource;
-		// publish to qav
 		this.publishToQAV = publishToQAV;
 		this.chosenServer = chosenServer;
 		this.codeUploadSetting = CodeUploadSetting.getByValue(codeUploadSetting);

@@ -9,7 +9,7 @@
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>2.0.12-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
@@ -54,8 +54,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
         </plugins>
@@ -98,14 +99,14 @@
             <timezone>0</timezone>
         </developer>
         <developer>
-            <id>AlexIon</id>
-            <name>Alexandru Ion</name>
-            <email>alexandru.ion@rinf.ro</email>
-            <organization>RINF</organization>
+            <id>neeraj_kumar</id>
+            <name>Neeraj Kumar Yadav</name>
+            <email>neeraj_kumar@programmingresearch.com</email>
+            <organization>Programming Research</organization>
             <roles>
                 <role>developer</role>
             </roles>
-            <timezone>+2</timezone>
+            <timezone>0</timezone>
         </developer>
     </developers>
 
@@ -113,7 +114,7 @@
         <dependency>
             <groupId>com.programmingresearch</groupId>
             <artifactId>prqa</artifactId>
-            <version>2.0.11</version>
+            <version>2.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

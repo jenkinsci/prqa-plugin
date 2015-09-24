@@ -6,10 +6,10 @@
         }
     </style>
     
-    <f:entry title="${%QA·Framework Installation name}" field="qafName">
+    <f:entry title="${%PRQA·Framework Installation name}" field="qafName">
         <f:textbox/>
     </f:entry>    
-    <f:entry title="${%QA·Framework Installation path}" field="qafHome">
+    <f:entry title="${%PRQA·Framework Installation path}" field="qafHome">
         <f:textbox/>
     </f:entry>
     <tr>

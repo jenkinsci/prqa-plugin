@@ -47,91 +47,103 @@ import org.jdom2.JDOMException;
 
 public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatus> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private QAFrameworkReport report;
-	private BuildListener listener;
-	boolean isUnix;
+    private QAFrameworkReport report;
+    private BuildListener listener;
+    boolean isUnix;
+    private QaFrameworkReportSettings reportSetting;
 
-	public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
-		this.report = report;
-		this.listener = listener;
-		this.isUnix = isUnix;
-	}
+    public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
+        this.report = report;
+        this.listener = listener;
+        this.isUnix = isUnix;
+    }
 
-	private Map<String, String> expandEnvironment(Map<String, String> environment, PRQAApplicationSettings appSettings,
-			QaFrameworkReportSettings reportSetting) {
-		if (environment == null) {
-			return Collections.emptyMap();
-		}
-		String delimiter = System.getProperty("file.separator");
-		environment.put(QACli.QAF_BIN_PATH,
-				PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), delimiter) + "common"
-						+ delimiter + "bin");
-		return environment;
-	}
+    private Map<String, String> expandEnvironment(Map<String, String> environment, PRQAApplicationSettings appSettings,
+            QaFrameworkReportSettings reportSetting) {
+        this.reportSetting = reportSetting;
+        if (environment == null) {
+            return Collections.emptyMap();
+        }
+        environment.put(QACli.QAF_BIN_PATH,
+                PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), File.separator) + "common"
+                + File.separator + "bin");
+        return environment;
+    }
 
-	@Override
-	public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    @Override
+    public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
 
-		Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(),
-				report.getSettings());
+        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(),
+                report.getSettings());
 
-		report.setEnvironment(expandedEnvironment);
-		report.setWorkspace(f);
-		PrintStream out = listener.getLogger();
-		
-		//out.println("Workspace form invoke:"+f);
-		out.println("Workspace form invoke:"+f.getAbsolutePath());
-		//out.println("Workspace form invoke:"+f.getCanonicalPath());
+        report.setEnvironment(expandedEnvironment);
+        report.setWorkspace(f);
+        
+        PrintStream out = listener.getLogger();
+        out.println("Workspace form invoke:" + f.getAbsolutePath());
 
-		/**
-		 * If the project file is null at this point. It means that this is a
-		 * report based on a settings file.
-		 * 
-		 * We skip the analysis phase
-		 */
-		try {
-			if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
-				throw new PrqaException("Incorrect configuration!");
-			}
+        /**
+         * If the project file is null at this point. It means that this is a
+         * report based on a settings file.
+         *
+         * We skip the analysis phase
+         */
+        try {
+            if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
+                throw new PrqaException("Incorrect configuration!");
+            }
 
-			CmdResult analyzeResult = report.analyzeQacli(isUnix, out);
-			logCmdResult(analyzeResult, out);
+            CmdResult pullUnifyProject = report.pullUnifyProjectQacli(isUnix, out);
+            logCmdResult(pullUnifyProject, out);
 
-			CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
-			logCmdResult(cmaAnalysisResult, out);
+            CmdResult analyzeResult = report.analyzeQacli(isUnix, out);
+            logCmdResult(analyzeResult, out);
 
-			CmdResult reportsGenerationResult = report.reportQacli(isUnix, out);
-			logCmdResult(reportsGenerationResult, out);
+            CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
+            logCmdResult(cmaAnalysisResult, out);
+            
+            if (reportSetting.isGenCrReport()) {
+                String Report = "CRR";
+                CmdResult crrGenerationResult = report.reportQacli(isUnix, Report, out);
+                logCmdResult(crrGenerationResult, out);
+            }
+            if (reportSetting.isGenMdReport()) {
+                String Report = "MDR";
+                CmdResult mdrGenerationResult = report.reportQacli(isUnix, Report, out);
+                logCmdResult(mdrGenerationResult, out);
+            }
+            if (reportSetting.isGenSupReport()) {
+                String Report = "SR";
+                CmdResult srGenerationResult = report.reportQacli(isUnix, Report, out);
+                logCmdResult(srGenerationResult, out);
+            }
+            String Report = "RCR";
+            CmdResult rcrGenerationResult = report.reportQacli(isUnix, Report, out);
+            logCmdResult(rcrGenerationResult, out);
+            
+            if (reportSetting.isPublishToQAV()) {
+                CmdResult uploadResult = report.uploadQacli(out);
+                logCmdResult(uploadResult, out);
+            }
+            
+            return report.getComplianceStatus(out);
+        } catch (PrqaException exception) {
+            throw new IOException(exception.getMessage(), exception);
+        } catch (Exception ex) {
+            throw new IOException(ex.getMessage());
+        }
+    }
 
-			CmdResult addConfigurationFilesToProjectResult;
-			try {
-				addConfigurationFilesToProjectResult = report.addUploadConfigurationFilesToProject(out);
-			} catch (JDOMException e) {
-				throw new IOException(e.getMessage());
-			}
-			logCmdResult(addConfigurationFilesToProjectResult, out);
+    private void logCmdResult(CmdResult result, PrintStream out) {
+        if (result == null) {
+            return;
+        }
+        out.println(result.stdoutBuffer.toString());
+    }
 
-			CmdResult uploadResult = report.uploadQacli(out);
-			logCmdResult(uploadResult, out);
-
-			return report.getComplianceStatus(out);
-		} catch (PrqaException exception) {
-			throw new IOException(exception.getMessage(), exception);
-		} catch (Exception ex) {
-			throw new IOException(ex.getMessage());
-		}
-	}
-
-	private void logCmdResult(CmdResult result, PrintStream out) {
-		if (result == null) {
-			return;
-		}
-		out.println(result.stdoutBuffer.toString());
-	}
-
-	public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
-		report.setQaFrameworkVersion(qaFrameworkVersion);
-	}
+    public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
+        report.setQaFrameworkVersion(qaFrameworkVersion);
+    }
 }

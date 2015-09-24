@@ -56,7 +56,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 	}
 
 	/**
-	 * Small method to determin whether to draw graphs or not.
+	 * Small method to determine whether to draw graphs or not.
 	 * 
 	 * @return true when there are more than 2 or more builds available.
 	 */
