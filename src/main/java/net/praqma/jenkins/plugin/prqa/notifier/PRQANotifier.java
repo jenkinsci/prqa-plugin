@@ -258,6 +258,9 @@ public class PRQANotifier extends Publisher {
     }
 
     private void copyGeneratedReportsToJobWorkspace(File workspace, String qaProject) throws IOException {
+        if (workspace == null || qaProject == null) {
+            return;
+        }
         String reportsPath = "prqa/reports";
         File qaFReports = new File(qaProject + "/" + reportsPath);
 
@@ -265,12 +268,12 @@ public class PRQANotifier extends Publisher {
             qaFReports = new File(workspace + "/" + qaProject + "/" + reportsPath);
         }
 
-        if (qaFReports != null && qaFReports.isDirectory()) {
+        if (qaFReports.isDirectory()) {
             File[] files = qaFReports.listFiles();
             if (files.length < 1) {
                 return;
             }
-            if (workspace != null && workspace.isDirectory()) {
+            if (workspace.isDirectory()) {
                 for (File reportFile : files) {
                     if (reportFile.getName().contains("RCR") || reportFile.getName().contains("SUR") || reportFile.getName().contains("CRR") || 
                             reportFile.getName().contains("MDR")) {
@@ -319,19 +322,19 @@ public class PRQANotifier extends Publisher {
             if (file.lastModified() < elapsedTime) {
                 break;
             }
-            if (file.getName().contains("CRR") && hasCRReport == false) {
+            if (file.getName().contains("CRR") && !hasCRReport) {
                 FileUtils.copyFileToDirectory(file, artefact);
                 hasCRReport = true;
             }
-            if (file.getName().contains("SUR") && hasSUReport == false) {
+            if (file.getName().contains("SUR") && !hasSUReport) {
                 FileUtils.copyFileToDirectory(file, artefact);
                 hasSUReport = true;
             }
-            if (file.getName().contains("RCR") && hasRCReport == false) {
+            if (file.getName().contains("RCR") && !hasRCReport) {
                 FileUtils.copyFileToDirectory(file, artefact);
                 hasRCReport = true;
             }
-            if (file.getName().contains("MDR") && hasMDReport == false) {
+            if (file.getName().contains("MDR") && !hasMDReport) {
                 FileUtils.copyFileToDirectory(file, artefact);
                 hasMDReport = true;
             }
@@ -404,7 +407,8 @@ public class PRQANotifier extends Publisher {
 
         return true;
     }
-
+    // TODO: Refactor this method is way too long
+    
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
@@ -715,7 +719,7 @@ public class PRQANotifier extends Publisher {
         public ListBoxModel doFillThreshholdlevelItems() {
             ListBoxModel model = new ListBoxModel();
             for (int i = 0; i < 10; i++) {
-                model.add("" + i);
+                model.add(String.valueOf(i));
             }
             return model;
         }
