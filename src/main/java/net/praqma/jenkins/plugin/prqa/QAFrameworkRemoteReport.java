@@ -66,10 +66,9 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
         if (environment == null) {
             return Collections.emptyMap();
         }
-        String delimiter = System.getProperty("file.separator");
         environment.put(QACli.QAF_BIN_PATH,
-                PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), delimiter) + "common"
-                + delimiter + "bin");
+                PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), File.separator) + "common"
+                + File.separator + "bin");
         return environment;
     }
 
