@@ -110,12 +110,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public void setPublishToQAV(boolean publishToQAV) {
         this.publishToQAV = publishToQAV;
     }
-    
+
     public void setLoginToQAV(boolean loginToQAV) {
         this.loginToQAV = loginToQAV;
     }
-    
-    
+
     public void setQaInstallation(String qaInstallation) {
         this.qaInstallation = qaInstallation;
     }
@@ -151,7 +150,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String getUnifiedProjectName() {
         return unifiedProjectName;
     }
-
+    
+    public String getVerifySnapshotName() {
+        return uploadSnapshotName;
+    }
+    
     public void setUnifiedProjectName(String uProjectName) {
         unifiedProjectName = uProjectName;
     }
@@ -192,34 +195,45 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         return uploadSourceCode;
     }
     
+    public String getVerifyProjectName() {
+        return qaVerifyProjectName;
+    }
     public boolean isGenerateCrr() {
         return generateCrr;
     }
-    
+
     public boolean isGenerateMdr() {
         return generateMdr;
     }
-    
+
     public boolean isGenerateSup() {
         return generateSup;
     }
-    
+
     public void setGenerateCrr(boolean generateCrr) {
         this.generateCrr = generateCrr;
     }
-    
+
     public void setGenerateMdr(boolean generateMdr) {
         this.generateMdr = generateMdr;
     }
-    
+
     public void setGenerateSup(boolean generateSup) {
         this.generateSup = generateSup;
     }
-    
-    public void setUploadSourceCode(String uploadSourceCode) {
-        uploadSourceCode = uploadSourceCode;
-    }
 
+    public void setUploadSourceCode(String uploadSource) {
+        uploadSourceCode = uploadSource;
+    }
+    
+    public void setVerifyProjectName(String qaVerifyProject) {
+        qaVerifyProjectName = qaVerifyProject;
+    }
+    
+    public void setVerifySnapshotName(String qaVerifySnapshotName) {
+        uploadSnapshotName = qaVerifySnapshotName;
+    }
+    
     @Extension
     public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
 
@@ -268,7 +282,26 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
             return FormValidation.ok();
         }
-
+        
+        public FormValidation doCheckUploadSnapshotName(@QueryParameter String uploadSnapshotName) {
+            if (StringUtils.isBlank(uploadSnapshotName)) {
+                return FormValidation.errorWithMarkup("Snapshot name should not be empty!");
+            }
+            if (uploadSnapshotName.startsWith(" ")) {
+                return FormValidation.errorWithMarkup("Snapshot name should not be begin with an empty space!");
+            }
+            return FormValidation.ok();
+        }
+        
+        public FormValidation doCheckQaVerifyProjectName(@QueryParameter String qaVerifyProjectName) {
+            if (StringUtils.isBlank(qaVerifyProjectName)) {
+                return FormValidation.errorWithMarkup("Project name should not be empty!");
+            }
+            if (qaVerifyProjectName.startsWith(" ")) {
+                return FormValidation.errorWithMarkup("Project name should not be begin with an empty space!");
+            }
+            return FormValidation.ok();
+        }
         public ListBoxModel doFillQaInstallationItems() {
             ListBoxModel model = new ListBoxModel();
 

@@ -80,7 +80,7 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
 
         report.setEnvironment(expandedEnvironment);
         report.setWorkspace(f);
-        
+
         PrintStream out = listener.getLogger();
         out.println("Workspace form invoke:" + f.getAbsolutePath());
 
@@ -95,15 +95,19 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
                 throw new PrqaException("Incorrect configuration!");
             }
 
-            CmdResult pullUnifyProject = report.pullUnifyProjectQacli(isUnix, out);
-            logCmdResult(pullUnifyProject, out);
+            if (reportSetting.isPullUnifiedProject()) {
+                CmdResult pullUnifyProject = report.pullUnifyProjectQacli(isUnix, out);
+                logCmdResult(pullUnifyProject, out);
+            }
 
             CmdResult analyzeResult = report.analyzeQacli(isUnix, out);
             logCmdResult(analyzeResult, out);
 
-            CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
-            logCmdResult(cmaAnalysisResult, out);
-            
+            if (reportSetting.isQaCrossModuleAnalysis()) {
+                CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
+                logCmdResult(cmaAnalysisResult, out);
+            }
+
             if (reportSetting.isGenCrReport()) {
                 String Report = "CRR";
                 CmdResult crrGenerationResult = report.reportQacli(isUnix, Report, out);
@@ -122,12 +126,12 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
             String Report = "RCR";
             CmdResult rcrGenerationResult = report.reportQacli(isUnix, Report, out);
             logCmdResult(rcrGenerationResult, out);
-            
+
             if (reportSetting.isPublishToQAV()) {
                 CmdResult uploadResult = report.uploadQacli(out);
                 logCmdResult(uploadResult, out);
             }
-            
+
             return report.getComplianceStatus(out);
         } catch (PrqaException exception) {
             throw new IOException(exception.getMessage(), exception);

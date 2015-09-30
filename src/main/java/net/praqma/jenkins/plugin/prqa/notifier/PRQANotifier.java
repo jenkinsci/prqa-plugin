@@ -90,6 +90,7 @@ public class PRQANotifier extends Publisher {
 
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
     private PrintStream outStream;
+    private QaFrameworkVersion qaFrameworkVersion;
     private List<PRQAGraph> graphTypes;
     public final String settingProjectCompliance;
     public final String snapshotName;
@@ -310,31 +311,27 @@ public class PRQANotifier extends Publisher {
                 }
             }
         });
-
+/*
         boolean hasCRReport = false;
         boolean hasSUReport = false;
         boolean hasRCReport = false;
         boolean hasMDReport = false;
-
+*/
         for (File file : workspaceFiles) {
             if (file.lastModified() < elapsedTime) {
                 break;
             }
-            if (file.getName().contains("CRR") && !hasCRReport) {
+            if (file.getName().contains("CRR")) {
                 FileUtils.copyFileToDirectory(file, artefact);
-                hasCRReport = true;
             }
-            if (file.getName().contains("SUR") && !hasSUReport) {
+            if (file.getName().contains("SUR")) {
                 FileUtils.copyFileToDirectory(file, artefact);
-                hasSUReport = true;
             }
-            if (file.getName().contains("RCR") && !hasRCReport) {
+            if (file.getName().contains("RCR")) {
                 FileUtils.copyFileToDirectory(file, artefact);
-                hasRCReport = true;
             }
-            if (file.getName().contains("MDR") && !hasMDReport) {
+            if (file.getName().contains("MDR")) {
                 FileUtils.copyFileToDirectory(file, artefact);
-                hasMDReport = true;
             }
         }
     }
@@ -988,5 +985,9 @@ public class PRQANotifier extends Publisher {
             outStream.println("Error in copying artifacts to artifact dir");
             log.log(Level.SEVERE, "Failed copying build artifacts", ex);
         }
+    }
+
+    public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
+        this.qaFrameworkVersion = qaFrameworkVersion;
     }
 }
