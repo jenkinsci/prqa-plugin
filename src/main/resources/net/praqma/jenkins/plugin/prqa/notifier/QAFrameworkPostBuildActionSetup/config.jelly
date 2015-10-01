@@ -17,7 +17,7 @@
             </f:entry>
 
             <f:block>
-                <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.loginToQAV}" inline="true">
+                <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html" checked="${instance.loginToQAV}" inline="true">
                     <j:set var="zervers" value="${descriptor.getServers()}"/>
                     <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServer">
                         <select class="chosenServer" name="chosenServer">
@@ -43,7 +43,7 @@
                 <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
             </f:entry>
             
-            <f:entry title="${%Enable Project Based Cross Module Analysis}" field="enableProjectCma" help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
+            <f:entry title="${%Enable Project Based Cross Module Analysis}" field="enableProjectCma" help="/plugin/prqa-plugin/config/help-qaProjectCMA.html">
                 <f:checkbox name="enableProjectCma" value="${instance.enableProjectCma}" checked="${instance.enableProjectCma}"/>
             </f:entry>
                     
@@ -65,12 +65,11 @@
 
 
             <f:block>
-                <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">                   
+                <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
                     <f:entry title="${%Project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
                         <f:textbox value="${instance.qaVerifyProjectName}"/>
                     </f:entry>
-
-                    <f:entry title="${%Snapshot name}" field="uploadSnapshotName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
+                    <f:entry title="${%Snapshot name}" field="uploadSnapshotName" help="/plugin/prqa-plugin/config/help-configSnapShotName.html">
                         <f:textbox value="${instance.uploadSnapshotName}"/>
                     </f:entry>
 
