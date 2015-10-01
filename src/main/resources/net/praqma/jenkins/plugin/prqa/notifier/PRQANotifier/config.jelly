@@ -3,13 +3,13 @@
     
     <style>
         td.setting-name {
-            vertical-align:middle;
+        vertical-align:middle;
         }        
     </style>
 	
     <f:entry title="${%Run PRQA Analysis only when build is successful}" field="runWhenSuccess" help="/plugin/prqa-plugin/config/help-runWhenSuccess.html">
-		        <f:checkbox name="runWhenSuccess" value="${instance.runWhenSuccess}" checked="${instance.runWhenSuccess}"/>
-		     </f:entry> 
+        <f:checkbox name="runWhenSuccess" value="${instance.runWhenSuccess}" checked="${instance.runWhenSuccess}"/>
+    </f:entry> 
     
     <f:block>
         <f:entry field="sourceQAFramework">
@@ -22,7 +22,7 @@
             <f:select/>
         </f:entry>
         <f:block> 
-           <f:hetero-list hasHeader="true" name="thresholdsDesc" addCaption="${%Add threshold}" deleteCaption="${%Remove threshold}" oneEach="true" descriptors="${descriptor.getThresholdSelections()}" items="${instance.thresholdsDesc}"/> 
+            <f:hetero-list hasHeader="true" name="thresholdsDesc" addCaption="${%Add threshold}" deleteCaption="${%Remove threshold}" oneEach="true" descriptors="${descriptor.getThresholdSelections()}" items="${instance.thresholdsDesc}"/> 
         </f:block>
     </f:section>
 </j:jelly>
