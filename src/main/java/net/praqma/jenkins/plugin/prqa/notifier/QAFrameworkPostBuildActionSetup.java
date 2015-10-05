@@ -270,6 +270,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (CMAProjectName.startsWith(" ")) {
                 return FormValidation.errorWithMarkup("CMA project name should not be begin with an empty space!");
             }
+            if (!CMAProjectName.matches("^[a-zA-Z0-9._-]+$")) {
+                return FormValidation.errorWithMarkup("CMA project name is not valid");
+            }
             return FormValidation.ok();
         }
 
