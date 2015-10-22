@@ -43,6 +43,10 @@
                 <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
             </f:entry>
             
+            <f:entry title="${%Enable MTR Analysis}" field="enableMtr" help="/plugin/prqa-plugin/config/help-qaMtr.html">
+                <f:checkbox name="enableMtr" value="${instance.enableMtr}" checked="${instance.enableMtr}"/>
+            </f:entry>
+                        
             <f:entry title="${%Enable Project Based Cross Module Analysis}" field="enableProjectCma" help="/plugin/prqa-plugin/config/help-qaProjectCMA.html">
                 <f:checkbox name="enableProjectCma" value="${instance.enableProjectCma}" checked="${instance.enableProjectCma}"/>
             </f:entry>
@@ -66,6 +70,11 @@
 
             <f:block>
                 <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
+                
+                    <f:entry title="${%Upload only when build is stable}" field="uploadWhenStable" help="/plugin/prqa-plugin/config/help-qaUploadWhenStable.html">
+                        <f:checkbox name="uploadWhenStable" value="${instance.uploadWhenStable}" checked="${instance.uploadWhenStable}"/>
+                    </f:entry>               
+                    
                     <f:entry title="${%Project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
                         <f:textbox value="${instance.qaVerifyProjectName}"/>
                     </f:entry>

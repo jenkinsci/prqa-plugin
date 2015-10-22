@@ -48,7 +48,6 @@ import org.jdom2.JDOMException;
 public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatus> {
 
     private static final long serialVersionUID = 1L;
-
     private QAFrameworkReport report;
     private BuildListener listener;
     boolean isUnix;
@@ -100,8 +99,13 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
                 logCmdResult(pullUnifyProject, out);
             }
 
-            CmdResult analyzeResult = report.analyzeQacli(isUnix, out);
+            CmdResult analyzeResult = report.analyzeQacli(isUnix, "-cf", out);
             logCmdResult(analyzeResult, out);
+
+            if (reportSetting.isQaEnableMtr() && reportSetting.isQaEnableProjectCma()) {
+                CmdResult analyzeMtr = report.analyzeQacli(isUnix, "-m", out);
+                logCmdResult(analyzeMtr, out);
+            }
 
             if (reportSetting.isQaCrossModuleAnalysis()) {
                 CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
@@ -119,18 +123,14 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
                 logCmdResult(mdrGenerationResult, out);
             }
             if (reportSetting.isGenSupReport()) {
-                String Report = "SR";
+                String Report = "SUR";
                 CmdResult srGenerationResult = report.reportQacli(isUnix, Report, out);
                 logCmdResult(srGenerationResult, out);
             }
+
             String Report = "RCR";
             CmdResult rcrGenerationResult = report.reportQacli(isUnix, Report, out);
             logCmdResult(rcrGenerationResult, out);
-
-            if (reportSetting.isPublishToQAV()) {
-                CmdResult uploadResult = report.uploadQacli(out);
-                logCmdResult(uploadResult, out);
-            }
 
             return report.getComplianceStatus(out);
         } catch (PrqaException exception) {

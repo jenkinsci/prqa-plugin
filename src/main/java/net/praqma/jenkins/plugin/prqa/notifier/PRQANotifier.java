@@ -35,6 +35,7 @@ import java.util.logging.Logger;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteReport;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteToolCheck;
 import net.praqma.jenkins.plugin.prqa.QAFrameworkRemoteReport;
+import net.praqma.jenkins.plugin.prqa.QAFrameworkRemoteReportUpload;
 import net.praqma.jenkins.plugin.prqa.VersionInfo;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
@@ -311,12 +312,7 @@ public class PRQANotifier extends Publisher {
                 }
             }
         });
-/*
-        boolean hasCRReport = false;
-        boolean hasSUReport = false;
-        boolean hasRCReport = false;
-        boolean hasMDReport = false;
-*/
+
         for (File file : workspaceFiles) {
             if (file.lastModified() < elapsedTime) {
                 break;
@@ -839,6 +835,7 @@ public class PRQANotifier extends Publisher {
         PRQARemoteToolCheck remoteToolCheck = new PRQARemoteToolCheck(new QACli(), environmentVariables, appSettings,
                 qaReportSettings, listener, launcher.isUnix());
         QAFrameworkRemoteReport remoteReport = new QAFrameworkRemoteReport(report, listener, launcher.isUnix());
+        QAFrameworkRemoteReportUpload remoteReportUpload = new QAFrameworkRemoteReportUpload(report, listener, launcher.isUnix());
         PRQAComplianceStatus currentBuild;
         try {
             currentBuild = performBuild(build, appSettings, remoteToolCheck, remoteReport, qaReportSettings);
@@ -848,14 +845,6 @@ public class PRQANotifier extends Publisher {
         }
 
         Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, Result.SUCCESS);
-
-        if (previousBuildResultTuple != null) {
-            outStream.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousBuildResultTuple.getSecond().number))));
-            outStream.println(previousBuildResultTuple.getFirst());
-
-        } else {
-            outStream.println(Messages.PRQANotifier_NoPreviousResults());
-        }
 
         PRQAReading previousStabileBuildResult = previousBuildResultTuple != null ? previousBuildResultTuple.getFirst()
                 : null;
@@ -875,15 +864,59 @@ public class PRQANotifier extends Publisher {
             log.log(Level.SEVERE, "Storing unexpected result evalution exception", ex);
         }
 
-        outStream.println(Messages.PRQANotifier_ScannedValues());
-        outStream.println(currentBuild);
-
         PRQABuildAction action = new PRQABuildAction(build);
         action.setResult(currentBuild);
         action.setPublisher(this);
+
+        Result buildResult = build.getResult();
+
         if (!res) {
-            build.setResult(Result.UNSTABLE);
+            if (!buildResult.isWorseOrEqualTo(Result.FAILURE)) {
+                build.setResult(Result.UNSTABLE);
+            }
+            if (qaReportSettings.isPublishToQAV()
+                    && !qaReportSettings.isQaUploadWhenStable()
+                    && !buildResult.isWorseOrEqualTo(Result.FAILURE)) {
+                try {
+                    outStream.println("UPLOAD WARNING: Build is Unstable but upload will contunie...");
+                    performUpload(build, appSettings, remoteToolCheck, remoteReportUpload);
+                } catch (PrqaException ex) {
+                    log.log(Level.WARNING, "PrqaException", ex.getMessage());
+                    return false;
+                }
+            } else if (qaReportSettings.isPublishToQAV()
+                    && (qaReportSettings.isQaUploadWhenStable()
+                    || buildResult.isWorseOrEqualTo(Result.FAILURE))) {
+                outStream.println("UPLOAD WARNING: QAV Upload cant be perform because build is Unstable");
+                log.warning("UPLOAD WARNING - QAV Upload cant be perform because build is Unstable");
+            }
+
+        } else if (qaReportSettings.isPublishToQAV()) {
+            if (buildResult.isWorseOrEqualTo(Result.FAILURE)
+                    && qaReportSettings.isQaUploadWhenStable()) {
+                outStream.println("UPLOAD WARNING: QAV Upload cant be perform because build is Unstable");
+                log.warning("UPLOAD WARNING - QAV Upload cant be perform because build is Unstable");
+            } else {
+                try {
+                    outStream.println("UPLOAD INFO: QAV Upload...");
+                    performUpload(build, appSettings, remoteToolCheck, remoteReportUpload);
+                } catch (PrqaException ex) {
+                    log.log(Level.WARNING, "PrqaException", ex.getMessage());
+                    return false;
+                }
+            }
         }
+        outStream.println("\n----------------------BUILD Results-----------------------\n");
+        if (previousBuildResultTuple != null) {
+            outStream.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousBuildResultTuple.getSecond().number))));
+            outStream.println(previousBuildResultTuple.getFirst());
+
+        } else {
+            outStream.println(Messages.PRQANotifier_NoPreviousResults());
+        }
+        outStream.println(Messages.PRQANotifier_ScannedValues());
+        outStream.println(currentBuild);
+
         build.getActions().add(action);
         return true;
     }
@@ -896,10 +929,11 @@ public class PRQANotifier extends Publisher {
 
             return new QaFrameworkReportSettings(qaFrameworkPostBuildActionSetup.qaInstallation,
                     qaFrameworkPostBuildActionSetup.qaProject, qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
-                    qaFrameworkPostBuildActionSetup.unifiedProjectName, qaFrameworkPostBuildActionSetup.enableProjectCma,
-                    qaFrameworkPostBuildActionSetup.enableDependencyMode, qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
-                    qaFrameworkPostBuildActionSetup.CMAProjectName, qaFrameworkPostBuildActionSetup.generateReport,
-                    qaFrameworkPostBuildActionSetup.publishToQAV, qaFrameworkPostBuildActionSetup.loginToQAV, product,
+                    qaFrameworkPostBuildActionSetup.unifiedProjectName, qaFrameworkPostBuildActionSetup.enableMtr,
+                    qaFrameworkPostBuildActionSetup.enableProjectCma, qaFrameworkPostBuildActionSetup.enableDependencyMode,
+                    qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis, qaFrameworkPostBuildActionSetup.CMAProjectName,
+                    qaFrameworkPostBuildActionSetup.generateReport, qaFrameworkPostBuildActionSetup.publishToQAV,
+                    qaFrameworkPostBuildActionSetup.loginToQAV, product, qaFrameworkPostBuildActionSetup.uploadWhenStable,
                     qaFrameworkPostBuildActionSetup.qaVerifyProjectName, qaFrameworkPostBuildActionSetup.uploadSnapshotName,
                     Integer.toString(build.getNumber()), qaFrameworkPostBuildActionSetup.uploadSourceCode, qaFrameworkPostBuildActionSetup.generateCrr,
                     qaFrameworkPostBuildActionSetup.generateMdr, qaFrameworkPostBuildActionSetup.generateSup);
@@ -958,13 +992,47 @@ public class PRQANotifier extends Publisher {
         return currentBuild;
     }
 
+    private PRQAComplianceStatus performUpload(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
+            PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException {
+
+        boolean success = true;
+        PRQAComplianceStatus currentBuild = null;
+
+        try {
+            QaFrameworkVersion qaFrameworkVersion = new QaFrameworkVersion(build.getWorkspace().act(remoteToolCheck));
+            success = isQafVersionSupported(qaFrameworkVersion);
+            if (!success) {
+                build.setResult(Result.FAILURE);
+                throw new PrqaException("Build failure. Plese upgrade to a newer version of Qa Framework");
+            }
+            remoteReportUpload.setQaFrameworkVersion(qaFrameworkVersion);
+            build.getWorkspace().act(remoteReportUpload);
+        } catch (IOException ex) {
+            success = false;
+            outStream.println(ex.getMessage());
+            build.setResult(Result.FAILURE);
+            throw new PrqaException("IO exception. Please retry.");
+        } catch (Exception ex) {
+            outStream.println(Messages.PRQANotifier_FailedGettingResults());
+            outStream.println(ex.getMessage());
+            log.log(Level.SEVERE, "Unhandled exception", ex);
+            success = false;
+            build.setResult(Result.FAILURE);
+            throw new PrqaException("IO exception. Please retry.");
+        }
+        return currentBuild;
+    }
+
     private boolean isQafVersionSupported(QaFrameworkVersion qaFrameworkVersion) {
+        //String prqaFVersion = qaFrameworkVersion.getQaFrameworkVersion();
+        String shortVersion = qaFrameworkVersion.getVersionShortFormat();
+        String qafVersion = shortVersion.substring(shortVersion.lastIndexOf(" ") + 1);
 
         if (qaFrameworkVersion == null) {
             return false;
         }
-        outStream.println("QA CLI is a tool for Source Code Analysis Framework.");
-        outStream.println("Version: " + qaFrameworkVersion.getQaFrameworkVersion());
+        outStream.println("PRQA Source Code Analysis Framework " + qafVersion);
+        //outStream.println("Version: " + qaFrameworkVersion.getQaFrameworkVersion());
         if (!qaFrameworkVersion.isQAFVersionSupported()) {
             outStream.println(String.format(
                     "Your QA·CLI version is %s.In order to use our product install a newer version of PRQA·Framework!",
