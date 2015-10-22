@@ -490,7 +490,7 @@ public class PRQANotifier extends Publisher {
             if (suite != null) {
                 environment = suite.createEnvironmentVariables(build.getWorkspace().getRemote());
             }
-            outStream.println("workspace location " + build.getWorkspace().getRemote());
+            outStream.println("Workspace : " + build.getWorkspace().getRemote());
             boolean success = true;
             PRQAComplianceStatus currentBuild = null;
 
@@ -811,7 +811,7 @@ public class PRQANotifier extends Publisher {
         }
 
         outStream.println(Messages.PRQANotifier_ReportGenerateText());
-        outStream.println("workspace location " + build.getWorkspace().getRemote());
+        outStream.println("Workspace : " + build.getWorkspace().getRemote());
 
         HashMap<String, String> environmentVariables = null;
 
@@ -1006,7 +1006,7 @@ public class PRQANotifier extends Publisher {
                 throw new PrqaException("Build failure. Plese upgrade to a newer version of Qa Framework");
             }
             remoteReportUpload.setQaFrameworkVersion(qaFrameworkVersion);
-            build.getWorkspace().act(remoteReportUpload);
+            currentBuild = build.getWorkspace().act(remoteReportUpload);
         } catch (IOException ex) {
             success = false;
             outStream.println(ex.getMessage());
@@ -1024,15 +1024,12 @@ public class PRQANotifier extends Publisher {
     }
 
     private boolean isQafVersionSupported(QaFrameworkVersion qaFrameworkVersion) {
-        //String prqaFVersion = qaFrameworkVersion.getQaFrameworkVersion();
         String shortVersion = qaFrameworkVersion.getVersionShortFormat();
         String qafVersion = shortVersion.substring(shortVersion.lastIndexOf(" ") + 1);
-
         if (qaFrameworkVersion == null) {
             return false;
         }
         outStream.println("PRQA Source Code Analysis Framework " + qafVersion);
-        //outStream.println("Version: " + qaFrameworkVersion.getQaFrameworkVersion());
         if (!qaFrameworkVersion.isQAFVersionSupported()) {
             outStream.println(String.format(
                     "Your QA·CLI version is %s.In order to use our product install a newer version of PRQA·Framework!",

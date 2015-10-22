@@ -87,6 +87,7 @@ public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianc
          * report based on a settings file.
          *
          * We skip the analysis phase
+         *
          */
         try {
             if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
@@ -96,7 +97,7 @@ public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianc
                 CmdResult uploadResult = report.uploadQacli(out);
                 logCmdResult(uploadResult, out);
             }
-            return report.getDummyComplianceStatus(out);
+            return report.getComplianceStatus(out);
         } catch (PrqaException exception) {
             throw new IOException(exception.getMessage(), exception);
         } catch (Exception ex) {
