@@ -50,12 +50,14 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
     public String CMAProjectName;
+    public boolean enableMtr;
     public boolean enableProjectCma;
     public boolean enableDependencyMode;
     public boolean generateReport;
     public boolean publishToQAV;
     public boolean loginToQAV;
     public String chosenServer;
+    public boolean uploadWhenStable;
     public String qaVerifyProjectName;
     public String uploadSnapshotName;
     public String buildNumber;
@@ -66,9 +68,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
-            boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableProjectCma, boolean enableDependencyMode, boolean generateReport,
-            boolean publishToQAV, boolean loginToQAV, String chosenServer, String qaVerifyProjectName, String uploadSnapshotName,
-            String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup) {
+            boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableMtr, boolean enableProjectCma, boolean enableDependencyMode, 
+            boolean generateReport, boolean publishToQAV, boolean loginToQAV, String chosenServer, boolean uploadWhenStable, String qaVerifyProjectName, 
+            String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup) {
 
         this.qaInstallation = qaInstallation;
         this.qaProject = qaProject;
@@ -76,12 +78,14 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.unifiedProjectName = unifiedProjectName;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
         this.CMAProjectName = CMAProjectName;
+        this.enableMtr = enableMtr;
         this.enableProjectCma = enableProjectCma;
         this.enableDependencyMode = enableDependencyMode;
         this.generateReport = generateReport;
         this.publishToQAV = publishToQAV;
         this.loginToQAV = loginToQAV;
         this.chosenServer = chosenServer;
+        this.uploadWhenStable = uploadWhenStable;
         this.qaVerifyProjectName = qaVerifyProjectName;
         this.uploadSnapshotName = uploadSnapshotName;
         this.buildNumber = buildNumber;
@@ -105,6 +109,10 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public boolean isLoginToQAV() {
         return loginToQAV;
+    }
+
+    public boolean isUploadWhenStable() {
+        return uploadWhenStable;
     }
 
     public void setPublishToQAV(boolean publishToQAV) {
@@ -134,7 +142,15 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public void setEnableDependencyMode(boolean enableDependencyMode) {
         this.enableDependencyMode = enableDependencyMode;
     }
-
+    
+    public void setEnableMtr(boolean enableMtr) {
+        this.enableMtr = enableMtr;
+    }
+    
+    public void setUploadWhenStable(boolean uploadWhenStable) {
+        this.uploadWhenStable = uploadWhenStable;
+    }
+    
     public void setEnableProjectCma(boolean enableProjectCma) {
         this.enableProjectCma = enableProjectCma;
     }
@@ -178,7 +194,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean isEnableDependencyMode() {
         return enableDependencyMode;
     }
-
+    
+    public boolean isEnableMtr() {
+        return enableMtr;
+    }
+  
     public boolean isEnableProjectCma() {
         return enableProjectCma;
     }
@@ -267,11 +287,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (StringUtils.isBlank(CMAProjectName)) {
                 return FormValidation.errorWithMarkup("CMA project name should not be empty!");
             }
-            if (CMAProjectName.startsWith(" ")) {
-                return FormValidation.errorWithMarkup("CMA project name should not be begin with an empty space!");
-            }
-            if (!CMAProjectName.matches("^[a-zA-Z0-9._-]+$")) {
-                return FormValidation.errorWithMarkup("CMA project name is not valid");
+            if (!CMAProjectName.matches("^[a-zA-Z0-9_-]+$")) {
+                return FormValidation.errorWithMarkup("CMA project name is not valid [characters allowed: a-zA-Z0-9-_]");
             }
             return FormValidation.ok();
         }
@@ -280,8 +297,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (StringUtils.isBlank(unifiedProjectName)) {
                 return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
             }
-            if (unifiedProjectName.startsWith(" ")) {
-                return FormValidation.errorWithMarkup("Unified Project name should not be begin with an empty space!");
+            if (!unifiedProjectName.matches("^[a-zA-Z0-9_-]+$")) {
+                return FormValidation.errorWithMarkup("Unified project name is not valid [characters allowed: a-zA-Z0-9-_]");
             }
             return FormValidation.ok();
         }
@@ -290,8 +307,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (StringUtils.isBlank(uploadSnapshotName)) {
                 return FormValidation.errorWithMarkup("Snapshot name should not be empty!");
             }
-            if (uploadSnapshotName.startsWith(" ")) {
-                return FormValidation.errorWithMarkup("Snapshot name should not be begin with an empty space!");
+            if (!uploadSnapshotName.matches("^[a-zA-Z0-9_-]+$")) {
+                return FormValidation.errorWithMarkup("Snapshot name is not valid [characters allowed: a-zA-Z0-9-_]");
             }
             return FormValidation.ok();
         }
@@ -300,8 +317,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (StringUtils.isBlank(qaVerifyProjectName)) {
                 return FormValidation.errorWithMarkup("Project name should not be empty!");
             }
-            if (qaVerifyProjectName.startsWith(" ")) {
-                return FormValidation.errorWithMarkup("Project name should not be begin with an empty space!");
+            if (!qaVerifyProjectName.matches("^[a-zA-Z0-9_-]+$")) {
+                return FormValidation.errorWithMarkup("Project name is not valid [characters allowed: a-zA-Z0-9-_]");
             }
             return FormValidation.ok();
         }

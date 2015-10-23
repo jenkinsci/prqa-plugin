@@ -45,15 +45,16 @@ import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.JDOMException;
 
-public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatus> {
+public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianceStatus> {
 
     private static final long serialVersionUID = 1L;
+
     private QAFrameworkReport report;
     private BuildListener listener;
     boolean isUnix;
     private QaFrameworkReportSettings reportSetting;
 
-    public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
+    public QAFrameworkRemoteReportUpload(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
         this.report = report;
         this.listener = listener;
         this.isUnix = isUnix;
@@ -81,57 +82,21 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
         report.setWorkspace(f);
 
         PrintStream out = listener.getLogger();
-        out.println("Workspace form invoke:" + f.getAbsolutePath());
-
         /**
          * If the project file is null at this point. It means that this is a
          * report based on a settings file.
          *
          * We skip the analysis phase
+         *
          */
         try {
             if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration!");
             }
-
-            if (reportSetting.isPullUnifiedProject()) {
-                CmdResult pullUnifyProject = report.pullUnifyProjectQacli(isUnix, out);
-                logCmdResult(pullUnifyProject, out);
+            if (reportSetting.isPublishToQAV()) {
+                CmdResult uploadResult = report.uploadQacli(out);
+                logCmdResult(uploadResult, out);
             }
-
-            CmdResult analyzeResult = report.analyzeQacli(isUnix, "-cf", out);
-            logCmdResult(analyzeResult, out);
-
-            if (reportSetting.isQaEnableMtr() && reportSetting.isQaEnableProjectCma()) {
-                CmdResult analyzeMtr = report.analyzeQacli(isUnix, "-m", out);
-                logCmdResult(analyzeMtr, out);
-            }
-
-            if (reportSetting.isQaCrossModuleAnalysis()) {
-                CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
-                logCmdResult(cmaAnalysisResult, out);
-            }
-
-            if (reportSetting.isGenCrReport()) {
-                String Report = "CRR";
-                CmdResult crrGenerationResult = report.reportQacli(isUnix, Report, out);
-                logCmdResult(crrGenerationResult, out);
-            }
-            if (reportSetting.isGenMdReport()) {
-                String Report = "MDR";
-                CmdResult mdrGenerationResult = report.reportQacli(isUnix, Report, out);
-                logCmdResult(mdrGenerationResult, out);
-            }
-            if (reportSetting.isGenSupReport()) {
-                String Report = "SUR";
-                CmdResult srGenerationResult = report.reportQacli(isUnix, Report, out);
-                logCmdResult(srGenerationResult, out);
-            }
-
-            String Report = "RCR";
-            CmdResult rcrGenerationResult = report.reportQacli(isUnix, Report, out);
-            logCmdResult(rcrGenerationResult, out);
-
             return report.getComplianceStatus(out);
         } catch (PrqaException exception) {
             throw new IOException(exception.getMessage(), exception);

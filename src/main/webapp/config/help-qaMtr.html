@@ -1,0 +1,6 @@
+<p>
+MTR provides multi-threading checks for a C/C++ project. Just like RCMA, it runs against a whole project, rather than individual files.
+</p>
+<p>
+MTR has similarities with dataflow, and makes use of information calculated by C/C++ Analysis toolchain for dataflow. All files must have been analysed by C/C++ Analysis toolchain before MTR can do its own checks. Further, the C/C++ source code analysis must have been run with the Dataflow option turned on in selected tool-chain. Only level 1 dataflow is needed. PRQA Framework will return an error if any files have not been analysed with Dataflow set.
+</p>
