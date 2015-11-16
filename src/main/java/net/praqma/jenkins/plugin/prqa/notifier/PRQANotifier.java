@@ -936,7 +936,8 @@ public class PRQANotifier extends Publisher {
                     qaFrameworkPostBuildActionSetup.loginToQAV, product, qaFrameworkPostBuildActionSetup.uploadWhenStable,
                     qaFrameworkPostBuildActionSetup.qaVerifyProjectName, qaFrameworkPostBuildActionSetup.uploadSnapshotName,
                     Integer.toString(build.getNumber()), qaFrameworkPostBuildActionSetup.uploadSourceCode, qaFrameworkPostBuildActionSetup.generateCrr,
-                    qaFrameworkPostBuildActionSetup.generateMdr, qaFrameworkPostBuildActionSetup.generateSup);
+                    qaFrameworkPostBuildActionSetup.generateMdr, qaFrameworkPostBuildActionSetup.generateSup, qaFrameworkPostBuildActionSetup.analysisSettings,
+                    qaFrameworkPostBuildActionSetup.stopWhenFail, qaFrameworkPostBuildActionSetup.generatePreprocess, qaFrameworkPostBuildActionSetup.assembleSupportAnalytics);
         }
         throw new PrqaSetupException("Please set a project in Qa Framework section configuration!");
     }
