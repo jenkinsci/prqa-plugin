@@ -65,12 +65,17 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean generateCrr;
     public boolean generateMdr;
     public boolean generateSup;
+    public boolean analysisSettings;
+    public boolean stopWhenFail;
+    public boolean generatePreprocess;
+    public boolean assembleSupportAnalytics;
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
-            boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableMtr, boolean enableProjectCma, boolean enableDependencyMode, 
-            boolean generateReport, boolean publishToQAV, boolean loginToQAV, String chosenServer, boolean uploadWhenStable, String qaVerifyProjectName, 
-            String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup) {
+            boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableMtr, boolean enableProjectCma, boolean enableDependencyMode,
+            boolean generateReport, boolean publishToQAV, boolean loginToQAV, String chosenServer, boolean uploadWhenStable, String qaVerifyProjectName,
+            String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup,
+            boolean analysisSettings, boolean stopWhenFail, boolean generatePreprocess, boolean assembleSupportAnalytics) {
 
         this.qaInstallation = qaInstallation;
         this.qaProject = qaProject;
@@ -93,6 +98,10 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.generateCrr = generateCrr;
         this.generateMdr = generateMdr;
         this.generateSup = generateSup;
+        this.analysisSettings = analysisSettings;
+        this.stopWhenFail = stopWhenFail;
+        this.generatePreprocess = generatePreprocess;
+        this.assembleSupportAnalytics = assembleSupportAnalytics;
     }
 
     public String getChosenServer() {
@@ -142,15 +151,15 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public void setEnableDependencyMode(boolean enableDependencyMode) {
         this.enableDependencyMode = enableDependencyMode;
     }
-    
+
     public void setEnableMtr(boolean enableMtr) {
         this.enableMtr = enableMtr;
     }
-    
+
     public void setUploadWhenStable(boolean uploadWhenStable) {
         this.uploadWhenStable = uploadWhenStable;
     }
-    
+
     public void setEnableProjectCma(boolean enableProjectCma) {
         this.enableProjectCma = enableProjectCma;
     }
@@ -166,11 +175,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String getUnifiedProjectName() {
         return unifiedProjectName;
     }
-    
+
     public String getVerifySnapshotName() {
         return uploadSnapshotName;
     }
-    
+
     public void setUnifiedProjectName(String uProjectName) {
         unifiedProjectName = uProjectName;
     }
@@ -194,11 +203,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean isEnableDependencyMode() {
         return enableDependencyMode;
     }
-    
+
     public boolean isEnableMtr() {
         return enableMtr;
     }
-  
+
     public boolean isEnableProjectCma() {
         return enableProjectCma;
     }
@@ -214,10 +223,11 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String getUploadSourceCode() {
         return uploadSourceCode;
     }
-    
+
     public String getVerifyProjectName() {
         return qaVerifyProjectName;
     }
+
     public boolean isGenerateCrr() {
         return generateCrr;
     }
@@ -245,15 +255,47 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public void setUploadSourceCode(String uploadSource) {
         uploadSourceCode = uploadSource;
     }
-    
+
     public void setVerifyProjectName(String qaVerifyProject) {
         qaVerifyProjectName = qaVerifyProject;
     }
-    
+
     public void setVerifySnapshotName(String qaVerifySnapshotName) {
         uploadSnapshotName = qaVerifySnapshotName;
     }
-    
+
+    public void setAnalysisSettings(boolean analysisSettings) {
+        this.analysisSettings = analysisSettings;
+    }
+
+    public void setStopWhenFail(boolean stopWhenFail) {
+        this.stopWhenFail = stopWhenFail;
+    }
+
+    public void setGeneratePreprocess(boolean generatePreprocess) {
+        this.generatePreprocess = generatePreprocess;
+    }
+
+    public void setAssembleSupportAnalytics(boolean assembleSupportAnalytics) {
+        this.assembleSupportAnalytics = assembleSupportAnalytics;
+    }
+
+    public boolean isAnalysisSettings() {
+        return analysisSettings;
+    }
+
+    public boolean isStopWhenFail() {
+        return stopWhenFail;
+    }
+
+    public boolean isGeneratePreprocess() {
+        return generatePreprocess;
+    }
+
+    public boolean isAssembleSupportAnalytics() {
+        return assembleSupportAnalytics;
+    }
+
     @Extension
     public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
 
@@ -302,7 +344,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
             return FormValidation.ok();
         }
-        
+
         public FormValidation doCheckUploadSnapshotName(@QueryParameter String uploadSnapshotName) {
             if (StringUtils.isBlank(uploadSnapshotName)) {
                 return FormValidation.errorWithMarkup("Snapshot name should not be empty!");
@@ -312,7 +354,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
             return FormValidation.ok();
         }
-        
+
         public FormValidation doCheckQaVerifyProjectName(@QueryParameter String qaVerifyProjectName) {
             if (StringUtils.isBlank(qaVerifyProjectName)) {
                 return FormValidation.errorWithMarkup("Project name should not be empty!");
@@ -322,6 +364,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
             return FormValidation.ok();
         }
+
         public ListBoxModel doFillQaInstallationItems() {
             ListBoxModel model = new ListBoxModel();
 
