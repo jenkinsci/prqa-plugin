@@ -264,6 +264,38 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         uploadSnapshotName = qaVerifySnapshotName;
     }
 
+    public void setAnalysisSettings(boolean analysisSettings) {
+        this.analysisSettings = analysisSettings;
+    }
+
+    public void setStopWhenFail(boolean stopWhenFail) {
+        this.stopWhenFail = stopWhenFail;
+    }
+
+    public void setGeneratePreprocess(boolean generatePreprocess) {
+        this.generatePreprocess = generatePreprocess;
+    }
+
+    public void setAssembleSupportAnalytics(boolean assembleSupportAnalytics) {
+        this.assembleSupportAnalytics = assembleSupportAnalytics;
+    }
+
+    public boolean isAnalysisSettings() {
+        return analysisSettings;
+    }
+
+    public boolean isStopWhenFail() {
+        return stopWhenFail;
+    }
+
+    public boolean isGeneratePreprocess() {
+        return generatePreprocess;
+    }
+
+    public boolean isAssembleSupportAnalytics() {
+        return assembleSupportAnalytics;
+    }
+
     @Extension
     public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
 
