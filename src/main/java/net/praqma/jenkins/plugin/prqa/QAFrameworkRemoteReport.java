@@ -30,6 +30,7 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 

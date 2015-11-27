@@ -274,10 +274,10 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 		try {
 
 			Map<String, String> envExpanded = expandEnvironment(environment, appSettings, reportSettings, isUnix);
-			_checkImportantEnvVars(envExpanded, product);
-			if (product instanceof QAC || product instanceof QACpp) {
-				_checkBinaryMatch(envExpanded, product);
-			}
+			//_checkImportantEnvVars(envExpanded, product);
+			//if (product instanceof QAC || product instanceof QACpp) {
+			//	_checkBinaryMatch(envExpanded, product);
+			//}
 			return product.getProductVersion(envExpanded, f, isUnix);
 		} catch (PrqaSetupException setupException) {
 			throw new IOException("Tool misconfiguration detected", setupException);

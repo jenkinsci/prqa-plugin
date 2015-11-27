@@ -1,12 +1,13 @@
 package net.praqma.jenkins.plugin.prqa;
 
+import java.io.Serializable;
 import jenkins.model.Jenkins;
 
 /**
  * @author jes
  */
 
-public class VersionInfo {
+public class VersionInfo implements Serializable{
     
     public static final String WIKI_PAGE="https://wiki.jenkins-ci.org/display/JENKINS/PRQA+Plugin";
     
