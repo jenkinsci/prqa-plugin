@@ -85,9 +85,10 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
 import com.google.common.base.Strings;
+import java.io.Serializable;
 
 //TODO: I intend to REMOVE all the deprecated fields in the realease for the new PRQA API
-public class PRQANotifier extends Publisher {
+public class PRQANotifier extends Publisher implements Serializable {
 
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
     private PrintStream outStream;
@@ -245,7 +246,7 @@ public class PRQANotifier extends Publisher {
         } else if (settings instanceof QaFrameworkReportSettings) {
 
             QaFrameworkReportSettings qaFrameworkSettings = (QaFrameworkReportSettings) settings;
-            File workspace = new File(build.getWorkspace().toURI().getPath());
+            File workspace = new File(build.getWorkspace().getRemote());
 
             File artefact = build.getArtifactsDir();
             try {
@@ -531,7 +532,8 @@ public class PRQANotifier extends Publisher {
                 return success;
             } catch (PrqaException pex) {
                 outStream.println(pex.getMessage());
-                log.log(Level.WARNING, "PrqaException", pex);
+                log.log(Level.WARNING, "PrqaException", pex.getMessage());
+                
                 return false;
             } catch (Exception ex) {
                 outStream.println(Messages.PRQANotifier_FailedGettingResults());
@@ -547,8 +549,10 @@ public class PRQANotifier extends Publisher {
                         copyReourcesToArtifactsDir("*.log", build);
                     }
                 } catch (Exception ex) {
-                    outStream.println("Error in copying artifacts to artifact dir");
+                    outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
+                    outStream.println("Manualy add Build Artifacts to artifact");
                     log.log(Level.SEVERE, "Failed copying build artifacts", ex);
+                    log.log(Level.INFO, "Copy of Artifacts from slave to master Failed.", ex);
                 }
             }
 
@@ -976,6 +980,8 @@ public class PRQANotifier extends Publisher {
         } catch (IOException ex) {
             success = false;
             outStream.println(ex.getMessage());
+            log.log(Level.INFO, "Unhandled exception", ex.getCause());
+            log.log(Level.SEVERE, "IO exception",ex.getMessage());
             build.setResult(Result.FAILURE);
             throw new PrqaException("IO exception. Please retry.");
         } catch (Exception ex) {
@@ -1016,7 +1022,7 @@ public class PRQANotifier extends Publisher {
         } catch (Exception ex) {
             outStream.println(Messages.PRQANotifier_FailedGettingResults());
             outStream.println(ex.getMessage());
-            log.log(Level.SEVERE, "Unhandled exception", ex);
+            log.log(Level.SEVERE, "Unhandled exception ", ex.getMessage());
             success = false;
             build.setResult(Result.FAILURE);
             throw new PrqaException("IO exception. Please retry.");
@@ -1048,8 +1054,10 @@ public class PRQANotifier extends Publisher {
                 copyReourcesToArtifactsDir("*.log", build);
             }
         } catch (Exception ex) {
-            outStream.println("Error in copying artifacts to artifact dir");
-            log.log(Level.SEVERE, "Failed copying build artifacts", ex);
+                    outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
+                    outStream.println("Manualy add Build Artifacts to artifact");
+                    log.log(Level.SEVERE, "Failed copying build artifacts", ex);
+                    log.log(Level.INFO, "Copy of Artifacts from slave to master Failed.", ex);
         }
     }
 
