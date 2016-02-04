@@ -364,7 +364,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
             return FormValidation.ok();
         }
-
         public ListBoxModel doFillQaInstallationItems() {
             ListBoxModel model = new ListBoxModel();
 

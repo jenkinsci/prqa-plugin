@@ -82,17 +82,14 @@
                         <f:textbox value="${instance.uploadSnapshotName}"/>
                     </f:entry>
 
-                    <f:entry title="Upload Source Code" field="uploadSourceCode" description="upload Source to QAV Server">
-                        <f:entry>
-                            <f:radio name="uploadSourceCode" title="None" value="NONE" checked="${instance.uploadSourceCode == 'NONE'}" />
-                        </f:entry>
-                        <f:entry>
-                            <f:radio name="uploadSourceCode" title="All" value="ALL" checked="${instance.uploadSourceCode == 'ALL'}" />
-                        </f:entry>
-                        <f:entry>
-                            <f:radio name="uploadSourceCode" title="Only not in VCS" value="NOT_IN_VCS" checked="${instance.uploadSourceCode == 'NOT_IN_VCS'}" />
-                        </f:entry>
+                    <f:entry name="uploadSourceCode" title="Upload Source" field="uploadSourceCode">
+                        <select name="uploadSourceCode">
+                            <option value="NONE">None</option>
+                            <option value="NOT_IN_VCS">Only not in VCS</option>
+                            <option value="All">All</option>
+                        </select>
                     </f:entry>
+                    
                 </f:optionalBlock>
             </f:block>
             <f:block>

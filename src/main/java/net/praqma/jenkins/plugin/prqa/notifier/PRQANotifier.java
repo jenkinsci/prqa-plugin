@@ -90,6 +90,7 @@ import java.io.Serializable;
 //TODO: I intend to REMOVE all the deprecated fields in the realease for the new PRQA API
 public class PRQANotifier extends Publisher implements Serializable {
 
+    private static final long serialVersionUID = 1L;
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
     private PrintStream outStream;
     private QaFrameworkVersion qaFrameworkVersion;
@@ -253,7 +254,8 @@ public class PRQANotifier extends Publisher implements Serializable {
                 copyGeneratedReportsToJobWorkspace(workspace, qaFrameworkSettings.getQaProject());
                 copyReportsFromWorkspaceToArtefactsDir(artefact, workspace, build.getTimeInMillis());
             } catch (IOException ex) {
-
+                outStream.println("Manualy add Build Artifacts to artifact or use pligin");
+                log.log(Level.SEVERE, "Failed copying build artifacts", ex.getCause());
             }
         }
     }
@@ -533,7 +535,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             } catch (PrqaException pex) {
                 outStream.println(pex.getMessage());
                 log.log(Level.WARNING, "PrqaException", pex.getMessage());
-                
+
                 return false;
             } catch (Exception ex) {
                 outStream.println(Messages.PRQANotifier_FailedGettingResults());
@@ -809,7 +811,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                         "The job uses a product configuration (%s) that no longer exists, please reconfigure.", ""));
             } catch (PrqaSetupException pex) {
                 outStream.println(pex.getMessage());
-                log.log(Level.WARNING, "PrqaException", pex);
+                log.log(Level.WARNING, "PrqaException", pex.getCause());
                 return false;
             }
         }
@@ -981,7 +983,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             success = false;
             outStream.println(ex.getMessage());
             log.log(Level.INFO, "Unhandled exception", ex.getCause());
-            log.log(Level.SEVERE, "IO exception",ex.getMessage());
+            log.log(Level.SEVERE, "IO exception", ex.getMessage());
             build.setResult(Result.FAILURE);
             throw new PrqaException("IO exception. Please retry.");
         } catch (Exception ex) {
@@ -1045,6 +1047,11 @@ public class PRQANotifier extends Publisher implements Serializable {
         }
         return true;
     }
+    
+    /*
+    * TODO - in Master Salve Setup copy srtifacts method do not work and throw exception.
+    * This method need to be expanded or suggest user to use copyartifact plugin.
+    */
 
     private void copyArtifacts(AbstractBuild<?, ?> build, QaFrameworkReportSettings qaReportSettings) {
 
@@ -1054,10 +1061,9 @@ public class PRQANotifier extends Publisher implements Serializable {
                 copyReourcesToArtifactsDir("*.log", build);
             }
         } catch (Exception ex) {
-                    outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
-                    outStream.println("Manualy add Build Artifacts to artifact");
-                    log.log(Level.SEVERE, "Failed copying build artifacts", ex);
-                    log.log(Level.INFO, "Copy of Artifacts from slave to master Failed.", ex);
+            outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
+            outStream.println("Manualy add Build Artifacts to artifact directory or use copyartifact Plugin ");
+            log.log(Level.SEVERE, "Failed copying build artifacts from slave to server - Use copyartifact", ex.getMessage());
         }
     }
 
