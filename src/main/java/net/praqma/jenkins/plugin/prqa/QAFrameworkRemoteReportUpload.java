@@ -30,6 +30,7 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -45,7 +46,7 @@ import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.JDOMException;
 
-public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianceStatus> {
+public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianceStatus>, Serializable {
 
     private static final long serialVersionUID = 1L;
 

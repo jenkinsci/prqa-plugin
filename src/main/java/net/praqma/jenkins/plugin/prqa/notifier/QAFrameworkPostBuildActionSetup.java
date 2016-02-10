@@ -27,6 +27,7 @@ import hudson.Extension;
 import hudson.model.Hudson;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
+import hudson.util.ListBoxModel.Option;
 
 import java.util.Arrays;
 import java.util.List;
@@ -325,6 +326,14 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
         }
 
+        public ListBoxModel doFillUploadSourceCodeItems() {
+            ListBoxModel SourceOption = new ListBoxModel();
+            SourceOption.add("None", "NONE");
+            SourceOption.add("All", "ALL");
+            SourceOption.add("Only not in VCS", "NOT_IN_VCS");
+            return SourceOption;
+        }
+
         public FormValidation doCheckCMAProjectName(@QueryParameter String CMAProjectName) {
             if (StringUtils.isBlank(CMAProjectName)) {
                 return FormValidation.errorWithMarkup("CMA project name should not be empty!");
@@ -364,6 +373,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
             return FormValidation.ok();
         }
+
         public ListBoxModel doFillQaInstallationItems() {
             ListBoxModel model = new ListBoxModel();
 

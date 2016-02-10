@@ -82,12 +82,8 @@
                         <f:textbox value="${instance.uploadSnapshotName}"/>
                     </f:entry>
 
-                    <f:entry name="uploadSourceCode" title="Upload Source" field="uploadSourceCode">
-                        <select name="uploadSourceCode">
-                            <option value="NONE">None</option>
-                            <option value="NOT_IN_VCS">Only not in VCS</option>
-                            <option value="All">All</option>
-                        </select>
+                    <f:entry title="${%Upload Source Code}" field="uploadSourceCode">
+                        <f:select/>
                     </f:entry>
                     
                 </f:optionalBlock>
