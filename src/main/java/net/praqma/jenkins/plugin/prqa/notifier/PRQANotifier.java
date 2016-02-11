@@ -1047,12 +1047,11 @@ public class PRQANotifier extends Publisher implements Serializable {
         }
         return true;
     }
-    
-    /*
-    * TODO - in Master Salve Setup copy srtifacts method do not work and throw exception.
-    * This method need to be expanded or suggest user to use copyartifact plugin.
-    */
 
+    /*
+     * TODO - in Master Salve Setup copy srtifacts method do not work and throw exception.
+     * This method need to be expanded or suggest user to use copyartifact plugin.
+     */
     private void copyArtifacts(AbstractBuild<?, ?> build, QaFrameworkReportSettings qaReportSettings) {
 
         try {

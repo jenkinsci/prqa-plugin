@@ -40,116 +40,116 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
 /**
- * 
+ *
  * @author mads
  */
 public class MessageComplianceThreshold extends AbstractThreshold {
 
-	public final Integer value;
-	private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
+    public final Integer value;
+    private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
 
-	@DataBoundConstructor
-	public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
-		super(improvement);
-		this.value = value;
-	}
+    @DataBoundConstructor
+    public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
+        super(improvement);
+        this.value = value;
+    }
 
-	@Override
-	public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
-		if (value == null) {
-			return true;
-		}
-		return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, thresholdLevel);
-	}
+    @Override
+    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+        if (value == null) {
+            return true;
+        }
+        return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, thresholdLevel);
+    }
 
-	public boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
-		boolean areAllMessagesValid = true;
-		List<MessageGroup> currentComplianceStatusMessageGroups = currentComplianceStatus.getMessagesGroups();
+    public boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+        boolean areAllMessagesValid = true;
+        List<MessageGroup> currentComplianceStatusMessageGroups = currentComplianceStatus.getMessagesGroups();
 
-		if (currentComplianceStatusMessageGroups == null || currentComplianceStatusMessageGroups.isEmpty()) {
-			areAllMessagesValid = currentComplianceStatus.getMessageCount(thresholdLevel) <= previousComplianceStatus.getMessageCount(thresholdLevel);
-			if(!areAllMessagesValid){
-				currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(currentComplianceStatus.getMessageCount(thresholdLevel),previousComplianceStatus.getMessageCount(thresholdLevel)));	
-			}
-		} else {
-			List<MessageGroup> previousComplianceStatusMessageGroups = previousComplianceStatus.getMessagesGroups();
-			for (int i = 0; i < currentComplianceStatusMessageGroups.size(); i++) {
-				MessageGroup currentMessageGroup = currentComplianceStatusMessageGroups.get(i);
-				for (int j = 0; j < previousComplianceStatusMessageGroups.size(); j++) {
-					if (currentMessageGroup.getMessageGroupName().equals(previousComplianceStatusMessageGroups.get(j).getMessageGroupName())) {
-						if (currentMessageGroup.getMessagesWithinTreshold() <= previousComplianceStatusMessageGroups.get(j).getMessagesWithinTreshold()) {
-							currentComplianceStatus.addNotification(onUnstableMessage(currentMessageGroup.getMessageGroupName(),
-									currentMessageGroup.getMessagesWithinTreshold(), previousComplianceStatusMessageGroups.get(j).getMessagesWithinTreshold()));
-							areAllMessagesValid = false;
-						}
-					}
-				}
-			}
-		}
-		return areAllMessagesValid;
-	}
+        if (currentComplianceStatusMessageGroups == null || currentComplianceStatusMessageGroups.isEmpty()) {
+            areAllMessagesValid = currentComplianceStatus.getMessageCount(thresholdLevel) <= previousComplianceStatus.getMessageCount(thresholdLevel);
+            if (!areAllMessagesValid) {
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(currentComplianceStatus.getMessageCount(thresholdLevel), previousComplianceStatus.getMessageCount(thresholdLevel)));
+            }
+        } else {
+            List<MessageGroup> previousComplianceStatusMessageGroups = previousComplianceStatus.getMessagesGroups();
+            for (int i = 0; i < currentComplianceStatusMessageGroups.size(); i++) {
+                MessageGroup currentMessageGroup = currentComplianceStatusMessageGroups.get(i);
+                for (int j = 0; j < previousComplianceStatusMessageGroups.size(); j++) {
+                    if (currentMessageGroup.getMessageGroupName().equals(previousComplianceStatusMessageGroups.get(j).getMessageGroupName())) {
+                        if (currentMessageGroup.getMessagesWithinTreshold() <= previousComplianceStatusMessageGroups.get(j).getMessagesWithinTreshold()) {
+                            currentComplianceStatus.addNotification(onUnstableMessage(currentMessageGroup.getMessageGroupName(),
+                                    currentMessageGroup.getMessagesWithinTreshold(), previousComplianceStatusMessageGroups.get(j).getMessagesWithinTreshold()));
+                            areAllMessagesValid = false;
+                        }
+                    }
+                }
+            }
+        }
+        return areAllMessagesValid;
+    }
 
-	private String onUnstableMessage(String messageGroupName, int actualValue, int comparisonValue) {
-		return Messages.PRQANotifier_MaxMessagesRequirementNotMet(messageGroupName, actualValue, comparisonValue);
-	}
+    private String onUnstableMessage(String messageGroupName, int actualValue, int comparisonValue) {
+        return Messages.PRQANotifier_MaxMessagesRequirementNotMet(messageGroupName, actualValue, comparisonValue);
+    }
 
-	@Override
-	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
-		if (value == null) {
-			return true;
-		}
-		return isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
-	}
+    @Override
+    public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+        if (value == null) {
+            return true;
+        }
+        return isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
+    }
 
-	private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
-		boolean isValidTreshold = true;
-		List<MessageGroup> messageGroups = currentComplianceStatus.getMessagesGroups();
-		if (messageGroups == null || messageGroups.isEmpty()) {
-			isValidTreshold = currentComplianceStatus.getMessageCount(thresholdLevel) <= value;
-			if (!isValidTreshold) {
-				currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(
-						currentComplianceStatus.getMessageCount(thresholdLevel), value));
-			}
-		} else {
-			for (MessageGroup messageGroup : currentComplianceStatus.getMessagesGroups()) {
-				isValidTreshold = messageGroup.getMessagesWithinTreshold() <= value;
-				if (!isValidTreshold) {
-					currentComplianceStatus.addNotification(onUnstableMessage(messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinTreshold(),
-							value));
-				}
-				log.fine(String.format("For %s are %s mesages, comparing to: %s", messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinTreshold(),
-						value));
-				log.fine(String.format("ValidateThreshold returned %s", isValidTreshold));
-			}
-		}
-		return isValidTreshold;
-	}
+    private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+        boolean isValidTreshold = true;
+        boolean isStableBuild = true;
+        List<MessageGroup> messageGroups = currentComplianceStatus.getMessagesGroups();
+        if (messageGroups == null || messageGroups.isEmpty()) {
+            isValidTreshold = currentComplianceStatus.getMessageCount(thresholdLevel) <= value;
+            if (!isValidTreshold) {
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(
+                        currentComplianceStatus.getMessageCount(thresholdLevel), value));
+            }
+        } else {
+            for (MessageGroup messageGroup : currentComplianceStatus.getMessagesGroups()) {
+                isValidTreshold = messageGroup.getMessagesWithinTreshold() <= value;
+                if (!isValidTreshold) {
+                    currentComplianceStatus.addNotification(onUnstableMessage(messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinTreshold(), value));
+                    isStableBuild = false;
+                }
+                log.fine(String.format("For %s are %s mesages, comparing to: %s", messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinTreshold(), value));
+                log.fine(String.format("ValidateThreshold returned %s", isValidTreshold));
+            }
+        }
+        return isStableBuild;
+    }
 
-	@Extension
-	public static final class DescriptorImpl extends ThresholdSelectionDescriptor<MessageComplianceThreshold> {
+    @Extension
+    public static final class DescriptorImpl extends ThresholdSelectionDescriptor<MessageComplianceThreshold> {
 
-		@Override
-		public String getDisplayName() {
-			return "Message Compliance Threshold";
-		}
+        @Override
+        public String getDisplayName() {
+            return "Message Compliance Threshold";
+        }
 
-		public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
-			if (!improvement) {
-				try {
-					Integer parsedValue = Integer.parseInt(value);
-					if (parsedValue < 0) {
-						return FormValidation.error(Messages.PRQANotifier_WrongInteger());
-					}
-				} catch (NumberFormatException ex) {
-					return FormValidation.error(Messages.PRQANotifier_UseNoDecimals());
-				}
-			}
-			return FormValidation.ok();
-		}
+        public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
+            if (!improvement) {
+                try {
+                    Integer parsedValue = Integer.parseInt(value);
+                    if (parsedValue < 0) {
+                        return FormValidation.error(Messages.PRQANotifier_WrongInteger());
+                    }
+                } catch (NumberFormatException ex) {
+                    return FormValidation.error(Messages.PRQANotifier_UseNoDecimals());
+                }
+            }
+            return FormValidation.ok();
+        }
 
-		@Override
-		public String getHelpFile() {
-			return "/plugin/prqa-plugin/config/help-thresholds.html";
-		}
-	}
+        @Override
+        public String getHelpFile() {
+            return "/plugin/prqa-plugin/config/help-thresholds.html";
+        }
+    }
 }
