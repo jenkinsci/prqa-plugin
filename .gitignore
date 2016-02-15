@@ -1,5 +1,10 @@
-target/*
-work/*
-*.log
-*.class
-*.stapler
+**/target/*
+**/work/*
+**/*.log
+**/*.class
+**/*.stapler
+**/*.project
+**/nb-configuration.xml
+**/*.iml
+**/.idea/*
+!**/.idea/runConfigurations
