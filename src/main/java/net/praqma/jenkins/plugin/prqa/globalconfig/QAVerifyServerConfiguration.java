@@ -5,13 +5,15 @@
 package net.praqma.jenkins.plugin.prqa.globalconfig;
 
 import java.io.Serializable;
+
+import hudson.tools.ToolInstallation;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
  * 
  * @author Praqma
  */
-public class QAVerifyServerConfiguration implements Serializable {
+public class QAVerifyServerConfiguration extends ToolInstallation implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -27,6 +29,7 @@ public class QAVerifyServerConfiguration implements Serializable {
 	public QAVerifyServerConfiguration(String configurationName,
 			String hostName, Integer portNumber, String userName,
 			String password, String protocol, Integer viewerPortNumber) {
+		super(configurationName, hostName, null);
 		this.configurationName = configurationName;
 		this.hostName = hostName;
 		this.password = password;

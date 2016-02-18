@@ -53,10 +53,17 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
 
     @Override
     public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+        boolean clean_servers = json.get("servers") == null && servers.size() > 0;
+        if (clean_servers) {
+            json.put("servers", new JSONObject());
+        }
         req.bindJSON(this, json);
         save();
-        //return super.configure(req, json);
-        return true;
+        boolean result = super.configure(req, json);
+        if (clean_servers) {
+            servers.clear();
+        }
+        return result;
     }
     
     public static PRQAGlobalConfig get() {
