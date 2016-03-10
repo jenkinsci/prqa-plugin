@@ -50,7 +50,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String unifiedProjectName;
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
-    public String CMAProjectName;
     public boolean enableMtr;
     public boolean enableProjectCma;
     public boolean enableDependencyMode;
@@ -73,7 +72,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
-            boolean performCrossModuleAnalysis, String CMAProjectName, boolean enableMtr, boolean enableProjectCma, boolean enableDependencyMode,
+            boolean performCrossModuleAnalysis, boolean enableMtr, boolean enableProjectCma, boolean enableDependencyMode,
             boolean generateReport, boolean publishToQAV, boolean loginToQAV, String chosenServer, boolean uploadWhenStable, String qaVerifyProjectName,
             String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup,
             boolean analysisSettings, boolean stopWhenFail, boolean generatePreprocess, boolean assembleSupportAnalytics) {
@@ -83,7 +82,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
         this.unifiedProjectName = unifiedProjectName;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
-        this.CMAProjectName = CMAProjectName;
         this.enableMtr = enableMtr;
         this.enableProjectCma = enableProjectCma;
         this.enableDependencyMode = enableDependencyMode;
@@ -187,14 +185,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public boolean isDownloadUnifiedProjectDefinition() {
         return downloadUnifiedProjectDefinition;
-    }
-
-    public String getCMAProjectName() {
-        return CMAProjectName;
-    }
-
-    public void setCMAProjectName(String cMAProjectName) {
-        CMAProjectName = cMAProjectName;
     }
 
     public boolean isPerformCrossModuleAnalysis() {

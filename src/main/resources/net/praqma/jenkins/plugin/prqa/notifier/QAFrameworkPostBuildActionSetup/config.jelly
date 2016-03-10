@@ -52,10 +52,7 @@
             </f:entry>
                     
             <f:block>
-                <f:optionalBlock name="performCrossModuleAnalysis" title="${%Run CMA Analysis - CMA Project}" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
-                    <f:entry title="${%CMA project name}" field="CMAProjectName" help="/plugin/prqa-plugin/config/help-qaCMAProjectName.html">
-                        <f:textbox value="${instance.CMAProjectName}"/>
-                    </f:entry>
+                <f:optionalBlock name="performCrossModuleAnalysis" title="${%Run Project Based CMA Analysis}" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
                 </f:optionalBlock>
             </f:block>
 

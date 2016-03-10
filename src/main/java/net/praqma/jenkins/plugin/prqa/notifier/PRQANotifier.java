@@ -937,7 +937,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                     qaFrameworkPostBuildActionSetup.qaProject, qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
                     qaFrameworkPostBuildActionSetup.unifiedProjectName, qaFrameworkPostBuildActionSetup.enableMtr,
                     qaFrameworkPostBuildActionSetup.enableProjectCma, qaFrameworkPostBuildActionSetup.enableDependencyMode,
-                    qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis, qaFrameworkPostBuildActionSetup.CMAProjectName,
+                    qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
                     qaFrameworkPostBuildActionSetup.generateReport, qaFrameworkPostBuildActionSetup.publishToQAV,
                     qaFrameworkPostBuildActionSetup.loginToQAV, product, qaFrameworkPostBuildActionSetup.uploadWhenStable,
                     qaFrameworkPostBuildActionSetup.qaVerifyProjectName, qaFrameworkPostBuildActionSetup.uploadSnapshotName,
