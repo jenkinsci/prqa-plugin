@@ -51,7 +51,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
     public boolean enableMtr;
-    public boolean enableProjectCma;
     public boolean enableDependencyMode;
     public boolean generateReport;
     public boolean publishToQAV;
@@ -72,7 +71,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
-            boolean performCrossModuleAnalysis, boolean enableMtr, boolean enableProjectCma, boolean enableDependencyMode,
+            boolean performCrossModuleAnalysis, boolean enableMtr, boolean enableDependencyMode,
             boolean generateReport, boolean publishToQAV, boolean loginToQAV, String chosenServer, boolean uploadWhenStable, String qaVerifyProjectName,
             String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup,
             boolean analysisSettings, boolean stopWhenFail, boolean generatePreprocess, boolean assembleSupportAnalytics) {
@@ -83,7 +82,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.unifiedProjectName = unifiedProjectName;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
         this.enableMtr = enableMtr;
-        this.enableProjectCma = enableProjectCma;
         this.enableDependencyMode = enableDependencyMode;
         this.generateReport = generateReport;
         this.publishToQAV = publishToQAV;
@@ -159,10 +157,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.uploadWhenStable = uploadWhenStable;
     }
 
-    public void setEnableProjectCma(boolean enableProjectCma) {
-        this.enableProjectCma = enableProjectCma;
-    }
-
     public String getQaInstallation() {
         return qaInstallation;
     }
@@ -197,10 +191,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public boolean isEnableMtr() {
         return enableMtr;
-    }
-
-    public boolean isEnableProjectCma() {
-        return enableProjectCma;
     }
 
     public boolean isGenerateReport() {
