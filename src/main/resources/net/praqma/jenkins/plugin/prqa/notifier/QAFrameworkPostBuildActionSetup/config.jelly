@@ -90,12 +90,13 @@
                     <f:entry title="${%Stop Analysis Upon Failure}" field="stopWhenFail" help="/plugin/prqa-plugin/config/help-qaStopWhenFail.html">
                         <f:checkbox name="stopWhenFail" value="${instance.stopWhenFail}" checked="${instance.stopWhenFail}"/>
                     </f:entry>
-                    <f:entry title="${%Generate Preprocessed Source}" field="generatePreprocess" help="/plugin/prqa-plugin/config/help-qaGeneratePreprocess.html">
-                        <f:checkbox name="generatePreprocess" value="${instance.generatePreprocess}" checked="${instance.generatePreprocess}"/>
-                    </f:entry>
-                    <f:entry title="${%Assemble Support Analytic for failed Files}" field="assembleSupportAnalytics" help="/plugin/prqa-plugin/config/help-qaAssembleSupportAnalytics.html">
-                        <f:checkbox name="assembleSupportAnalytics" value="${instance.assembleSupportAnalytics}" checked="${instance.assembleSupportAnalytics}"/>
-                    </f:entry>
+                    <f:block>
+                        <f:optionalBlock title="${%Generate Preprocessed Source}" field="generatePreprocess" help="/plugin/prqa-plugin/config/help-qaGeneratePreprocess.html">
+                            <f:entry title="${%Assemble Support Analytic for failed Files}" field="assembleSupportAnalytics" help="/plugin/prqa-plugin/config/help-qaAssembleSupportAnalytics.html">
+                                <f:checkbox name="assembleSupportAnalytics" value="${instance.assembleSupportAnalytics}" checked="${instance.assembleSupportAnalytics}"/>
+                            </f:entry>
+                        </f:optionalBlock>
+                    </f:block>
                 </f:optionalBlock>
             </f:block>
         </f:block>
