@@ -103,7 +103,7 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
             CmdResult analyzeResult = report.analyzeQacli(isUnix, "-cf", out);
             logCmdResult(analyzeResult, out);
 
-            if (reportSetting.isQaEnableMtr() && reportSetting.isQaEnableProjectCma()) {
+            if (reportSetting.isQaEnableMtr()) {
                 CmdResult analyzeMtr = report.analyzeQacli(isUnix, "-m", out);
                 logCmdResult(analyzeMtr, out);
             }

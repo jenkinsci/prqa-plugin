@@ -46,10 +46,6 @@
             <f:entry title="${%Enable MTR Analysis}" field="enableMtr" help="/plugin/prqa-plugin/config/help-qaMtr.html">
                 <f:checkbox name="enableMtr" value="${instance.enableMtr}" checked="${instance.enableMtr}"/>
             </f:entry>
-                        
-            <f:entry title="${%Enable Project Based Cross Module Analysis}" field="enableProjectCma" help="/plugin/prqa-plugin/config/help-qaProjectCMA.html">
-                <f:checkbox name="enableProjectCma" value="${instance.enableProjectCma}" checked="${instance.enableProjectCma}"/>
-            </f:entry>
                     
             <f:block>
                 <f:optionalBlock name="performCrossModuleAnalysis" title="${%Run Project Based CMA Analysis}" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
