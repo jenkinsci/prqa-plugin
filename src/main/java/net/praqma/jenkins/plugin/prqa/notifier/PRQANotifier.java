@@ -506,27 +506,6 @@ public class PRQANotifier extends Publisher implements Serializable {
                 }
 
                 PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);
-                if (productUsed.equalsIgnoreCase("qac")) {
-                    String qacVersion = build.getWorkspace().act(
-                            new PRQARemoteToolCheck(new QAC(), environment, appSettings, settings, listener, launcher
-                                    .isUnix()));
-                    outStream.println("QA·C OK - " + qacVersion);
-                } else if (productUsed.equalsIgnoreCase("qacpp")) {
-                    String qacppVersion = build.getWorkspace().act(
-                            new PRQARemoteToolCheck(new QACpp(), environment, appSettings, settings, listener, launcher
-                                    .isUnix()));
-                    outStream.println("QA·C++ OK - " + qacppVersion);
-                }
-
-                String qawVersion = build.getWorkspace().act(
-                        new PRQARemoteToolCheck(new QAW(), environment, appSettings, settings, listener, launcher
-                                .isUnix()));
-                outStream.println("QAW OK - " + qawVersion);
-
-                String qarVersion = build.getWorkspace().act(
-                        new PRQARemoteToolCheck(qar, environment, appSettings, settings, listener, launcher.isUnix()));
-                outStream.println("QAR OK - " + qarVersion);
-
                 currentBuild = build.getWorkspace().act(new PRQARemoteReport(report, listener, launcher.isUnix()));
                 currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(threshholdlevel));
             } catch (IOException ex) {
@@ -535,7 +514,6 @@ public class PRQANotifier extends Publisher implements Serializable {
             } catch (PrqaException pex) {
                 outStream.println(pex.getMessage());
                 log.log(Level.WARNING, "PrqaException", pex.getMessage());
-
                 return false;
             } catch (Exception ex) {
                 outStream.println(Messages.PRQANotifier_FailedGettingResults());
