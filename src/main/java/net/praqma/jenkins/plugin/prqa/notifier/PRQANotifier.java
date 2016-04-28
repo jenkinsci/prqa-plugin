@@ -448,9 +448,10 @@ public class PRQANotifier extends Publisher implements Serializable {
             if (prqaReportPRQAToolSource.fileProjectSource != null
                     && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportProjectFileSource) {
                 PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource) prqaReportPRQAToolSource.fileProjectSource;
-                String projectFilePath = selectPrjFile(build.getWorkspace().getRemote(), pSource.projectFile);
-                if (projectFilePath == null)
+                String projectFilePath = selectPrjFilePath(build.getWorkspace().getRemote(), pSource.projectFile);
+                if (projectFilePath == null) {
                     return false;
+                }
                 settings = new PRQAReportSettings(prqaReportPRQAToolSource.chosenServer, projectFilePath,
                         prqaReportPRQAToolSource.performCrossModuleAnalysis, prqaReportPRQAToolSource.publishToQAV,
                         prqaReportPRQAToolSource.enableDependencyMode, prqaReportPRQAToolSource.enableDataFlowAnalysis,
@@ -1048,22 +1049,23 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
 
-    private String selectPrjFile(String workspace, String file) {
-        return selectPrjFile(new File(workspace, file).toString());
+    private String selectPrjFilePath(String workspace, String file) {
+        return selectPrjFilePath(new File(workspace, file));
     }
 
-    private String selectPrjFile(String path) {
-        File file = new File(path);
-        if (file.isFile() && path.endsWith(PROJECT_EXTENSION)) {
-            return path;
+    private String selectPrjFilePath(File file) {
+        if (file.isFile() && file.toString().endsWith(PROJECT_EXTENSION)) {
+            return file.toString();
         } else {
             if (file.isDirectory()) {
                 outStream.println(String.format(
-                        "Project file provided (%s) is a directory. Looking inside to find the project file", path));
+                        "Project file provided (%s) is a directory. Looking inside to find the project file",
+                        file.toString()));
                 List<File> files = (List<File>) FileUtils.listFiles(file, new String[]{PROJECT_EXTENSION}, false);
                 if (files.size() > 1) {
                     outStream.println(String.format(
-                            "Found %d files with extension %s inside the directory", files.size(), PROJECT_EXTENSION));
+                            "Found %d files with extension %s inside the directory, the first file %s will be used",
+                            files.size(), PROJECT_EXTENSION, files.get(0)));
                 }
                 return files.get(0).toString();
             }
