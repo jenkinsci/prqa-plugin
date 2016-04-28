@@ -62,11 +62,8 @@ import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.exceptions.PrqaParserException;
 import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.exceptions.PrqaUploadException;
-import net.praqma.prqa.products.QAC;
 import net.praqma.prqa.products.QACli;
-import net.praqma.prqa.products.QACpp;
 import net.praqma.prqa.products.QAR;
-import net.praqma.prqa.products.QAW;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
@@ -84,7 +81,6 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
-import com.google.common.base.Strings;
 import java.io.Serializable;
 
 //TODO: I intend to REMOVE all the deprecated fields in the realease for the new PRQA API
@@ -92,6 +88,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
+    private static final String PROJECT_EXTENSION = "prj";
     private PrintStream outStream;
     private QaFrameworkVersion qaFrameworkVersion;
     private List<PRQAGraph> graphTypes;
@@ -451,11 +448,15 @@ public class PRQANotifier extends Publisher implements Serializable {
             if (prqaReportPRQAToolSource.fileProjectSource != null
                     && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportProjectFileSource) {
                 PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource) prqaReportPRQAToolSource.fileProjectSource;
-                settings = new PRQAReportSettings(prqaReportPRQAToolSource.chosenServer, pSource.projectFile,
+                String projectFilePath = selectPrjFilePath(build.getWorkspace().getRemote(), pSource.projectFile);
+                if (projectFilePath == null) {
+                    return false;
+                }
+                settings = new PRQAReportSettings(prqaReportPRQAToolSource.chosenServer, projectFilePath,
                         prqaReportPRQAToolSource.performCrossModuleAnalysis, prqaReportPRQAToolSource.publishToQAV,
                         prqaReportPRQAToolSource.enableDependencyMode, prqaReportPRQAToolSource.enableDataFlowAnalysis,
                         chosenReportTypes, productUsed);
-                qar = new QAR(productUsed, pSource.projectFile, QARReportType.Compliance);
+                qar = new QAR(productUsed, projectFilePath, QARReportType.Compliance);
 
             } else if (prqaReportPRQAToolSource.fileProjectSource != null
                     && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportFileListSource) {
@@ -1045,5 +1046,30 @@ public class PRQANotifier extends Publisher implements Serializable {
 
     public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
         this.qaFrameworkVersion = qaFrameworkVersion;
+    }
+
+
+    private String selectPrjFilePath(String workspace, String file) {
+        return selectPrjFilePath(new File(workspace, file));
+    }
+
+    private String selectPrjFilePath(File file) {
+        if (file.isFile() && file.toString().endsWith(PROJECT_EXTENSION)) {
+            return file.toString();
+        } else {
+            if (file.isDirectory()) {
+                outStream.println(String.format(
+                        "Project file provided (%s) is a directory. Looking inside to find the project file",
+                        file.toString()));
+                List<File> files = (List<File>) FileUtils.listFiles(file, new String[]{PROJECT_EXTENSION}, false);
+                if (files.size() > 1) {
+                    outStream.println(String.format(
+                            "Found %d files with extension %s inside the directory, the first file %s will be used",
+                            files.size(), PROJECT_EXTENSION, files.get(0)));
+                }
+                return files.get(0).toString();
+            }
+        }
+        return null;
     }
 }
