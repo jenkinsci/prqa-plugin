@@ -450,6 +450,8 @@ public class PRQANotifier extends Publisher implements Serializable {
                 PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource) prqaReportPRQAToolSource.fileProjectSource;
                 String projectFilePath = selectPrjFilePath(build.getWorkspace().getRemote(), pSource.projectFile);
                 if (projectFilePath == null) {
+                    outStream.println(String.format(
+                            "File %s not found. Please provide a valid path to the project file", pSource.projectFile));
                     return false;
                 }
                 settings = new PRQAReportSettings(prqaReportPRQAToolSource.chosenServer, projectFilePath,
@@ -1049,8 +1051,13 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
 
-    private String selectPrjFilePath(String workspace, String file) {
-        return selectPrjFilePath(new File(workspace, file));
+    private String selectPrjFilePath(String workspace, String givenPath) {
+        File file = new File(givenPath);
+        if (file.isAbsolute()) {
+            return selectPrjFilePath(file);
+        } else {
+            return selectPrjFilePath(new File(workspace, givenPath));
+        }
     }
 
     private String selectPrjFilePath(File file) {
