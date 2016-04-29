@@ -1050,7 +1050,12 @@ public class PRQANotifier extends Publisher implements Serializable {
 
 
     private String selectPrjFilePath(String workspace, String file) {
-        return selectPrjFilePath(new File(workspace, file));
+        File f = new File(file);
+        if (f.isAbsolute()) {
+            return selectPrjFilePath(f);
+        } else {
+            return selectPrjFilePath(new File(workspace, file));
+        }
     }
 
     private String selectPrjFilePath(File file) {
