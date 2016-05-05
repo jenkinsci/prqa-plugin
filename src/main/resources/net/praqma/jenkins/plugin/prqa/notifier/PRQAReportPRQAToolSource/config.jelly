@@ -32,15 +32,9 @@ table.outer{
       </f:entry>
           <f:block> 
           <table>
-            <j:set var="choosableReports" value="${descriptor.getOptionalReportTypes()}"/>     
-            <j:forEach var="item" items="${choosableReports}">               
-                <tr>
-                    <td colspan="2">
-                        <f:checkbox field="chosenReport" checked="${instance.chosenReportTypes.contains(item)}" name="chosenReport" title="${item} Report"/>                        
-                    </td>
-                </tr>
-            </j:forEach>
-            </table>
+              <f:optionalBlock name="generateCrr" title="${%Code Review Report}" checked="${instance.generateCrr}" inline="true" />
+              <f:optionalBlock name="generateSup" title="${%Suppression Report}" checked="${instance.generateSup}" inline="true" />
+          </table>
         </f:block>
         <f:block>
         <table class="outer">
