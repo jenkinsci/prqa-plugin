@@ -65,13 +65,15 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 	public String vcsConfigXml;
 	public String sourceOrigin;
 	public boolean singleSnapshotMode;
+	public boolean generateCrr; //Generate Code Review Report
+	public boolean generateSup; //Generate Suppression Report
 
 	@DataBoundConstructor
 	public PRQAReportPRQAToolSource(
 
 	String product, String projectFile, boolean performCrossModuleAnalysis, boolean enableDependencyMode, boolean enableDataFlowAnalysis,
 			PRQAFileProjectSource fileProjectSource, boolean publishToQAV, String chosenServer, String codeUploadSetting, String qaVerifyProjectName,
-			String vcsConfigXml, String sourceOrigin, boolean singleSnapshotMode) {
+			String vcsConfigXml, String sourceOrigin, boolean singleSnapshotMode, boolean generateCrr, boolean generateSup) {
 
 		this.product = product;
 		this.projectFile = projectFile;
@@ -86,7 +88,8 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 		this.vcsConfigXml = vcsConfigXml;
 		this.sourceOrigin = sourceOrigin;
 		this.singleSnapshotMode = singleSnapshotMode;
-
+		this.generateCrr = generateCrr;
+		this.generateSup = generateSup;
 	}
 
 	public boolean isPublishToQAV() {
@@ -187,6 +190,14 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 
 	public void setFileProjectSource(PRQAFileProjectSource fileProjectSource) {
 		this.fileProjectSource = fileProjectSource;
+	}
+
+	public boolean isGenerateCrr() {
+		return this.generateCrr;
+	}
+
+	public boolean isGenerateSup() {
+		return this.generateSup;
 	}
 
 	@Extension
