@@ -709,24 +709,19 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         @Override
         public Publisher newInstance(StaplerRequest req, JSONObject formData) throws Descriptor.FormException {
-            final String CHOSEN_REPORT = "chosenReport";
             final String SOURCE_QA_FRAMEWORK = "sourceQAFramework";
+            final String CODE_REVIEW_REPORT = "generateCrr";
+            final String SUPPRESSION_REPORT = "generateSup";
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
+            instance.setChosenReportTypes(QARReportType.REQUIRED_TYPES.clone());
 
             JSONObject sourceObject = formData.getJSONObject(SOURCE_QA_FRAMEWORK);
-            if (sourceObject.containsKey(CHOSEN_REPORT)) {
-                JSONArray chosenReportArray = sourceObject.getJSONArray(CHOSEN_REPORT);
+            if (sourceObject.getBoolean(CODE_REVIEW_REPORT)) {
+                instance.chosenReportTypes.add(QARReportType.CodeReview);
 
-                QARReportType[] types = getOptionalReportTypes().toArray(
-                        new QARReportType[getOptionalReportTypes().size()]);
-                instance.setChosenReportTypes(QARReportType.REQUIRED_TYPES.clone());
-
-                for (int i = 0; i < chosenReportArray.size(); i++) {
-                    if (chosenReportArray.getBoolean(i) == true) {
-                        instance.chosenReportTypes.add(types[i]);
-                    }
-                }
-                instance.chosenReportTypes.add(QARReportType.Compliance);
+            }
+            if (sourceObject.getBoolean(SUPPRESSION_REPORT)) {
+                instance.chosenReportTypes.add(QARReportType.Suppression);
             }
             if (instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
