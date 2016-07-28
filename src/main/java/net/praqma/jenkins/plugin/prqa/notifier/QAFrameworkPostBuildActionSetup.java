@@ -309,7 +309,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         public ListBoxModel doFillUploadSourceCodeItems() {
             ListBoxModel SourceOption = new ListBoxModel();
             SourceOption.add("None", "NONE");
-            SourceOption.add("All", "All");
+            SourceOption.add("All", "ALL");
             SourceOption.add("Only not in VCS", "NOT_IN_VCS");
             return SourceOption;
         }
