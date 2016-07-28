@@ -50,7 +50,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String unifiedProjectName;
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
-    public boolean enableMtr;
     public boolean enableDependencyMode;
     public boolean generateReport;
     public boolean publishToQAV;
@@ -71,7 +70,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
-            boolean performCrossModuleAnalysis, boolean enableMtr, boolean enableDependencyMode,
+            boolean performCrossModuleAnalysis, boolean enableDependencyMode,
             boolean generateReport, boolean publishToQAV, boolean loginToQAV, String chosenServer, boolean uploadWhenStable, String qaVerifyProjectName,
             String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup,
             boolean analysisSettings, boolean stopWhenFail, boolean generatePreprocess, boolean assembleSupportAnalytics) {
@@ -81,7 +80,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
         this.unifiedProjectName = unifiedProjectName;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
-        this.enableMtr = enableMtr;
         this.enableDependencyMode = enableDependencyMode;
         this.generateReport = generateReport;
         this.publishToQAV = publishToQAV;
@@ -149,10 +147,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.enableDependencyMode = enableDependencyMode;
     }
 
-    public void setEnableMtr(boolean enableMtr) {
-        this.enableMtr = enableMtr;
-    }
-
     public void setUploadWhenStable(boolean uploadWhenStable) {
         this.uploadWhenStable = uploadWhenStable;
     }
@@ -187,10 +181,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public boolean isEnableDependencyMode() {
         return enableDependencyMode;
-    }
-
-    public boolean isEnableMtr() {
-        return enableMtr;
     }
 
     public boolean isGenerateReport() {
