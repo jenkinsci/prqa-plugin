@@ -27,6 +27,7 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Hudson;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
 import java.util.Arrays;
@@ -40,7 +41,9 @@ import net.praqma.prqa.CodeUploadSetting;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 //import net.praqma.prqa.CodeUploadSetting;
@@ -209,10 +212,6 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 			return super.configure(req, json);
 		}
 
-		public EnumSet<QARReportType> getOptionalReportTypes() {
-			return QARReportType.OPTIONAL_TYPES;
-		}
-
 		public List<PRQAFileProjectSourceDescriptor<?>> getFileProjectSources() {
 			return PRQAFileProjectSource.getDescriptors();
 		}
@@ -249,6 +248,17 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 		public CodeUploadSetting[] getUploadSettings() {
 			return CodeUploadSetting.values();
 		}
-		
+
+		public FormValidation doCheckVcsConfigXml(@QueryParameter String value) {
+			try {
+				if (value.endsWith(".xml") || StringUtils.isBlank(value)) {
+					return FormValidation.ok();
+				} else {
+					return FormValidation.error(Messages.PRQANotifier_MustEndWithDotXml());
+				}
+			} catch (Exception ex) {
+				return FormValidation.error(Messages.PRQANotifier_IllegalVcsString());
+			}
+		}
 	}
 }

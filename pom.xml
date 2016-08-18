@@ -1,4 +1,3 @@
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent> 
@@ -69,7 +68,11 @@
         </repository>
         <repository>
             <id>bintray</id>
-            <url>http://dl.bintray.com/prqa/maven</url>
+            <url>http://dl.bintray.com/prqa/maven/</url>
+        </repository>
+        <repository>
+            <id>praqma-repo</id>
+            <url>http://code.praqma.net/repo/maven/</url>
         </repository>
     </repositories>
 
@@ -98,16 +101,6 @@
             </roles>
             <timezone>0</timezone>
         </developer>
-        <developer>
-            <id>neeraj_kumar</id>
-            <name>Neeraj Kumar Yadav</name>
-            <email>neeraj_kumar@programmingresearch.com</email>
-            <organization>Programming Research</organization>
-            <roles>
-                <role>developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
     </developers>
 
     <dependencies>
@@ -115,6 +108,11 @@
             <groupId>com.programmingresearch</groupId>
             <artifactId>prqa</artifactId>
             <version>2.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>net.praqma</groupId>
+            <artifactId>praqmajutils</artifactId>
+            <version>0.1.28</version>
         </dependency>
     </dependencies>
 

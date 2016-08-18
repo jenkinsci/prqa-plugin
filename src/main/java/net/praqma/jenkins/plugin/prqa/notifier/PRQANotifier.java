@@ -1,42 +1,15 @@
-/**
- *
- * @author jes
- */
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.Action;
-import hudson.model.BuildListener;
-import hudson.model.Result;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Descriptor;
-import hudson.model.Hudson;
+import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import net.praqma.jenkins.plugin.prqa.PRQARemoteReport;
-import net.praqma.jenkins.plugin.prqa.PRQARemoteToolCheck;
-import net.praqma.jenkins.plugin.prqa.QAFrameworkRemoteReport;
-import net.praqma.jenkins.plugin.prqa.QAFrameworkRemoteReportUpload;
-import net.praqma.jenkins.plugin.prqa.VersionInfo;
+import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.graphs.ComplianceIndexGraphs;
@@ -49,15 +22,8 @@ import net.praqma.jenkins.plugin.prqa.threshold.AbstractThreshold;
 import net.praqma.jenkins.plugin.prqa.threshold.FileComplianceThreshold;
 import net.praqma.jenkins.plugin.prqa.threshold.MessageComplianceThreshold;
 import net.praqma.jenkins.plugin.prqa.threshold.ProjectComplianceThreshold;
-import net.praqma.prqa.PRQAApplicationSettings;
-import net.praqma.prqa.PRQAContext;
+import net.praqma.prqa.*;
 import net.praqma.prqa.PRQAContext.QARReportType;
-import net.praqma.prqa.PRQAReading;
-import net.praqma.prqa.PRQAReportSettings;
-import net.praqma.prqa.PRQAToolUploadSettings;
-import net.praqma.prqa.QAVerifyServerSettings;
-import net.praqma.prqa.QaFrameworkVersion;
-import net.praqma.prqa.ReportSettings;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.exceptions.PrqaParserException;
 import net.praqma.prqa.exceptions.PrqaSetupException;
@@ -71,9 +37,7 @@ import net.praqma.prqa.status.StatusCategory;
 import net.praqma.util.ExceptionUtils;
 import net.praqma.util.structure.Tuple;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -81,16 +45,21 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Serializable;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-//TODO: I intend to REMOVE all the deprecated fields in the realease for the new PRQA API
+//TODO: Remove all the deprecated fields in the release for the new PRQA API
 public class PRQANotifier extends Publisher implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger log = Logger.getLogger(PRQANotifier.class.getName());
     private static final String PROJECT_EXTENSION = "prj";
     private PrintStream outStream;
-    private QaFrameworkVersion qaFrameworkVersion;
     private List<PRQAGraph> graphTypes;
     public final String settingProjectCompliance;
     public final String snapshotName;
@@ -134,7 +103,7 @@ public class PRQANotifier extends Publisher implements Serializable {
         return BuildStepMonitor.BUILD;
     }
 
-    private void copyReourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException,
+    private void copyResourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException,
             InterruptedException {
         FilePath[] files = build.getWorkspace().list("**/" + pattern);
         if (files.length >= 1) {
@@ -150,9 +119,9 @@ public class PRQANotifier extends Publisher implements Serializable {
     /**
      * Process the results
      */
-    private boolean evaluate(PRQAReading previousStabileComplianceStatus, List<? extends AbstractThreshold> thresholds,
-            PRQAComplianceStatus currentComplianceStatus) {
-        PRQAComplianceStatus previousComplianceStatus = (PRQAComplianceStatus) previousStabileComplianceStatus;
+    private boolean evaluate(PRQAReading previousStableComplianceStatus, List<? extends AbstractThreshold> thresholds,
+                             PRQAComplianceStatus currentComplianceStatus) {
+        PRQAComplianceStatus previousComplianceStatus = (PRQAComplianceStatus) previousStableComplianceStatus;
         HashMap<StatusCategory, Number> tholds = new HashMap<StatusCategory, Number>();
         if (thresholds == null) {
             return true;
@@ -173,16 +142,16 @@ public class PRQANotifier extends Publisher implements Serializable {
         return true;
     }
 
-    private boolean isBuildStableForContinuousImprovement(AbstractThreshold treshold,
-            PRQAComplianceStatus currentComplianceStatus, PRQAComplianceStatus previousComplianceStatus) {
-        if (treshold instanceof MessageComplianceThreshold) {
+    private boolean isBuildStableForContinuousImprovement(AbstractThreshold threshold,
+                                                          PRQAComplianceStatus currentComplianceStatus, PRQAComplianceStatus previousComplianceStatus) {
+        if (threshold instanceof MessageComplianceThreshold) {
             if (currentComplianceStatus.getMessages() > previousComplianceStatus.getMessages()) {
                 currentComplianceStatus.addNotification(Messages
                         .PRQANotifier_MaxMessagesContinuousImprovementRequirementNotMet(
                                 previousComplianceStatus.getMessages(), currentComplianceStatus.getMessages()));
                 return false;
             }
-        } else if (treshold instanceof FileComplianceThreshold) {
+        } else if (threshold instanceof FileComplianceThreshold) {
             if (currentComplianceStatus.getFileCompliance() < previousComplianceStatus.getFileCompliance()) {
                 currentComplianceStatus.addNotification(Messages
                         .PRQANotifier_FileComplianceContinuousImprovementRequirementNotMet(
@@ -191,7 +160,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                         + "%");
                 return false;
             }
-        } else if (treshold instanceof ProjectComplianceThreshold) {
+        } else if (threshold instanceof ProjectComplianceThreshold) {
             if (currentComplianceStatus.getProjectCompliance() < previousComplianceStatus.getProjectCompliance()) {
                 currentComplianceStatus.addNotification(Messages
                         .PRQANotifier_ProjectComplianceContinuousImprovementRequirementNotMet(
@@ -246,12 +215,12 @@ public class PRQANotifier extends Publisher implements Serializable {
             QaFrameworkReportSettings qaFrameworkSettings = (QaFrameworkReportSettings) settings;
             File workspace = new File(build.getWorkspace().getRemote());
 
-            File artefact = build.getArtifactsDir();
+            File artifact = build.getArtifactsDir();
             try {
                 copyGeneratedReportsToJobWorkspace(workspace, qaFrameworkSettings.getQaProject());
-                copyReportsFromWorkspaceToArtefactsDir(artefact, workspace, build.getTimeInMillis());
+                copyReportsFromWorkspaceToArtifactsDir(artifact, workspace, build.getTimeInMillis());
             } catch (IOException ex) {
-                outStream.println("Manualy add Build Artifacts to artifact or use pligin");
+                outStream.println("Manually add Build Artifacts to artifact or use plugin");
                 log.log(Level.SEVERE, "Failed copying build artifacts", ex.getCause());
             }
         }
@@ -270,7 +239,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         if (qaFReports.isDirectory()) {
             File[] files = qaFReports.listFiles();
-            if (files.length < 1) {
+            if (files == null || files.length < 1) {
                 return;
             }
             if (workspace.isDirectory()) {
@@ -284,19 +253,18 @@ public class PRQANotifier extends Publisher implements Serializable {
         }
     }
 
-    private void copyReportsFromWorkspaceToArtefactsDir(File artefact, File workspace, long elapsedTime)
+    private void copyReportsFromWorkspaceToArtifactsDir(File artifact, File workspace, long elapsedTime)
             throws IOException {
-        if (artefact == null) {
+        if (artifact == null) {
             return;
         }
-        if (!artefact.exists()) {
-            artefact.mkdirs();
+        if (!artifact.exists()) {
+            artifact.mkdirs();
         }
-        // clean artefacts dir
-        FileUtils.cleanDirectory(artefact);
+        FileUtils.cleanDirectory(artifact);
         // COPY only last generated reports
         File[] workspaceFiles = workspace.listFiles();
-        if (workspaceFiles.length < 1) {
+        if (workspaceFiles == null || workspaceFiles.length < 1) {
             return;
         }
         Arrays.sort(workspaceFiles, new Comparator<File>() {
@@ -317,17 +285,13 @@ public class PRQANotifier extends Publisher implements Serializable {
             if (file.lastModified() < elapsedTime) {
                 break;
             }
-            if (file.getName().contains("CRR")) {
-                FileUtils.copyFileToDirectory(file, artefact);
-            }
-            if (file.getName().contains("SUR")) {
-                FileUtils.copyFileToDirectory(file, artefact);
-            }
-            if (file.getName().contains("RCR")) {
-                FileUtils.copyFileToDirectory(file, artefact);
-            }
-            if (file.getName().contains("MDR")) {
-                FileUtils.copyFileToDirectory(file, artefact);
+            String fileName = file.getName();
+            if (
+                    fileName.contains("CRR") ||
+                            fileName.contains("SUR") ||
+                            fileName.contains("RCR") ||
+                            fileName.contains("MDR")) {
+                FileUtils.copyFileToDirectory(file, artifact);
             }
         }
     }
@@ -351,21 +315,8 @@ public class PRQANotifier extends Publisher implements Serializable {
         return null;
     }
 
-    public PRQAGraph getGraph(Class clazz, List<PRQAGraph> graphs) {
-        for (PRQAGraph p : graphs) {
-            if (p.getClass().equals(clazz)) {
-                return p;
-            }
-        }
-        return null;
-    }
-
     /**
      * Pre-build for the plugin. We use this one to clean up old report files.
-     *
-     * @param build
-     * @param listener
-     * @return
      */
     @Override
     public boolean prebuild(AbstractBuild<?, ?> build, BuildListener listener) {
@@ -384,7 +335,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             }
 
             if (deleteCounter > 0) {
-                listener.getLogger().println(String.format("Succesfully deleted %s report fragments", deleteCounter));
+                listener.getLogger().println(String.format("Successfully deleted %s report fragments", deleteCounter));
             }
 
         } catch (IOException ex) {
@@ -398,8 +349,8 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         return true;
     }
-    // TODO: Refactor this method is way too long
 
+    // TODO: Refactor this method is way too long
     @Override
     public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
             throws InterruptedException, IOException {
@@ -520,7 +471,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                 return false;
             } catch (Exception ex) {
                 outStream.println(Messages.PRQANotifier_FailedGettingResults());
-                outStream.println("This should not be happinging, writing error to log");
+                outStream.println("This should not be happening, writing error to log");
                 log.log(Level.SEVERE, "Unhandled exception", ex);
                 return false;
             } finally {
@@ -529,11 +480,11 @@ public class PRQANotifier extends Publisher implements Serializable {
                         copyReportsToArtifactsDir(settings, build);
                     }
                     if (prqaReportPRQAToolSource.publishToQAV && success) {
-                        copyReourcesToArtifactsDir("*.log", build);
+                        copyResourcesToArtifactsDir("*.log", build);
                     }
                 } catch (Exception ex) {
                     outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
-                    outStream.println("Manualy add Build Artifacts to artifact");
+                    outStream.println("Manually add Build Artifacts to artifact");
                     log.log(Level.SEVERE, "Failed copying build artifacts", ex);
                     log.log(Level.INFO, "Copy of Artifacts from slave to master Failed.", ex);
                 }
@@ -542,8 +493,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, Result.SUCCESS);
 
             if (previousBuildResultTuple != null) {
-                outStream.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(
-                        previousBuildResultTuple.getSecond().number))));
+                outStream.println(Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getSecond().number));
                 outStream.println(previousBuildResultTuple.getFirst());
             } else {
                 outStream.println(Messages.PRQANotifier_NoPreviousResults());
@@ -564,7 +514,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                 log.fine("Evaluated to: " + buildStatus);
             } catch (Exception ex) {
                 outStream.println("Report generation ok. Caught exception evaluation results. Trace written to log");
-                log.log(Level.SEVERE, "Storing unexpected result evalution exception", ex);
+                log.log(Level.SEVERE, "Unexpected evaluation exception", ex);
             }
 
             outStream.println(Messages.PRQANotifier_ScannedValues());
@@ -621,26 +571,21 @@ public class PRQANotifier extends Publisher implements Serializable {
     /**
      * Fetches the most 'previous' result. The current build is baseline. So any
      * prior build to the passed current build is considered.
-     *
-     * @param build
-     * @param expectedResult
-     * @return
      */
     private Tuple<PRQAReading, AbstractBuild<?, ?>> getPreviousReading(AbstractBuild<?, ?> currentBuild,
-            Result expectedResult) {
-        Tuple<PRQAReading, AbstractBuild<?, ?>> result = null;
+                                                                       Result expectedResult) {
         AbstractBuild<?, ?> iterate = currentBuild;
         do {
             iterate = iterate.getPreviousNotFailedBuild();
             if (iterate != null && iterate.getAction(PRQABuildAction.class) != null
                     && iterate.getResult().equals(expectedResult)) {
-                result = new Tuple<PRQAReading, AbstractBuild<?, ?>>();
+                Tuple<PRQAReading, AbstractBuild<?, ?>> result = new Tuple<PRQAReading, AbstractBuild<?, ?>>();
                 result.setSecond(iterate);
                 result.setFirst(iterate.getAction(PRQABuildAction.class).getResult());
                 return result;
             }
         } while (iterate != null);
-        return result;
+        return null;
     }
 
     @Exported
@@ -663,30 +608,6 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         public List<ThresholdSelectionDescriptor<?>> getThresholdSelections() {
             return AbstractThreshold.getDescriptors();
-        }
-
-        public FormValidation doCheckVcsConfigXml(@QueryParameter String value) {
-            try {
-                if (value.endsWith(".xml") || StringUtils.isBlank(value)) {
-                    return FormValidation.ok();
-                } else {
-                    return FormValidation.error(Messages.PRQANotifier_MustEndWithDotXml());
-                }
-            } catch (Exception ex) {
-                return FormValidation.error(Messages.PRQANotifier_IllegalVcsString());
-            }
-        }
-
-        public FormValidation doCheckMsgConfigFile(@QueryParameter String value) {
-            try {
-                if (value.endsWith(".xml") || StringUtils.isBlank(value)) {
-                    return FormValidation.ok();
-                } else {
-                    return FormValidation.error(Messages.PRQANotifier_MustEndWithDotXml());
-                }
-            } catch (Exception ex) {
-                return FormValidation.error(Messages.PRQANotifier_IllegalVcsString());
-            }
         }
 
         @Override
@@ -734,10 +655,6 @@ public class PRQANotifier extends Publisher implements Serializable {
             return instance;
         }
 
-        public EnumSet<QARReportType> getOptionalReportTypes() {
-            return QARReportType.OPTIONAL_TYPES;
-        }
-
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws Descriptor.FormException {
             save();
@@ -747,10 +664,6 @@ public class PRQANotifier extends Publisher implements Serializable {
         public DescriptorImpl() {
             super(PRQANotifier.class);
             load();
-        }
-
-        public void isInstance() {
-
         }
 
         public List<QACToolSuite> getQacTools() {
@@ -828,7 +741,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, Result.SUCCESS);
 
-        PRQAReading previousStabileBuildResult = previousBuildResultTuple != null ? previousBuildResultTuple.getFirst()
+        PRQAReading previousStableBuildResult = previousBuildResultTuple != null ? previousBuildResultTuple.getFirst()
                 : null;
 
         boolean res = true;
@@ -839,11 +752,11 @@ public class PRQANotifier extends Publisher implements Serializable {
         }
 
         try {
-            res = evaluate((PRQAComplianceStatus) previousStabileBuildResult, thresholdsDesc, currentBuild);
+            res = evaluate(previousStableBuildResult, thresholdsDesc, currentBuild);
             log.fine("Evaluated to: " + res);
         } catch (Exception ex) {
             outStream.println("Report generation ok. Caught exception evaluation results. Trace written to log");
-            log.log(Level.SEVERE, "Storing unexpected result evalution exception", ex);
+            log.log(Level.SEVERE, "Unexpected result evaluation exception", ex);
         }
 
         PRQABuildAction action = new PRQABuildAction(build);
@@ -860,7 +773,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                     && !qaReportSettings.isQaUploadWhenStable()
                     && !buildResult.isWorseOrEqualTo(Result.FAILURE)) {
                 try {
-                    outStream.println("UPLOAD WARNING: Build is Unstable but upload will contunie...");
+                    outStream.println("UPLOAD WARNING: Build is Unstable but upload will continue...");
                     performUpload(build, appSettings, remoteToolCheck, remoteReportUpload);
                 } catch (PrqaException ex) {
                     log.log(Level.WARNING, "PrqaException", ex.getMessage());
@@ -890,7 +803,7 @@ public class PRQANotifier extends Publisher implements Serializable {
         }
         outStream.println("\n----------------------BUILD Results-----------------------\n");
         if (previousBuildResultTuple != null) {
-            outStream.println(String.format(Messages.PRQANotifier_PreviousResultBuildNumber(new Integer(previousBuildResultTuple.getSecond().number))));
+            outStream.println(Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getSecond().number));
             outStream.println(previousBuildResultTuple.getFirst());
 
         } else {
@@ -923,7 +836,7 @@ public class PRQANotifier extends Publisher implements Serializable {
         throw new PrqaSetupException("Please set a project in Qa Framework section configuration!");
     }
 
-// Function to pull details from QAV Configuration.
+    // Function to pull details from QAV Configuration.
     private QAVerifyServerSettings setQaVerifyServerSettings(String configurationByName) {
 
         QAVerifyServerConfiguration qaVerifyServerConfiguration = PRQAGlobalConfig.get().getConfigurationByName(
@@ -938,8 +851,8 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
     private PRQAComplianceStatus performBuild(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
-            PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReport remoteReport,
-            QaFrameworkReportSettings qaReportSettings) throws PrqaException {
+                                              PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReport remoteReport,
+                                              QaFrameworkReportSettings qaReportSettings) throws PrqaException {
 
         boolean success = true;
         PRQAComplianceStatus currentBuild = null;
@@ -949,7 +862,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             success = isQafVersionSupported(qaFrameworkVersion);
             if (!success) {
                 build.setResult(Result.FAILURE);
-                throw new PrqaException("Build failure. Plese upgrade to a newer version of Qa Framework");
+                throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
             remoteReport.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = build.getWorkspace().act(remoteReport);
@@ -977,7 +890,7 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
     private PRQAComplianceStatus performUpload(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
-            PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException {
+                                               PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException {
 
         boolean success = true;
         PRQAComplianceStatus currentBuild = null;
@@ -987,7 +900,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             success = isQafVersionSupported(qaFrameworkVersion);
             if (!success) {
                 build.setResult(Result.FAILURE);
-                throw new PrqaException("Build failure. Plese upgrade to a newer version of Qa Framework");
+                throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
             remoteReportUpload.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = build.getWorkspace().act(remoteReportUpload);
@@ -1024,27 +937,22 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
     /*
-     * TODO - in Master Salve Setup copy srtifacts method do not work and throw exception.
-     * This method need to be expanded or suggest user to use copyartifact plugin.
+     * TODO - in Master Salve Setup copy artifacts method do not work and throw exception.
+     * This method need to be expanded or suggest user to use Copy Artifact Plugin.
      */
     private void copyArtifacts(AbstractBuild<?, ?> build, QaFrameworkReportSettings qaReportSettings) {
 
         try {
             copyReportsToArtifactsDir(qaReportSettings, build);
             if (qaReportSettings.isPublishToQAV() && qaReportSettings.isLoginToQAV()) {
-                copyReourcesToArtifactsDir("*.log", build);
+                copyResourcesToArtifactsDir("*.log", build);
             }
         } catch (Exception ex) {
             outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
-            outStream.println("Manualy add Build Artifacts to artifact directory or use copyartifact Plugin ");
-            log.log(Level.SEVERE, "Failed copying build artifacts from slave to server - Use copyartifact", ex.getMessage());
+            outStream.println("Manually add Build Artifacts to artifact dir or use Copy Artifact Plugin ");
+            log.log(Level.SEVERE, "Failed copying build artifacts from slave to server - Use Copy Artifact Plugin", ex.getMessage());
         }
     }
-
-    public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
-        this.qaFrameworkVersion = qaFrameworkVersion;
-    }
-
 
     private String selectPrjFilePath(String workspace, String givenPath) {
         File file = new File(givenPath);
