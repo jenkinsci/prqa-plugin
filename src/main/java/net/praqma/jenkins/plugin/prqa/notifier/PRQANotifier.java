@@ -104,11 +104,11 @@ public class PRQANotifier extends Publisher implements Serializable {
     private void copyResourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException,
             InterruptedException {
         FilePath[] files = build.getWorkspace().list("**/" + pattern);
-        for (int i = 0; i < files.length; i++) {
+        for (FilePath file : files) {
             String artifactDir = build.getArtifactsDir().getPath();
-            FilePath targetDir = new FilePath(new File(artifactDir + "/" + files[i].getName()));
-            files[i].copyTo(targetDir);
-            outStream.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
+            FilePath targetDir = new FilePath(new File(artifactDir + "/" + file.getName()));
+            file.copyTo(targetDir);
+            outStream.println(Messages.PRQANotifier_SuccesFileCopy(file.getName()));
         }
     }
 
