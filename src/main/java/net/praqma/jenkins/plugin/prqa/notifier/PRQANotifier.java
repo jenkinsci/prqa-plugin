@@ -715,13 +715,15 @@ public class PRQANotifier extends Publisher implements Serializable {
             PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
             instance.setChosenReportTypes(QARReportType.REQUIRED_TYPES.clone());
 
-            JSONObject sourceObject = formData.getJSONObject(SOURCE_QA_FRAMEWORK);
-            if (sourceObject.getBoolean(CODE_REVIEW_REPORT)) {
-                instance.chosenReportTypes.add(QARReportType.CodeReview);
+            if (formData.containsKey(SOURCE_QA_FRAMEWORK)) {
+                JSONObject sourceObject = formData.getJSONObject(SOURCE_QA_FRAMEWORK);
+                if (sourceObject.getBoolean(CODE_REVIEW_REPORT)) {
+                    instance.chosenReportTypes.add(QARReportType.CodeReview);
 
-            }
-            if (sourceObject.getBoolean(SUPPRESSION_REPORT)) {
-                instance.chosenReportTypes.add(QARReportType.Suppression);
+                }
+                if (sourceObject.getBoolean(SUPPRESSION_REPORT)) {
+                    instance.chosenReportTypes.add(QARReportType.Suppression);
+                }
             }
             if (instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
