@@ -7,7 +7,6 @@ import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
-import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 import net.praqma.jenkins.plugin.prqa.*;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
@@ -39,9 +38,8 @@ import net.praqma.util.structure.Tuple;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.export.Exported;
 
@@ -90,7 +88,6 @@ public class PRQANotifier extends Publisher implements Serializable {
         this.sourceFileProject = sourceFileProject;
         this.threshholdlevel = threshholdlevel;
         this.thresholdsDesc = thresholdsDesc;
-
     }
 
     @Override
@@ -106,13 +103,11 @@ public class PRQANotifier extends Publisher implements Serializable {
     private void copyResourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException,
             InterruptedException {
         FilePath[] files = build.getWorkspace().list("**/" + pattern);
-        if (files.length >= 1) {
-            for (int i = 0; i < files.length; i++) {
-                String artifactDir = build.getArtifactsDir().getPath();
-                FilePath targetDir = new FilePath(new File(artifactDir + "/" + files[i].getName()));
-                files[i].copyTo(targetDir);
-                outStream.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
-            }
+        for (int i = 0; i < files.length; i++) {
+            String artifactDir = build.getArtifactsDir().getPath();
+            FilePath targetDir = new FilePath(new File(artifactDir + "/" + files[i].getName()));
+            files[i].copyTo(targetDir);
+            outStream.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
         }
     }
 
@@ -239,7 +234,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         if (qaFReports.isDirectory()) {
             File[] files = qaFReports.listFiles();
-            if (files == null || files.length < 1) {
+            if (ArrayUtils.isEmpty(files)) {
                 return;
             }
             if (workspace.isDirectory()) {
@@ -264,7 +259,7 @@ public class PRQANotifier extends Publisher implements Serializable {
         FileUtils.cleanDirectory(artifact);
         // COPY only last generated reports
         File[] workspaceFiles = workspace.listFiles();
-        if (workspaceFiles == null || workspaceFiles.length < 1) {
+        if (ArrayUtils.isEmpty(workspaceFiles)) {
             return;
         }
         Arrays.sort(workspaceFiles, new Comparator<File>() {
