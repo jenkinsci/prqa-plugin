@@ -37,6 +37,7 @@ import net.praqma.util.ExceptionUtils;
 import net.praqma.util.structure.Tuple;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.sf.json.JSONObject;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -639,7 +640,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             if (sourceObject.getBoolean(SUPPRESSION_REPORT)) {
                 instance.chosenReportTypes.add(QARReportType.Suppression);
             }
-            if (instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
+            if (CollectionUtils.isEmpty(instance.getGraphTypes())) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
                 list.add(new ComplianceIndexGraphs());
                 list.add(new MessagesGraph());
