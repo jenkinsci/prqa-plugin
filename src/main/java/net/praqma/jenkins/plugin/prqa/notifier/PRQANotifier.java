@@ -37,6 +37,7 @@ import net.praqma.util.ExceptionUtils;
 import net.praqma.util.structure.Tuple;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.sf.json.JSONObject;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -103,11 +104,11 @@ public class PRQANotifier extends Publisher implements Serializable {
     private void copyResourcesToArtifactsDir(String pattern, AbstractBuild<?, ?> build) throws IOException,
             InterruptedException {
         FilePath[] files = build.getWorkspace().list("**/" + pattern);
-        for (int i = 0; i < files.length; i++) {
+        for (FilePath file : files) {
             String artifactDir = build.getArtifactsDir().getPath();
-            FilePath targetDir = new FilePath(new File(artifactDir + "/" + files[i].getName()));
-            files[i].copyTo(targetDir);
-            outStream.println(Messages.PRQANotifier_SuccesFileCopy(files[i].getName()));
+            FilePath targetDir = new FilePath(new File(artifactDir + "/" + file.getName()));
+            file.copyTo(targetDir);
+            outStream.println(Messages.PRQANotifier_SuccesFileCopy(file.getName()));
         }
     }
 
@@ -641,7 +642,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                     instance.chosenReportTypes.add(QARReportType.Suppression);
                 }
             }
-            if (instance.getGraphTypes() == null || instance.getGraphTypes().isEmpty()) {
+            if (CollectionUtils.isEmpty(instance.getGraphTypes())) {
                 ArrayList<PRQAGraph> list = new ArrayList<PRQAGraph>();
                 list.add(new ComplianceIndexGraphs());
                 list.add(new MessagesGraph());
