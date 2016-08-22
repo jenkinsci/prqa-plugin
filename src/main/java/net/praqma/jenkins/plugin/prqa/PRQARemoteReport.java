@@ -28,11 +28,13 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAReportSettings;
+import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.util.execute.CmdResult;
@@ -56,91 +58,34 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
         this.isUnix = isUnix;
     }
     
-    private HashMap<String,String> expandEnvironment(HashMap<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSetting) {
-        String pathVar = "path";
-        Map<String,String> localEnv = System.getenv();
-
-
-        for(String s : localEnv.keySet()) {
-            if(s.equalsIgnoreCase(pathVar)) {
-                pathVar = s;
-                break;
-            }
-        }
-        
-        String currentPath = localEnv.get(pathVar);
-
-        String delimiter = System.getProperty("file.separator");
-        String pathSep = System.getProperty("path.separator");
-        
-        if(environment != null) {
-            if(reportSetting.product.equalsIgnoreCase("qac")) {
-                String slashPath = PRQAApplicationSettings.addSlash(environment.get("QACPATH"), delimiter);
-                environment.put("QACPATH", slashPath);       
-
-                String qacBin = PRQAApplicationSettings.addSlash(environment.get("QACPATH"), delimiter) + "bin";
-                environment.put("QACBIN", qacBin);
-                environment.put("QACHELPFILES", environment.get("QACPATH") + "help");
-
-                currentPath = environment.get("QACBIN") + pathSep + currentPath;
-                environment.put("QACTEMP", System.getProperty("java.io.tmpdir"));                
-            } else {
-                String slashPath = PRQAApplicationSettings.addSlash(environment.get("QACPPPATH"), delimiter);
-                environment.put("QACPPPATH", slashPath);
-
-                String qacppBin = PRQAApplicationSettings.addSlash(environment.get("QACPPPATH"), delimiter) + "bin";
-                environment.put("QACPPBIN", qacppBin);
-                environment.put("QACPPHELPFILES", environment.get("QACPPPATH") + "help");
-
-                currentPath = environment.get("QACPPBIN") + pathSep + currentPath;
-                environment.put("QACPPTEMP", System.getProperty("java.io.tmpdir"));
-
-            }
-            
-            currentPath = PRQAApplicationSettings.addSlash(appSettings.qarHome, delimiter) + "bin" + pathSep + currentPath;
-            if(isUnix) {
-                currentPath = PRQAApplicationSettings.addSlash(appSettings.qavClientHome, delimiter) + "bin" + pathSep + currentPath;
-            } else {
-                currentPath = appSettings.qavClientHome + pathSep + currentPath;
-            }
-            currentPath = PRQAApplicationSettings.addSlash(appSettings.qawHome, delimiter) + "bin" + pathSep + currentPath;
-            environment.put(pathVar, currentPath);
-            
-        }
-        return environment;
-        
+    private Map<String,String> expandEnvironment(Map<String,String> environment, PRQAApplicationSettings appSettings, PRQAReportSettings reportSetting) throws PrqaSetupException {
+        return PRQARemoteToolCheck.expandEnvironment(environment, appSettings, reportSetting, isUnix);
     }
     
     @Override
     public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {        
         try {
-            
-            HashMap<String,String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(), report.getSettings());
+            Map<String,String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(), report.getSettings());
 
             report.setEnvironment(expandedEnvironment);
             report.setWorkspace(f);
 
-            
-            
-            /**
-             * If the project file is null at this point. It means that this is a report based on a settings file.
-             * 
-             * We skip the analysis phase
-             */
-            if(!StringUtils.isBlank(report.getSettings().projectFile)) {
-                listener.getLogger().println("Analysis command:");
-                listener.getLogger().println(report.createAnalysisCommand(isUnix));
-                report.analyze(isUnix);
+            PrintStream log = listener.getLogger();
+            boolean reportBasedOnSettingFile = StringUtils.isBlank(report.getSettings().projectFile) && StringUtils.isBlank(report.getSettings().fileList);
+            if(!reportBasedOnSettingFile) {
+                log.println("Analysis command:");
+                log.println(report.createAnalysisCommand(isUnix));
+                log.println(report.analyze(isUnix).stdoutBuffer);
             }
             
-            listener.getLogger().println("Report command:");
-            listener.getLogger().println(report.createReportCommand(isUnix));
-            report.report(isUnix);
+            log.println("Report command:");
+            log.println(report.createReportCommand(isUnix));
+            log.println(report.report(isUnix).stdoutBuffer);
             
-            if(!StringUtils.isBlank(report.createUploadCommand())) {
-                listener.getLogger().println("Uploading with command:");
-                listener.getLogger().println(report.createUploadCommand());
-                CmdResult uploadResult = report.upload();
+            if(StringUtils.isNotBlank(report.createUploadCommand())) {
+                log.println("Uploading with command:");
+                log.println(report.createUploadCommand());
+                log.println(report.upload().stdoutBuffer);
             }
             
             return report.getComplianceStatus();

@@ -401,28 +401,49 @@ public class PRQANotifier extends Publisher implements Serializable {
                             "File %s not found. Please provide a valid path to the project file", pSource.projectFile));
                     return false;
                 }
-                settings = new PRQAReportSettings(prqaReportPRQAToolSource.chosenServer, projectFilePath,
-                        prqaReportPRQAToolSource.performCrossModuleAnalysis, prqaReportPRQAToolSource.publishToQAV,
-                        prqaReportPRQAToolSource.enableDependencyMode, prqaReportPRQAToolSource.enableDataFlowAnalysis,
-                        chosenReportTypes, productUsed);
+                settings = new PRQAReportSettings(
+                        prqaReportPRQAToolSource.chosenServer,
+                        projectFilePath,
+                        prqaReportPRQAToolSource.performCrossModuleAnalysis,
+                        prqaReportPRQAToolSource.publishToQAV,
+                        prqaReportPRQAToolSource.enableDependencyMode,
+                        prqaReportPRQAToolSource.enableDataFlowAnalysis,
+                        chosenReportTypes,
+                        productUsed,
+                        null,
+                        null);
                 qar = new QAR(productUsed, projectFilePath, QARReportType.Compliance);
 
             } else if (prqaReportPRQAToolSource.fileProjectSource != null
                     && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportFileListSource) {
                 PRQAReportFileListSource flSource = (PRQAReportFileListSource) prqaReportPRQAToolSource.fileProjectSource;
 
-                settings = new PRQAReportSettings(prqaReportPRQAToolSource.chosenServer, flSource.fileList,
-                        prqaReportPRQAToolSource.performCrossModuleAnalysis, prqaReportPRQAToolSource.publishToQAV,
-                        prqaReportPRQAToolSource.enableDependencyMode, prqaReportPRQAToolSource.enableDataFlowAnalysis,
-                        chosenReportTypes, productUsed);
+                settings = new PRQAReportSettings(
+                        prqaReportPRQAToolSource.chosenServer,
+                        null,
+                        prqaReportPRQAToolSource.performCrossModuleAnalysis,
+                        prqaReportPRQAToolSource.publishToQAV,
+                        prqaReportPRQAToolSource.enableDependencyMode,
+                        prqaReportPRQAToolSource.enableDataFlowAnalysis,
+                        chosenReportTypes,
+                        productUsed,
+                        flSource.settingsFile,
+                        flSource.fileList);
                 qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);
 
             } else {
                 // Use old settings (projectFile ~ Still exists)
-                settings = new PRQAReportSettings(prqaReportPRQAToolSource.chosenServer,
-                        prqaReportPRQAToolSource.projectFile, prqaReportPRQAToolSource.performCrossModuleAnalysis,
-                        prqaReportPRQAToolSource.publishToQAV, prqaReportPRQAToolSource.enableDependencyMode,
-                        prqaReportPRQAToolSource.enableDataFlowAnalysis, chosenReportTypes, productUsed);
+                settings = new PRQAReportSettings(
+                        prqaReportPRQAToolSource.chosenServer,
+                        prqaReportPRQAToolSource.projectFile,
+                        prqaReportPRQAToolSource.performCrossModuleAnalysis,
+                        prqaReportPRQAToolSource.publishToQAV,
+                        prqaReportPRQAToolSource.enableDependencyMode,
+                        prqaReportPRQAToolSource.enableDataFlowAnalysis,
+                        chosenReportTypes,
+                        productUsed,
+                        null,
+                        null);
                 qar = new QAR(productUsed, prqaReportPRQAToolSource.projectFile, QARReportType.Compliance);
             }
 

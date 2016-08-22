@@ -125,7 +125,6 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
 
 			save();
 			return suite;
-			// return super.newInstance(req, formData);
 		}
 
 		@Override

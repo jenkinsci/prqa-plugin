@@ -45,10 +45,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Strings;
 
-/**
- * 
- * @author Praqma
- */
 public class PRQARemoteToolCheck implements FileCallable<String> {
 
 	public final BuildListener listener;
@@ -58,36 +54,6 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 	public final ReportSettings reportSettings;
 	public final Product product;
 	public static final String PATH = "Path";
-
-	public PRQARemoteToolCheck() {
-		this.listener = null;
-		this.isUnix = false;
-		this.environment = null;
-		this.appSettings = null;
-		this.reportSettings = null;
-		this.product = null;
-	}
-
-	/**
-	 * Class that performs the remote tool check
-	 * 
-	 * @param product
-	 * @param environment
-	 * @param appSettings
-	 * @param reportSettings
-	 * @param listener
-	 * @param isUnix
-	 */
-	// public PRQARemoteToolCheck(Product product, HashMap<String,String>
-	// environment, PRQAApplicationSettings appSettings, PRQAReportSettings
-	// reportSettings, BuildListener listener, boolean isUnix) {
-	// this.listener = listener;
-	// this.isUnix = isUnix;
-	// this.environment = environment;
-	// this.appSettings = appSettings;
-	// this.reportSettings = reportSettings;
-	// this.product = product;
-	// }
 
 	public PRQARemoteToolCheck(Product product, HashMap<String, String> environment, PRQAApplicationSettings appSettings, ReportSettings reportSettings,
 			BuildListener listener, boolean isUnix) {
@@ -102,15 +68,8 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 	/**
 	 * Expands the environment if the environment field for this object is set.
 	 * This is only done when the user uses a product configuration.
-	 * 
-	 * @param environment
-	 * @param appSettings
-	 * @param reportSetting
-	 * @param isUnix
-	 * @return
-	 * @throws PrqaSetupException
 	 */
-	public Map<String, String> expandEnvironment(HashMap<String, String> environment, PRQAApplicationSettings appSettings, ReportSettings reportSetting,
+	public static Map<String, String> expandEnvironment(Map<String, String> environment, PRQAApplicationSettings appSettings, ReportSettings reportSetting,
 			boolean isUnix) throws PrqaSetupException {
 
 		if (environment == null) {
@@ -161,7 +120,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 		String qarPath = PRQAApplicationSettings.addSlash(appSettings.qarHome, delimiter) + "bin";
 		File qarFolder = new File(qarPath);
 		if (!qarFolder.exists()) {
-			throw new PrqaSetupException(String.format("Non existant QAR home directory (%s) - Check your tool settings", qarPath));
+			throw new PrqaSetupException(String.format("Non existent QAR home directory (%s) - Check your tool settings", qarPath));
 		}
 		currentPath = qarPath + pathSep + currentPath;
 
@@ -179,7 +138,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 
 			File qavClientFolder = new File(qavClientHome);
 			if (!qavClientFolder.exists()) {
-				throw new PrqaSetupException(String.format("Non existant QA Verify client home directory (%s) does not exist - Check your tool settings",
+				throw new PrqaSetupException(String.format("Non existent QA Verify client home directory (%s) - Check your tool settings",
 						qavClientHome));
 			}
 
@@ -189,7 +148,7 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 		String qawHome = PRQAApplicationSettings.addSlash(appSettings.qawHome, delimiter) + "bin";
 		File qawHomeFolder = new File(qawHome);
 		if (!qawHomeFolder.exists()) {
-			throw new PrqaSetupException(String.format("Non existant QAW home directory (%s) - Check your tool settings", qawHome));
+			throw new PrqaSetupException(String.format("Non existent QAW home directory (%s) - Check your tool settings", qawHome));
 		}
 
 		currentPath = qawHome + pathSep + currentPath;
@@ -206,13 +165,13 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 			for (String s : QAC.envVarsForTool) {
 				String value = env.get(s);
 				if (value == null) {
-					throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
+					throw new PrqaSetupException(String.format("The environment variable %s is not defined", s));
 				}
 				File f = new File(value);
 				if (!f.exists()) {
 					throw new PrqaSetupException(
 							String.format(
-									"Configuration error - Check your QA·C Product installation path%nThe enviroment created points to a non-existing location%nCheck your tool settings%nThe tool location missing was: %s",
+									"Configuration error - Check your QA·C Product installation path%nThe environment created points to a non-existing location%nCheck your tool settings%nThe tool location missing was: %s",
 									f.getAbsolutePath()));
 				}
 			}
@@ -220,13 +179,13 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 			for (String s : QACpp.envVarsForTool) {
 				String value = env.get(s);
 				if (value == null) {
-					throw new PrqaSetupException(String.format("The enviroment variable %s is not defined"));
+					throw new PrqaSetupException(String.format("The environment variable %s is not defined", s));
 				}
 				File f = new File(value);
 				if (!f.exists()) {
 					throw new PrqaSetupException(
 							String.format(
-									"Configuration error - Check your QA·C++ Product installation path%nThe enviroment created points to a non-existing location%n Check your tool settings%nThe tool location missing was: %s",
+									"Configuration error - Check your QA·C++ Product installation path%nThe environment created points to a non-existing location%n Check your tool settings%nThe tool location missing was: %s",
 									f.getAbsolutePath()));
 				}
 			}
@@ -283,5 +242,4 @@ public class PRQARemoteToolCheck implements FileCallable<String> {
 			throw new IOException("Tool misconfiguration detected", setupException);
 		}
 	}
-
 }

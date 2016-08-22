@@ -82,7 +82,7 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
         report.setWorkspace(f);
 
         PrintStream out = listener.getLogger();
-        out.println("Workspace form invoke:" + f.getAbsolutePath());
+        out.println("Workspace from invoke:" + f.getAbsolutePath());
 
         /**
          * If the project file is null at this point. It means that this is a
