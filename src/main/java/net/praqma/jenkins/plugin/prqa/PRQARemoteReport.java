@@ -93,10 +93,11 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             log.println("Report command:");
             log.println(report.createReportCommand(isUnix));
             log.println(report.report(isUnix).stdoutBuffer);
-            
-            if(StringUtils.isNotBlank(report.createUploadCommand())) {
+
+            String uploadCommand = report.createUploadCommand();
+            if(StringUtils.isNotBlank(uploadCommand)) {
                 log.println("Uploading with command:");
-                log.println(report.createUploadCommand());
+                log.println(uploadCommand);
                 log.println(report.upload().stdoutBuffer);
             }
             
