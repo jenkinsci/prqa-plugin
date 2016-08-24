@@ -23,6 +23,7 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
+import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
@@ -31,6 +32,8 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAReportSettings;
@@ -77,7 +80,16 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
                 log.println(report.createAnalysisCommand(isUnix));
                 log.println(report.analyze(isUnix).stdoutBuffer);
             }
-            
+
+            FilePath workspacePath = new FilePath(f);
+            for (PRQAContext.QARReportType type : report.getSettings().chosenReportTypes) {
+                String pattern = "**/" + PRQAReport.getNamingTemplate(type, PRQAReport.XHTML_REPORT_EXTENSION);
+                for (FilePath file : workspacePath.list(pattern))
+                {
+                    log.println("Deleting " + file.getName());
+                    file.delete();
+                }
+            }
             log.println("Report command:");
             log.println(report.createReportCommand(isUnix));
             log.println(report.report(isUnix).stdoutBuffer);
