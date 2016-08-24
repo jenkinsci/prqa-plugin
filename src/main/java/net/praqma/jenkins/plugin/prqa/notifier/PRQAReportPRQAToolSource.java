@@ -238,7 +238,7 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 
 		@Override
 		public String getDisplayName() {
-			return "Legacy PRQA Tools";
+			return "Legacy PRQA Tool";
 		}
 	
 		public List<QAVerifyServerConfiguration> getServers() {
