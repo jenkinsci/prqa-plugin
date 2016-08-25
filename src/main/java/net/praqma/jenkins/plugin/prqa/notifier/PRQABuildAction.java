@@ -212,7 +212,7 @@ public class PRQABuildAction implements Action {
                             PRQAComplianceStatus cs = (PRQAComplianceStatus)stat;
                             if(cat.equals(StatusCategory.Messages)) {
 //                                res = cs.getMessageCount(tSetting);
-                            	res = cs.getMessagesWithinTresholdCount(tSetting);
+                            	res = cs.getMessagesWithinThresholdCount(tSetting);
                             } else {
                                res = stat.getReadout(cat); 
                             }                            

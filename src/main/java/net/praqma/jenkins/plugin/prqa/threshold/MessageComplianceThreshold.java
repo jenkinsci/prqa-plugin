@@ -26,8 +26,6 @@ package net.praqma.jenkins.plugin.prqa.threshold;
 import hudson.Extension;
 import hudson.util.FormValidation;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -77,9 +75,9 @@ public class MessageComplianceThreshold extends AbstractThreshold {
                 MessageGroup currentMessageGroup = currentComplianceStatusMessageGroups.get(i);
                 for (int j = 0; j < previousComplianceStatusMessageGroups.size(); j++) {
                     if (currentMessageGroup.getMessageGroupName().equals(previousComplianceStatusMessageGroups.get(j).getMessageGroupName())) {
-                        if (currentMessageGroup.getMessagesWithinTreshold() <= previousComplianceStatusMessageGroups.get(j).getMessagesWithinTreshold()) {
+                        if (currentMessageGroup.getMessagesWithinThreshold() <= previousComplianceStatusMessageGroups.get(j).getMessagesWithinThreshold()) {
                             currentComplianceStatus.addNotification(onUnstableMessage(currentMessageGroup.getMessageGroupName(),
-                                    currentMessageGroup.getMessagesWithinTreshold(), previousComplianceStatusMessageGroups.get(j).getMessagesWithinTreshold()));
+                                    currentMessageGroup.getMessagesWithinThreshold(), previousComplianceStatusMessageGroups.get(j).getMessagesWithinThreshold()));
                             areAllMessagesValid = false;
                         }
                     }
@@ -113,12 +111,12 @@ public class MessageComplianceThreshold extends AbstractThreshold {
             }
         } else {
             for (MessageGroup messageGroup : currentComplianceStatus.getMessagesGroups()) {
-                isValidTreshold = messageGroup.getMessagesWithinTreshold() <= value;
+                isValidTreshold = messageGroup.getMessagesWithinThreshold() <= value;
                 if (!isValidTreshold) {
-                    currentComplianceStatus.addNotification(onUnstableMessage(messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinTreshold(), value));
+                    currentComplianceStatus.addNotification(onUnstableMessage(messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinThreshold(), value));
                     isStableBuild = false;
                 }
-                log.fine(String.format("For %s are %s mesages, comparing to: %s", messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinTreshold(), value));
+                log.fine(String.format("For %s are %s mesages, comparing to: %s", messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinThreshold(), value));
                 log.fine(String.format("ValidateThreshold returned %s", isValidTreshold));
             }
         }
