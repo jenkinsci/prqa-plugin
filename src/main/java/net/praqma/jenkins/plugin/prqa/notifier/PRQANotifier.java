@@ -21,6 +21,7 @@ import net.praqma.jenkins.plugin.prqa.threshold.AbstractThreshold;
 import net.praqma.jenkins.plugin.prqa.threshold.FileComplianceThreshold;
 import net.praqma.jenkins.plugin.prqa.threshold.MessageComplianceThreshold;
 import net.praqma.jenkins.plugin.prqa.threshold.ProjectComplianceThreshold;
+import net.praqma.jenkins.plugin.prqa.utils.PRQABuildUtils;
 import net.praqma.prqa.*;
 import net.praqma.prqa.PRQAContext.QARReportType;
 import net.praqma.prqa.exceptions.PrqaException;
@@ -737,7 +738,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                 qaFrameworkInstallationConfiguration.getHome());
         QaFrameworkReportSettings qaReportSettings;
         try {
-            qaReportSettings = setQaFrameworkReportSettings(qaFrameworkPostBuildActionSetup, build);
+            qaReportSettings = setQaFrameworkReportSettings(qaFrameworkPostBuildActionSetup, build, listener);
         } catch (PrqaException ex) {
             log.log(Level.WARNING, "PrqaException", ex.getMessage());
             return false;
@@ -836,21 +837,34 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
     private QaFrameworkReportSettings setQaFrameworkReportSettings(
-            QAFrameworkPostBuildActionSetup qaFrameworkPostBuildActionSetup, AbstractBuild<?, ?> build)
+            QAFrameworkPostBuildActionSetup qaFrameworkPostBuildActionSetup, AbstractBuild<?, ?> build, BuildListener listener)
             throws PrqaSetupException {
 
         if (qaFrameworkPostBuildActionSetup.qaProject != null) {
 
-            return new QaFrameworkReportSettings(qaFrameworkPostBuildActionSetup.qaInstallation,
-                    qaFrameworkPostBuildActionSetup.qaProject, qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
+            return new QaFrameworkReportSettings(
+                    qaFrameworkPostBuildActionSetup.qaInstallation,
+                    qaFrameworkPostBuildActionSetup.qaProject,
+                    qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
                     qaFrameworkPostBuildActionSetup.unifiedProjectName,
-                    qaFrameworkPostBuildActionSetup.enableDependencyMode, qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
-                    qaFrameworkPostBuildActionSetup.generateReport, qaFrameworkPostBuildActionSetup.publishToQAV,
-                    qaFrameworkPostBuildActionSetup.loginToQAV, product, qaFrameworkPostBuildActionSetup.uploadWhenStable,
-                    qaFrameworkPostBuildActionSetup.qaVerifyProjectName, qaFrameworkPostBuildActionSetup.uploadSnapshotName,
-                    Integer.toString(build.getNumber()), qaFrameworkPostBuildActionSetup.uploadSourceCode, qaFrameworkPostBuildActionSetup.generateCrr,
-                    qaFrameworkPostBuildActionSetup.generateMdr, qaFrameworkPostBuildActionSetup.generateSup, qaFrameworkPostBuildActionSetup.analysisSettings,
-                    qaFrameworkPostBuildActionSetup.stopWhenFail, qaFrameworkPostBuildActionSetup.generatePreprocess, qaFrameworkPostBuildActionSetup.assembleSupportAnalytics);
+                    qaFrameworkPostBuildActionSetup.enableDependencyMode,
+                    qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
+                    qaFrameworkPostBuildActionSetup.generateReport,
+                    qaFrameworkPostBuildActionSetup.publishToQAV,
+                    qaFrameworkPostBuildActionSetup.loginToQAV,
+                    product,
+                    qaFrameworkPostBuildActionSetup.uploadWhenStable,
+                    qaFrameworkPostBuildActionSetup.qaVerifyProjectName,
+                    PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.uploadSnapshotName, build, listener),
+                    Integer.toString(build.getNumber()),
+                    qaFrameworkPostBuildActionSetup.uploadSourceCode,
+                    qaFrameworkPostBuildActionSetup.generateCrr,
+                    qaFrameworkPostBuildActionSetup.generateMdr,
+                    qaFrameworkPostBuildActionSetup.generateSup,
+                    qaFrameworkPostBuildActionSetup.analysisSettings,
+                    qaFrameworkPostBuildActionSetup.stopWhenFail,
+                    qaFrameworkPostBuildActionSetup.generatePreprocess,
+                    qaFrameworkPostBuildActionSetup.assembleSupportAnalytics);
         }
         throw new PrqaSetupException("Please set a project in Qa Framework section configuration!");
     }
