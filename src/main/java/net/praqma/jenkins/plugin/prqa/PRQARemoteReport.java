@@ -27,21 +27,21 @@ import hudson.FilePath;
 import hudson.FilePath.FileCallable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import net.praqma.prqa.PRQAContext;
-import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.PRQAApplicationSettings;
+import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAReportSettings;
+import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.reports.PRQAReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.util.execute.CmdResult;
 import org.apache.commons.lang.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  *
@@ -94,11 +94,17 @@ public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
             log.println(report.createReportCommand(isUnix));
             log.println(report.report(isUnix).stdoutBuffer);
 
-            String uploadCommand = report.createUploadCommand();
-            if(StringUtils.isNotBlank(uploadCommand)) {
+            Collection<String> uploadCommand = report.createUploadCommand();
+            if(uploadCommand != null && !uploadCommand.isEmpty()) {
                 log.println("Uploading with command:");
-                log.println(uploadCommand);
-                log.println(report.upload().stdoutBuffer);
+                for (String cmd : uploadCommand) {
+                    log.println(cmd);
+                }
+
+                Collection<CmdResult> cmdResults = report.upload();
+                for (CmdResult res : cmdResults) {
+                    log.println(res.stdoutBuffer);
+                }
             }
             
             return report.getComplianceStatus();

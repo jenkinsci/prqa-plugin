@@ -94,7 +94,7 @@ public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianc
             if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration!");
             }
-            if (reportSetting.isPublishToQAV()) {
+            if (reportSetting.isLoginToQAV() && reportSetting.isPublishToQAV()) {
                 CmdResult uploadResult = report.uploadQacli(out);
                 logCmdResult(uploadResult, out);
             }

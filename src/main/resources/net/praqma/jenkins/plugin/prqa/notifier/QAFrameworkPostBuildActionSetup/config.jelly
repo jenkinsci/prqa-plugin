@@ -17,21 +17,21 @@
                     <f:textbox/>
                 </f:entry>
 
-                <f:block>
-                    <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html" checked="${instance.loginToQAV}" inline="true">
-                        <j:set var="zervers" value="${descriptor.getServers()}"/>
-                        <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServer">
-                            <select class="chosenServer" name="chosenServer">
-                                <j:forEach var="l" items="${zervers}">
-                                    <f:option selected="${instance.chosenServer.equals(l.toString())}" value="${l}">${l}</f:option>
-                                </j:forEach>
-                            </select>
+            <f:block>
+                <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html" checked="${instance.loginToQAV}" inline="true">
+                    <j:set var="zervers" value="${descriptor.getServers()}"/>
+                    <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServers">
+                        <select multiple="true" class="chosenServers" name="chosenServers">
+                            <j:forEach var="l" items="${zervers}">
+                                <f:option selected="${instance.chosenServers.contains(l.toString())}" value="${l}">${l}</f:option>
+                            </j:forEach>
+                        </select>
+                    </f:entry>
+                    <f:optionalBlock name="downloadUnifiedProjectDefinition" title="${%Download Unified Project Definition}" help="/plugin/prqa-plugin/config/help-downloadUnifiedProject.html" checked="${instance.downloadUnifiedProjectDefinition}" inline="true">
+                        <f:entry title="${%Unified Project Name}" field="unifiedProjectName" help="/plugin/prqa-plugin/config/help-unifiedProjectName.html">
+                            <f:textbox value="${instance.unifiedProjectName}"/>
                         </f:entry>
-                        <f:optionalBlock name="downloadUnifiedProjectDefinition" title="${%Download Unified Project Definition}" help="/plugin/prqa-plugin/config/help-downloadUnifiedProject.html" checked="${instance.downloadUnifiedProjectDefinition}" inline="true">
-                            <f:entry title="${%Unified Project Name}" field="unifiedProjectName" help="/plugin/prqa-plugin/config/help-unifiedProjectName.html">
-                                <f:textbox value="${instance.unifiedProjectName}"/>
-                            </f:entry>
-                        </f:optionalBlock>
+                    </f:optionalBlock>
                         <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
                             <f:entry title="${%Upload only when build is stable}" field="uploadWhenStable" help="/plugin/prqa-plugin/config/help-qaUploadWhenStable.html">
                                 <f:checkbox name="uploadWhenStable" value="${instance.uploadWhenStable}" checked="${instance.uploadWhenStable}"/>
@@ -48,18 +48,19 @@
                             <f:entry title="${%Upload Source Code}" field="uploadSourceCode">
                                 <f:select/>
                             </f:entry>
+
                         </f:optionalBlock>
-                    </f:optionalBlock>
-                </f:block>
+                </f:optionalBlock>
+            </f:block>
 
-                <f:entry title="${%Enable Dependency Based Analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
-                    <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
-                </f:entry>
+            <f:entry title="${%Enable Dependency Based Analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
+                <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
+            </f:entry>
 
-                <f:block>
-                    <f:optionalBlock name="performCrossModuleAnalysis" title="Run Project Based CMA Analysis (prior to PRQA Framework 2.1.0)" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
-                    </f:optionalBlock>
-                </f:block>
+            <f:block>
+                <f:optionalBlock name="performCrossModuleAnalysis" title="Run Project Based CMA Analysis (prior to PRQA Framework 2.1.0)" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
+                </f:optionalBlock>
+            </f:block>
 
                 <f:block>
                     <f:optionalBlock name="generateCrr" title="${%Code Review Report}" checked="${instance.generateCrr}" inline="true" />
