@@ -9,30 +9,30 @@
     <f:section title="Setup">
    
         <f:block>
-            <f:entry title="${%PRQA·Framework Installation}" field="qaInstallation" help="/plugin/prqa-plugin/config/help-qaInstallation.html"> 
-                <f:select/>
-            </f:entry>
-            <f:entry title="${%PRQA·Framework Project}" field="qaProject" help="/plugin/prqa-plugin/config/help-qaProject.html">
-                <f:textbox/> 
-            </f:entry>
+            <table class="outer">
+                <f:entry title="${%PRQA·Framework Installation}" field="qaInstallation" help="/plugin/prqa-plugin/config/help-qaInstallation.html">
+                    <f:select/>
+                </f:entry>
+                <f:entry title="${%PRQA·Framework Project}" field="qaProject" help="/plugin/prqa-plugin/config/help-qaProject.html">
+                    <f:textbox/>
+                </f:entry>
 
-            <f:block>
-                <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html" checked="${instance.loginToQAV}" inline="true">
-                    <j:set var="zervers" value="${descriptor.getServers()}"/>
-                    <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServers">
-                        <select multiple="true" class="chosenServers" name="chosenServers">
-                            <j:forEach var="l" items="${zervers}">
-                                <f:option selected="${instance.chosenServers.contains(l.toString())}" value="${l}">${l}</f:option>
-                            </j:forEach>
-                        </select>
-                    </f:entry>
-                    <f:optionalBlock name="downloadUnifiedProjectDefinition" title="${%Download Unified Project Definition}" help="/plugin/prqa-plugin/config/help-downloadUnifiedProject.html" checked="${instance.downloadUnifiedProjectDefinition}" inline="true">
-                        <f:entry title="${%Unified Project Name}" field="unifiedProjectName" help="/plugin/prqa-plugin/config/help-unifiedProjectName.html">
-                            <f:textbox value="${instance.unifiedProjectName}"/>
+                <f:block>
+                    <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html" checked="${instance.loginToQAV}" inline="true">
+                        <j:set var="zervers" value="${descriptor.getServers()}"/>
+                        <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServers">
+                           <select multiple="true" class="chosenServers" name="chosenServers">
+                                <j:forEach var="l" items="${zervers}">
+                                    <f:option selected="${instance.chosenServers.contains(l.toString())}" value="${l}">${l}</f:option>
+                                </j:forEach>
+                            </select>
                         </f:entry>
-                    </f:optionalBlock>
+                        <f:optionalBlock name="downloadUnifiedProjectDefinition" title="${%Download Unified Project Definition}" help="/plugin/prqa-plugin/config/help-downloadUnifiedProject.html" checked="${instance.downloadUnifiedProjectDefinition}" inline="true">
+                            <f:entry title="${%Unified Project Name}" field="unifiedProjectName" help="/plugin/prqa-plugin/config/help-unifiedProjectName.html">
+                                <f:textbox value="${instance.unifiedProjectName}"/>
+                            </f:entry>
+                        </f:optionalBlock>
                         <f:optionalBlock name="publishToQAV" title="${%Upload results to QA&#xb7;Verify}" help="/plugin/prqa-plugin/config/help-configUploadQAV.html" checked="${instance.publishToQAV}" inline="true">
-
                             <f:entry title="${%Upload only when build is stable}" field="uploadWhenStable" help="/plugin/prqa-plugin/config/help-qaUploadWhenStable.html">
                                 <f:checkbox name="uploadWhenStable" value="${instance.uploadWhenStable}" checked="${instance.uploadWhenStable}"/>
                             </f:entry>
@@ -40,6 +40,7 @@
                             <f:entry title="${%Project name}" field="qaVerifyProjectName" help="/plugin/prqa-plugin/config/help-configQAVPname.html">
                                 <f:textbox value="${instance.qaVerifyProjectName}"/>
                             </f:entry>
+
                             <f:entry title="${%Snapshot name}" field="uploadSnapshotName" help="/plugin/prqa-plugin/config/help-configSnapShotName.html">
                                 <f:textbox value="${instance.uploadSnapshotName}"/>
                             </f:entry>
@@ -47,42 +48,38 @@
                             <f:entry title="${%Upload Source Code}" field="uploadSourceCode">
                                 <f:select/>
                             </f:entry>
-
                         </f:optionalBlock>
-                </f:optionalBlock>
-            </f:block>
+                    </f:optionalBlock>
+                </f:block>
 
-            <f:entry title="${%Enable Dependency Based Analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
-                <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
-            </f:entry>
+                <f:entry title="${%Enable Dependency Based Analysis}" field="enableDependencyMode" help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
+                    <f:checkbox name="enableDependencyMode" value="${instance.enableDependencyMode}" checked="${instance.enableDependencyMode}"/>
+                </f:entry>
 
-            <f:block>
-                <f:optionalBlock name="performCrossModuleAnalysis" title="Run Project Based CMA Analysis (prior to PRQA Framework 2.1.0)" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
-                </f:optionalBlock>
-            </f:block>
+                <f:block>
+                    <f:optionalBlock name="performCrossModuleAnalysis" title="Run Project Based CMA Analysis (prior to PRQA Framework 2.1.0)" help="/plugin/prqa-plugin/config/help-qaCMA.html" checked="${instance.performCrossModuleAnalysis}" inline="true">
+                    </f:optionalBlock>
+                </f:block>
 
-            <f:block>
-                <table>
-                    <f:optionalBlock name="generateCrr" title="${%Code Review Report}" checked="${instance.generateCrr}" inline="true" /> 
+                <f:block>
+                    <f:optionalBlock name="generateCrr" title="${%Code Review Report}" checked="${instance.generateCrr}" inline="true" />
                     <f:optionalBlock name="generateMdr" title="${%Metrics Data Report}" checked="${instance.generateMdr}" inline="true" />
                     <f:optionalBlock name="generateSup" title="${%Suppression Report}" checked="${instance.generateSup}" inline="true" />
-                </table>
-            </f:block>
+                </f:block>
 
-            <f:block>
-                <f:optionalBlock name="analysisSettings" title="${%Analysis Settings}" help="/plugin/prqa-plugin/config/help-qaAnalysisSettings.html" checked="${instance.analysisSettings}" inline="true">   
-                    <f:entry title="${%Stop Analysis Upon Failure}" field="stopWhenFail" help="/plugin/prqa-plugin/config/help-qaStopWhenFail.html">
-                        <f:checkbox name="stopWhenFail" value="${instance.stopWhenFail}" checked="${instance.stopWhenFail}"/>
-                    </f:entry>
-                    <f:block>
+                <f:block>
+                    <f:optionalBlock name="analysisSettings" title="${%Analysis Settings}" help="/plugin/prqa-plugin/config/help-qaAnalysisSettings.html" checked="${instance.analysisSettings}" inline="true">
+                        <f:entry title="${%Stop Analysis Upon Failure}" field="stopWhenFail" help="/plugin/prqa-plugin/config/help-qaStopWhenFail.html">
+                            <f:checkbox name="stopWhenFail" value="${instance.stopWhenFail}" checked="${instance.stopWhenFail}"/>
+                        </f:entry>
                         <f:optionalBlock title="${%Generate Preprocessed Source}" name="generatePreprocess" help="/plugin/prqa-plugin/config/help-qaGeneratePreprocess.html" checked="${instance.generatePreprocess}" inline="true">
                             <f:entry title="${%Assemble Support Analytic for failed Files}" field="assembleSupportAnalytics" help="/plugin/prqa-plugin/config/help-qaAssembleSupportAnalytics.html">
                                 <f:checkbox name="assembleSupportAnalytics" value="${instance.assembleSupportAnalytics}" checked="${instance.assembleSupportAnalytics}"/>
                             </f:entry>
                         </f:optionalBlock>
-                    </f:block>
-                </f:optionalBlock>
-            </f:block>
+                    </f:optionalBlock>
+                </f:block>
+            </table>
         </f:block>
     </f:section>
 </j:jelly>
