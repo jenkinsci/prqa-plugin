@@ -844,9 +844,9 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             return new QaFrameworkReportSettings(
                     qaFrameworkPostBuildActionSetup.qaInstallation,
-                    qaFrameworkPostBuildActionSetup.qaProject,
+                    PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.qaProject, build, listener),
                     qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
-                    qaFrameworkPostBuildActionSetup.unifiedProjectName,
+                    PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.unifiedProjectName, build, listener),
                     qaFrameworkPostBuildActionSetup.enableDependencyMode,
                     qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
                     qaFrameworkPostBuildActionSetup.generateReport,
@@ -854,7 +854,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                     qaFrameworkPostBuildActionSetup.loginToQAV,
                     product,
                     qaFrameworkPostBuildActionSetup.uploadWhenStable,
-                    qaFrameworkPostBuildActionSetup.qaVerifyProjectName,
+                    PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.qaVerifyProjectName, build, listener),
                     PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.uploadSnapshotName, build, listener),
                     Integer.toString(build.getNumber()),
                     qaFrameworkPostBuildActionSetup.uploadSourceCode,
