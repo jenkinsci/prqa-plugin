@@ -318,8 +318,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (StringUtils.isBlank(unifiedProjectName)) {
                 return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
             }
-            if (!unifiedProjectName.matches("^[a-zA-Z0-9_-]+$")) {
-                return FormValidation.errorWithMarkup("Unified project name is not valid [characters allowed: a-zA-Z0-9-_]");
+            if (!unifiedProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
+                return FormValidation.errorWithMarkup("Unified project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
@@ -338,8 +338,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (StringUtils.isBlank(qaVerifyProjectName)) {
                 return FormValidation.errorWithMarkup("Project name should not be empty!");
             }
-            if (!qaVerifyProjectName.matches("^[a-zA-Z0-9_-]+$")) {
-                return FormValidation.errorWithMarkup("Project name is not valid [characters allowed: a-zA-Z0-9-_]");
+            if (!qaVerifyProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
+                return FormValidation.errorWithMarkup("Project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
