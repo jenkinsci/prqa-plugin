@@ -977,11 +977,10 @@ public class PRQANotifier extends Publisher implements Serializable {
         return currentBuild;
     }
 
-    private PRQAComplianceStatus performUpload(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
+    private void performUpload(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
                                                PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException {
 
-        boolean success = true;
-        PRQAComplianceStatus currentBuild = null;
+        boolean success;
 
         try {
             QaFrameworkVersion qaFrameworkVersion = new QaFrameworkVersion(build.getWorkspace().act(remoteToolCheck));
@@ -991,9 +990,8 @@ public class PRQANotifier extends Publisher implements Serializable {
                 throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
             remoteReportUpload.setQaFrameworkVersion(qaFrameworkVersion);
-            currentBuild = build.getWorkspace().act(remoteReportUpload);
+            build.getWorkspace().act(remoteReportUpload);
         } catch (IOException ex) {
-            success = false;
             outStream.println(ex.getMessage());
             build.setResult(Result.FAILURE);
             throw new PrqaException("IO exception. Please retry.");
@@ -1001,11 +999,9 @@ public class PRQANotifier extends Publisher implements Serializable {
             outStream.println(Messages.PRQANotifier_FailedGettingResults());
             outStream.println(ex.getMessage());
             log.log(Level.SEVERE, "Unhandled exception ", ex.getMessage());
-            success = false;
             build.setResult(Result.FAILURE);
             throw new PrqaException("IO exception. Please retry.");
         }
-        return currentBuild;
     }
 
     private boolean isQafVersionSupported(QaFrameworkVersion qaFrameworkVersion) {
