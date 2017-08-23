@@ -131,6 +131,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
             return "Message Compliance Threshold";
         }
 
+        @Override
         public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
             if (!improvement) {
                 try {

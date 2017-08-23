@@ -24,8 +24,10 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.model.Descriptor;
+import hudson.util.FormValidation;
 import net.praqma.jenkins.plugin.prqa.threshold.AbstractThreshold;
 import net.sf.json.JSONObject;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -37,6 +39,20 @@ public abstract class ThresholdSelectionDescriptor<T extends AbstractThreshold> 
     @Override
     public AbstractThreshold newInstance(StaplerRequest req, JSONObject formData) throws FormException {
         return super.newInstance(req, formData); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
+        if (!improvement) {
+            try {
+                Double parsedValue = Double.parseDouble(value);
+                if (parsedValue < 0) {
+                    return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
+                }
+            } catch (NumberFormatException ex) {
+                return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
+            }
+        }
+        return FormValidation.ok();
     }
         
 }

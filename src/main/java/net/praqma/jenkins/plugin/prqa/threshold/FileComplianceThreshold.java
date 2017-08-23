@@ -62,7 +62,7 @@ public class FileComplianceThreshold extends AbstractThreshold {
 	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
 		boolean isValidTreshold = true;
 		if (value != null) {
-			isValidTreshold = currentComplianceStatus.getFileCompliance() <= value;
+			isValidTreshold = currentComplianceStatus.getFileCompliance() >= value;
 			if (!isValidTreshold) {
 				currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentComplianceStatus.getFileCompliance(), value));
 			}
@@ -76,20 +76,6 @@ public class FileComplianceThreshold extends AbstractThreshold {
 		@Override
 		public String getDisplayName() {
 			return "File Compliance Threshold";
-		}
-
-		public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
-			if (!improvement) {
-				try {
-					Double parsedValue = Double.parseDouble(value);
-					if (parsedValue < 0) {
-						return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
-					}
-				} catch (NumberFormatException ex) {
-					return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
-				}
-			}
-			return FormValidation.ok();
 		}
 
 		@Override

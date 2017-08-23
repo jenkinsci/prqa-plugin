@@ -62,7 +62,7 @@ public class ProjectComplianceThreshold extends AbstractThreshold {
 	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
 		boolean isValidTreshold = true;
 		if (value != null) {
-			isValidTreshold = currentComplianceStatus.getProjectCompliance() <= value;
+			isValidTreshold = currentComplianceStatus.getProjectCompliance() >= value;
 			if (!isValidTreshold) {
 				currentComplianceStatus.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(
 						currentComplianceStatus.getProjectCompliance(), value));
@@ -77,20 +77,6 @@ public class ProjectComplianceThreshold extends AbstractThreshold {
 		@Override
 		public String getDisplayName() {
 			return "Project Compliance Threshold";
-		}
-
-		public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
-			if (!improvement) {
-				try {
-					Double parsedValue = Double.parseDouble(value);
-					if (parsedValue < 0) {
-						return FormValidation.error(Messages.PRQANotifier_WrongDecimalValue());
-					}
-				} catch (NumberFormatException ex) {
-					return FormValidation.error(Messages.PRQANotifier_WrongDecimalPunctuation());
-				}
-			}
-			return FormValidation.ok();
 		}
 
 		@Override
