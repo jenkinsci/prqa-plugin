@@ -27,7 +27,6 @@ import hudson.Extension;
 import hudson.model.Hudson;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import hudson.util.ListBoxModel.Option;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +53,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean generateReport;
     public boolean publishToQAV;
     public boolean loginToQAV;
-    public String chosenServer;
+    public List<String> chosenServers;
     public boolean uploadWhenStable;
     public String qaVerifyProjectName;
     public String uploadSnapshotName;
@@ -71,7 +70,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
             boolean performCrossModuleAnalysis, boolean enableDependencyMode,
-            boolean generateReport, boolean publishToQAV, boolean loginToQAV, String chosenServer, boolean uploadWhenStable, String qaVerifyProjectName,
+            boolean generateReport, boolean publishToQAV, boolean loginToQAV, List<String> chosenServers, boolean uploadWhenStable, String qaVerifyProjectName,
             String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup,
             boolean analysisSettings, boolean stopWhenFail, boolean generatePreprocess, boolean assembleSupportAnalytics) {
 
@@ -84,7 +83,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.generateReport = generateReport;
         this.publishToQAV = publishToQAV;
         this.loginToQAV = loginToQAV;
-        this.chosenServer = chosenServer;
+        this.chosenServers = chosenServers;
         this.uploadWhenStable = uploadWhenStable;
         this.qaVerifyProjectName = qaVerifyProjectName;
         this.uploadSnapshotName = uploadSnapshotName;
@@ -99,12 +98,12 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.assembleSupportAnalytics = assembleSupportAnalytics;
     }
 
-    public String getChosenServer() {
-        return chosenServer;
+    public List<String> getChosenServers() {
+        return chosenServers;
     }
 
-    public void setChosenServer(String chosenServer) {
-        this.chosenServer = chosenServer;
+    public void setChosenServers(List<String> chosenServers) {
+        this.chosenServers = chosenServers;
     }
 
     public boolean isPublishToQAV() {

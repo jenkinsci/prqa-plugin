@@ -46,7 +46,7 @@ import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.apache.commons.lang.StringUtils;
 import org.jdom2.JDOMException;
 
-public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianceStatus>, Serializable {
+public class QAFrameworkRemoteReportUpload implements FileCallable<Void>, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -74,7 +74,7 @@ public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianc
     }
 
     @Override
-    public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
 
         Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(),
                 report.getSettings());
@@ -94,11 +94,11 @@ public class QAFrameworkRemoteReportUpload implements FileCallable<PRQAComplianc
             if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration!");
             }
-            if (reportSetting.isPublishToQAV()) {
+            if (reportSetting.isLoginToQAV() && reportSetting.isPublishToQAV()) {
                 CmdResult uploadResult = report.uploadQacli(out);
                 logCmdResult(uploadResult, out);
             }
-            return report.getComplianceStatus(out);
+            return null;
         } catch (PrqaException exception) {
             throw new IOException(exception.getMessage(), exception);
         } catch (Exception ex) {

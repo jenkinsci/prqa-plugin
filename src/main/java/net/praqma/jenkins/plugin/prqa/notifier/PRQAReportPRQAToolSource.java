@@ -62,7 +62,7 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 	public PRQAFileProjectSource fileProjectSource;
 
 	public final boolean publishToQAV;
-	public String chosenServer;
+	public List<String> chosenServers;
 	public CodeUploadSetting codeUploadSetting = CodeUploadSetting.None;
 	public String qaVerifyProjectName;
 	public String vcsConfigXml;
@@ -75,7 +75,7 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 	public PRQAReportPRQAToolSource(
 
 	String product, String projectFile, boolean performCrossModuleAnalysis, boolean enableDependencyMode, boolean enableDataFlowAnalysis,
-			PRQAFileProjectSource fileProjectSource, boolean publishToQAV, String chosenServer, String codeUploadSetting, String qaVerifyProjectName,
+			PRQAFileProjectSource fileProjectSource, boolean publishToQAV, List<String> chosenServers, String codeUploadSetting, String qaVerifyProjectName,
 			String vcsConfigXml, String sourceOrigin, boolean singleSnapshotMode, boolean generateCrr, boolean generateSup) {
 
 		this.product = product;
@@ -85,7 +85,7 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 		this.enableDataFlowAnalysis = enableDataFlowAnalysis;
 		this.fileProjectSource = fileProjectSource;
 		this.publishToQAV = publishToQAV;
-		this.chosenServer = chosenServer;
+		this.chosenServers = chosenServers;
 		this.codeUploadSetting = CodeUploadSetting.getByValue(codeUploadSetting);
 		this.qaVerifyProjectName = qaVerifyProjectName;
 		this.vcsConfigXml = vcsConfigXml;
@@ -99,12 +99,12 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 		return publishToQAV;
 	}
 
-	public String getChosenServer() {
-		return chosenServer;
+	public List<String> getChosenServer() {
+		return chosenServers;
 	}
 
-	public void setChosenServer(String chosenServer) {
-		this.chosenServer = chosenServer;
+	public void setChosenServers(List<String> chosenServers) {
+		this.chosenServers = chosenServers;
 	}
 
 	public CodeUploadSetting getCodeUploadSetting() {

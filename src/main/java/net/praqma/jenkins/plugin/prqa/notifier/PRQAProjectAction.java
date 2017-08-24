@@ -8,6 +8,8 @@ import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
@@ -87,9 +89,28 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 		if (notifier != null) {
 			QAVerifyServerConfiguration qavconfig;
 			if (notifier.sourceQAFramework instanceof PRQAReportPRQAToolSource) {
-				qavconfig = PRQAGlobalConfig.get().getConfigurationByName(((PRQAReportPRQAToolSource) notifier.sourceQAFramework).chosenServer);
+				List<String> servers = ((PRQAReportPRQAToolSource) notifier.sourceQAFramework).chosenServers;
+				String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
+				qavconfig = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
 			} else {
-				qavconfig = PRQAGlobalConfig.get().getConfigurationByName(((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).chosenServer);
+				List<String> servers = ((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).chosenServers;
+				String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
+				qavconfig = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+			}
+			return qavconfig;
+		}
+		return null;
+	}
+
+	public Collection<QAVerifyServerConfiguration> getConfigurations() {
+		DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
+		PRQANotifier notifier = publishersList.get(PRQANotifier.class);
+		if (notifier != null) {
+			Collection<QAVerifyServerConfiguration> qavconfig;
+			if (notifier.sourceQAFramework instanceof PRQAReportPRQAToolSource) {
+				qavconfig = PRQAGlobalConfig.get().getConfigurationsByNames(((PRQAReportPRQAToolSource) notifier.sourceQAFramework).chosenServers);
+			} else {
+				qavconfig = PRQAGlobalConfig.get().getConfigurationsByNames(((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).chosenServers);
 			}
 			return qavconfig;
 		}

@@ -360,195 +360,218 @@ public class PRQANotifier extends Publisher implements Serializable {
         outStream = listener.getLogger();
         if (sourceQAFramework != null && sourceQAFramework instanceof QAFrameworkPostBuildActionSetup) {
 
-            performQaFrameworkBuild(build, launcher, listener);
+            return performQaFrameworkBuild(build, launcher, listener);
 
         } else if (sourceQAFramework != null && sourceQAFramework instanceof PRQAReportPRQAToolSource) {
 
-            PRQAReportPRQAToolSource prqaReportPRQAToolSource = (PRQAReportPRQAToolSource) sourceQAFramework;
-
-            String productUsed = prqaReportPRQAToolSource.product;
-            outStream = listener.getLogger();
-
-            PRQAToolSuite suite = null;
-            QACToolSuite qacSuite = QACToolSuite.getInstallationByName(prqaReportPRQAToolSource.product);
-
-            outStream.println(VersionInfo.getPluginVersion());
-
-            if (qacSuite != null) {
-                productUsed = qacSuite.tool;
-                suite = qacSuite;
-            }
-
-            QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(prqaReportPRQAToolSource.chosenServer);
-
-            PRQAApplicationSettings appSettings = null;
-            if (suite != null) {
-                if (suite instanceof QACToolSuite) {
-                    QACToolSuite cSuite = (QACToolSuite) suite;
-                    appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome,
-                            cSuite.getHome());
-                }
-            }
-
-            PRQAReportSettings settings = null;
-            QAR qar = null;
-
-            if (prqaReportPRQAToolSource.fileProjectSource != null
-                    && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportProjectFileSource) {
-                PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource) prqaReportPRQAToolSource.fileProjectSource;
-                String projectFilePath = selectPrjFilePath(build.getWorkspace().getRemote(), pSource.projectFile);
-                if (projectFilePath == null) {
-                    outStream.println(String.format(
-                            "File %s not found. Please provide a valid path to the project file", pSource.projectFile));
-                    return false;
-                }
-                settings = new PRQAReportSettings(
-                        prqaReportPRQAToolSource.chosenServer,
-                        projectFilePath,
-                        prqaReportPRQAToolSource.performCrossModuleAnalysis,
-                        prqaReportPRQAToolSource.publishToQAV,
-                        prqaReportPRQAToolSource.enableDependencyMode,
-                        prqaReportPRQAToolSource.enableDataFlowAnalysis,
-                        chosenReportTypes,
-                        productUsed,
-                        null,
-                        null);
-                qar = new QAR(productUsed, projectFilePath, QARReportType.Compliance);
-
-            } else if (prqaReportPRQAToolSource.fileProjectSource != null
-                    && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportFileListSource) {
-                PRQAReportFileListSource flSource = (PRQAReportFileListSource) prqaReportPRQAToolSource.fileProjectSource;
-
-                settings = new PRQAReportSettings(
-                        prqaReportPRQAToolSource.chosenServer,
-                        null,
-                        prqaReportPRQAToolSource.performCrossModuleAnalysis,
-                        prqaReportPRQAToolSource.publishToQAV,
-                        prqaReportPRQAToolSource.enableDependencyMode,
-                        prqaReportPRQAToolSource.enableDataFlowAnalysis,
-                        chosenReportTypes,
-                        productUsed,
-                        flSource.settingsFile,
-                        flSource.fileList);
-                qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);
-
-            } else {
-                // Use old settings (projectFile ~ Still exists)
-                settings = new PRQAReportSettings(
-                        prqaReportPRQAToolSource.chosenServer,
-                        prqaReportPRQAToolSource.projectFile,
-                        prqaReportPRQAToolSource.performCrossModuleAnalysis,
-                        prqaReportPRQAToolSource.publishToQAV,
-                        prqaReportPRQAToolSource.enableDependencyMode,
-                        prqaReportPRQAToolSource.enableDataFlowAnalysis,
-                        chosenReportTypes,
-                        productUsed,
-                        null,
-                        null);
-                qar = new QAR(productUsed, prqaReportPRQAToolSource.projectFile, QARReportType.Compliance);
-            }
-
-            outStream.println(Messages.PRQANotifier_ReportGenerateText());
-            outStream.println(qar);
-
-            PRQAToolUploadSettings uploadSettings = new PRQAToolUploadSettings(prqaReportPRQAToolSource.vcsConfigXml,
-                    prqaReportPRQAToolSource.singleSnapshotMode, prqaReportPRQAToolSource.codeUploadSetting,
-                    prqaReportPRQAToolSource.sourceOrigin, prqaReportPRQAToolSource.qaVerifyProjectName);
-
-            QAVerifyServerSettings qavSettings = null;
-            if (conf != null) {
-                qavSettings = new QAVerifyServerSettings(conf.getHostName(), conf.getViewerPortNumber(), conf.getProtocol(),
-                        conf.getPassword(), conf.getUserName());
-            }
-
-            HashMap<String, String> environment = null;
-            if (suite != null) {
-                environment = suite.createEnvironmentVariables(build.getWorkspace().getRemote());
-            }
-            outStream.println("Workspace : " + build.getWorkspace().getRemote());
-            boolean success = true;
-            PRQAComplianceStatus currentBuild = null;
-
-            try {
-
-                if (qacSuite == null && !(productUsed.equalsIgnoreCase("qacpp") || productUsed.equalsIgnoreCase("qac"))) {
-                    throw new PrqaSetupException(String.format(
-                            "The job uses a product configuration (%s) that no longer exists, please reconfigure.",
-                            productUsed));
-                }
-
-                PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);
-                currentBuild = build.getWorkspace().act(new PRQARemoteReport(report, listener, launcher.isUnix()));
-                currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(threshholdlevel));
-            } catch (IOException ex) {
-                success = treatIOException(ex);
-                return success;
-            } catch (PrqaException pex) {
-                outStream.println(pex.getMessage());
-                log.log(Level.WARNING, "PrqaException", pex.getMessage());
-                return false;
-            } catch (Exception ex) {
-                outStream.println(Messages.PRQANotifier_FailedGettingResults());
-                outStream.println("This should not be happening, writing error to log");
-                log.log(Level.SEVERE, "Unhandled exception", ex);
-                return false;
-            } finally {
-                try {
-                    if (success) {
-                        copyReportsToArtifactsDir(settings, build);
-                    }
-                    if (prqaReportPRQAToolSource.publishToQAV && success) {
-                        copyResourcesToArtifactsDir("*.log", build);
-                    }
-                } catch (Exception ex) {
-                    outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
-                    outStream.println("Manually add Build Artifacts to artifact");
-                    log.log(Level.SEVERE, "Failed copying build artifacts", ex);
-                    log.log(Level.INFO, "Copy of Artifacts from slave to master Failed.", ex);
-                }
-            }
-
-            Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, Result.SUCCESS);
-
-            if (previousBuildResultTuple != null) {
-                outStream.println(Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getSecond().number));
-                outStream.println(previousBuildResultTuple.getFirst());
-            } else {
-                outStream.println(Messages.PRQANotifier_NoPreviousResults());
-            }
-
-            PRQAReading previousBuildResult = previousBuildResultTuple != null ? previousBuildResultTuple.getFirst()
-                    : null;
-
-            boolean buildStatus = true;
-
-            log.fine("thresholdsDesc is null: " + (thresholdsDesc == null));
-            if (thresholdsDesc != null) {
-                log.fine("thresholdsDescSize: " + thresholdsDesc.size());
-            }
-
-            try {
-                buildStatus = evaluate(previousBuildResult, thresholdsDesc, currentBuild);
-                log.fine("Evaluated to: " + buildStatus);
-            } catch (Exception ex) {
-                outStream.println("Report generation ok. Caught exception evaluation results. Trace written to log");
-                log.log(Level.SEVERE, "Unexpected evaluation exception", ex);
-            }
-
-            outStream.println(Messages.PRQANotifier_ScannedValues());
-            outStream.println(currentBuild);
-
-            PRQABuildAction action = new PRQABuildAction(build);
-            action.setResult(currentBuild);
-            action.setPublisher(this);
-            if (!buildStatus) {
-                build.setResult(Result.UNSTABLE);
-            }
-            build.getActions().add(action);
-            return true;
+            return performQaToolBuild(build, launcher, listener);
 
         }
         return true;
+    }
+
+    private boolean performQaToolBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+
+        PRQAReportPRQAToolSource prqaReportPRQAToolSource = (PRQAReportPRQAToolSource) sourceQAFramework;
+
+        String productUsed = prqaReportPRQAToolSource.product;
+        outStream = listener.getLogger();
+
+        PRQAToolSuite suite = null;
+        QACToolSuite qacSuite = QACToolSuite.getInstallationByName(prqaReportPRQAToolSource.product);
+
+        outStream.println(VersionInfo.getPluginVersion());
+
+        if (qacSuite != null) {
+            productUsed = qacSuite.tool;
+            suite = qacSuite;
+        }
+
+        PRQAApplicationSettings appSettings = null;
+        if (suite != null) {
+            if (suite instanceof QACToolSuite) {
+                QACToolSuite cSuite = (QACToolSuite) suite;
+                appSettings = new PRQAApplicationSettings(cSuite.qarHome, cSuite.qavHome, cSuite.qawHome,
+                        cSuite.getHome());
+            }
+        }
+
+        PRQAReportSettings settings = null;
+        QAR qar = null;
+
+        if (prqaReportPRQAToolSource.fileProjectSource != null
+                && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportProjectFileSource) {
+            PRQAReportProjectFileSource pSource = (PRQAReportProjectFileSource) prqaReportPRQAToolSource.fileProjectSource;
+            String projectFilePath = selectPrjFilePath(build.getWorkspace().getRemote(), pSource.projectFile);
+            if (projectFilePath == null) {
+                outStream.println(String.format(
+                        "File %s not found. Please provide a valid path to the project file", pSource.projectFile));
+                return false;
+            }
+            settings = new PRQAReportSettings(
+                    prqaReportPRQAToolSource.chosenServers,
+                    projectFilePath,
+                    prqaReportPRQAToolSource.performCrossModuleAnalysis,
+                    prqaReportPRQAToolSource.publishToQAV,
+                    prqaReportPRQAToolSource.enableDependencyMode,
+                    prqaReportPRQAToolSource.enableDataFlowAnalysis,
+                    chosenReportTypes,
+                    productUsed,
+                    null,
+                    null);
+            qar = new QAR(productUsed, projectFilePath, QARReportType.Compliance);
+
+        } else if (prqaReportPRQAToolSource.fileProjectSource != null
+                && prqaReportPRQAToolSource.fileProjectSource instanceof PRQAReportFileListSource) {
+            PRQAReportFileListSource flSource = (PRQAReportFileListSource) prqaReportPRQAToolSource.fileProjectSource;
+
+            settings = new PRQAReportSettings(
+                    prqaReportPRQAToolSource.chosenServers,
+                    null,
+                    prqaReportPRQAToolSource.performCrossModuleAnalysis,
+                    prqaReportPRQAToolSource.publishToQAV,
+                    prqaReportPRQAToolSource.enableDependencyMode,
+                    prqaReportPRQAToolSource.enableDataFlowAnalysis,
+                    chosenReportTypes,
+                    productUsed,
+                    flSource.settingsFile,
+                    flSource.fileList);
+            qar = new QAR(productUsed, flSource.fileList, QARReportType.Compliance);
+
+        } else {
+            // Use old settings (projectFile ~ Still exists)
+            settings = new PRQAReportSettings(
+                    prqaReportPRQAToolSource.chosenServers,
+                    prqaReportPRQAToolSource.projectFile,
+                    prqaReportPRQAToolSource.performCrossModuleAnalysis,
+                    prqaReportPRQAToolSource.publishToQAV,
+                    prqaReportPRQAToolSource.enableDependencyMode,
+                    prqaReportPRQAToolSource.enableDataFlowAnalysis,
+                    chosenReportTypes,
+                    productUsed,
+                    null,
+                    null);
+            qar = new QAR(productUsed, prqaReportPRQAToolSource.projectFile, QARReportType.Compliance);
+        }
+
+        outStream.println(Messages.PRQANotifier_ReportGenerateText());
+        outStream.println(qar);
+
+        PRQAToolUploadSettings uploadSettings = new PRQAToolUploadSettings(prqaReportPRQAToolSource.vcsConfigXml,
+                prqaReportPRQAToolSource.singleSnapshotMode, prqaReportPRQAToolSource.codeUploadSetting,
+                prqaReportPRQAToolSource.sourceOrigin, prqaReportPRQAToolSource.qaVerifyProjectName);
+
+        HashMap<String, String> environment = null;
+        if (suite != null) {
+            environment = suite.createEnvironmentVariables(build.getWorkspace().getRemote());
+        }
+        outStream.println("Workspace : " + build.getWorkspace().getRemote());
+        boolean success = true;
+        PRQAComplianceStatus currentBuild = null;
+
+        try {
+
+            if (qacSuite == null && !(productUsed.equalsIgnoreCase("qacpp") || productUsed.equalsIgnoreCase("qac"))) {
+                throw new PrqaSetupException(String.format(
+                        "The job uses a product configuration (%s) that no longer exists, please reconfigure.",
+                        productUsed));
+            }
+
+            Collection<QAVerifyServerSettings> qavSettings = createServerSettings(prqaReportPRQAToolSource);
+
+            PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);
+            currentBuild = build.getWorkspace().act(new PRQARemoteReport(report, listener, launcher.isUnix()));
+            currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(threshholdlevel));
+        } catch (IOException ex) {
+            success = treatIOException(ex);
+            return success;
+        } catch (PrqaException pex) {
+            outStream.println(pex.getMessage());
+            log.log(Level.WARNING, "PrqaException", pex.getMessage());
+            return false;
+        } catch (Exception ex) {
+            outStream.println(Messages.PRQANotifier_FailedGettingResults());
+            outStream.println("This should not be happening, writing error to log");
+            log.log(Level.SEVERE, "Unhandled exception", ex);
+            return false;
+        } finally {
+            try {
+                if (success) {
+                    copyReportsToArtifactsDir(settings, build);
+                }
+                if (prqaReportPRQAToolSource.publishToQAV && success) {
+                    copyResourcesToArtifactsDir("*.log", build);
+                }
+            } catch (Exception ex) {
+                outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
+                outStream.println("Manually add Build Artifacts to artifact");
+                log.log(Level.SEVERE, "Failed copying build artifacts", ex);
+                log.log(Level.INFO, "Copy of Artifacts from slave to master Failed.", ex);
+            }
+        }
+
+        Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, Result.SUCCESS);
+
+        if (previousBuildResultTuple != null) {
+            outStream.println(Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getSecond().number));
+            outStream.println(previousBuildResultTuple.getFirst());
+        } else {
+            outStream.println(Messages.PRQANotifier_NoPreviousResults());
+        }
+
+        PRQAReading previousBuildResult = previousBuildResultTuple != null ? previousBuildResultTuple.getFirst()
+                : null;
+
+        boolean buildStatus = true;
+
+        log.fine("thresholdsDesc is null: " + (thresholdsDesc == null));
+        if (thresholdsDesc != null) {
+            log.fine("thresholdsDescSize: " + thresholdsDesc.size());
+        }
+
+        try {
+            buildStatus = evaluate(previousBuildResult, thresholdsDesc, currentBuild);
+            log.fine("Evaluated to: " + buildStatus);
+        } catch (Exception ex) {
+            outStream.println("Report generation ok. Caught exception evaluation results. Trace written to log");
+            log.log(Level.SEVERE, "Unexpected evaluation exception", ex);
+        }
+
+        outStream.println(Messages.PRQANotifier_ScannedValues());
+        outStream.println(currentBuild);
+
+        PRQABuildAction action = new PRQABuildAction(build);
+        action.setResult(currentBuild);
+        action.setPublisher(this);
+        if (!buildStatus) {
+            build.setResult(Result.UNSTABLE);
+        }
+        build.getActions().add(action);
+        return true;
+    }
+
+    private Collection<QAVerifyServerSettings> createServerSettings(PRQAReportPRQAToolSource prqaReportPRQAToolSource) {
+
+        Collection<QAVerifyServerSettings> servers = new ArrayList<>();
+
+        for (String server : prqaReportPRQAToolSource.chosenServers) {
+            servers.add(createServerSetting(server));
+        }
+
+        return null;
+    }
+
+    private QAVerifyServerSettings createServerSetting(String chosenServer) {
+
+        QAVerifyServerConfiguration conf = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
+
+        QAVerifyServerSettings qavSettings = null;
+        if (conf != null) {
+            qavSettings = new QAVerifyServerSettings(conf.getHostName(), conf.getViewerPortNumber(), conf.getProtocol(),
+                    conf.getPassword(), conf.getUserName());
+        }
+
+        return qavSettings;
     }
 
     private boolean treatIOException(IOException ex) {
@@ -743,17 +766,42 @@ public class PRQANotifier extends Publisher implements Serializable {
             log.log(Level.WARNING, "PrqaException", ex.getMessage());
             return false;
         }
-        QAVerifyServerSettings qaVerifySettings = setQaVerifyServerSettings(qaFrameworkPostBuildActionSetup.chosenServer);
-        QAFrameworkReport report = new QAFrameworkReport(qaReportSettings, qaVerifySettings, appSettings,
-                environmentVariables);
+
+        Collection<QAFrameworkRemoteReport> remoteReports = new ArrayList<>();
+
+        Collection<QAFrameworkRemoteReportUpload> remoteReportUploads = new ArrayList<>();
+
+        for (String chosenServer : qaFrameworkPostBuildActionSetup.chosenServers) {
+            QAVerifyServerSettings qaVerifySettings = setQaVerifyServerSettings(chosenServer);
+            QAFrameworkReport report = new QAFrameworkReport(qaReportSettings, qaVerifySettings, appSettings,
+                    environmentVariables);
+
+            QAFrameworkRemoteReport remoteReport = new QAFrameworkRemoteReport(report, listener, launcher.isUnix());
+            QAFrameworkRemoteReportUpload remoteReportUpload = new QAFrameworkRemoteReportUpload(report, listener, launcher.isUnix());
+
+            remoteReports.add(remoteReport);
+            remoteReportUploads.add(remoteReportUpload);
+        }
 
         PRQARemoteToolCheck remoteToolCheck = new PRQARemoteToolCheck(new QACli(), environmentVariables, appSettings,
                 qaReportSettings, listener, launcher.isUnix());
-        QAFrameworkRemoteReport remoteReport = new QAFrameworkRemoteReport(report, listener, launcher.isUnix());
-        QAFrameworkRemoteReportUpload remoteReportUpload = new QAFrameworkRemoteReportUpload(report, listener, launcher.isUnix());
         PRQAComplianceStatus currentBuild;
         try {
-            currentBuild = performBuild(build, appSettings, remoteToolCheck, remoteReport, qaReportSettings);
+            QAFrameworkRemoteReport remoteReport;
+
+            if (remoteReports.isEmpty()) {
+                // Use a dummy report if no servers defined
+                QAVerifyServerSettings qaVerifySettings = setQaVerifyServerSettings(null);
+
+                QAFrameworkReport report = new QAFrameworkReport(qaReportSettings, qaVerifySettings, appSettings,
+                        environmentVariables);
+
+                remoteReport = new QAFrameworkRemoteReport(report, listener, launcher.isUnix());
+            } else {
+                remoteReport = remoteReports.iterator().next();
+            }
+
+            currentBuild = performBuild(build, remoteToolCheck, remoteReport, qaReportSettings);
         } catch (PrqaException ex) {
             log.log(Level.WARNING, "PrqaException", ex.getMessage());
             return false;
@@ -789,24 +837,28 @@ public class PRQANotifier extends Publisher implements Serializable {
             if (!buildResult.isWorseOrEqualTo(Result.FAILURE)) {
                 build.setResult(Result.UNSTABLE);
             }
-            if (qaReportSettings.isPublishToQAV()
+            if (qaReportSettings.isLoginToQAV()
+                    && qaReportSettings.isPublishToQAV()
                     && !qaReportSettings.isQaUploadWhenStable()
                     && !buildResult.isWorseOrEqualTo(Result.FAILURE)) {
                 try {
                     outStream.println("UPLOAD WARNING: Build is Unstable but upload will continue...");
-                    performUpload(build, appSettings, remoteToolCheck, remoteReportUpload);
+                    for (QAFrameworkRemoteReportUpload remoteReportUpload : remoteReportUploads ) {
+                        performUpload(build, appSettings, remoteToolCheck, remoteReportUpload);
+                    }
                 } catch (PrqaException ex) {
                     log.log(Level.WARNING, "PrqaException", ex.getMessage());
                     return false;
                 }
-            } else if (qaReportSettings.isPublishToQAV()
+            } else if (qaReportSettings.isLoginToQAV()
+                    && qaReportSettings.isPublishToQAV()
                     && (qaReportSettings.isQaUploadWhenStable()
                     || buildResult.isWorseOrEqualTo(Result.FAILURE))) {
                 outStream.println("UPLOAD WARNING: QAV Upload cant be perform because build is Unstable");
                 log.warning("UPLOAD WARNING - QAV Upload cant be perform because build is Unstable");
             }
 
-        } else if (qaReportSettings.isPublishToQAV()) {
+        } else if (qaReportSettings.isLoginToQAV() && qaReportSettings.isPublishToQAV()) {
             if (buildResult.isWorseOrEqualTo(Result.FAILURE)
                     && qaReportSettings.isQaUploadWhenStable()) {
                 outStream.println("UPLOAD WARNING: QAV Upload cant be perform because build is Unstable");
@@ -814,7 +866,9 @@ public class PRQANotifier extends Publisher implements Serializable {
             } else {
                 try {
                     outStream.println("UPLOAD INFO: QAV Upload...");
-                    performUpload(build, appSettings, remoteToolCheck, remoteReportUpload);
+                    for (QAFrameworkRemoteReportUpload remoteReportUpload : remoteReportUploads ) {
+                        performUpload(build, appSettings, remoteToolCheck, remoteReportUpload);
+                    }
                 } catch (PrqaException ex) {
                     log.log(Level.WARNING, "PrqaException", ex.getMessage());
                     return false;
@@ -883,7 +937,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
     }
 
-    private PRQAComplianceStatus performBuild(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
+    private PRQAComplianceStatus performBuild(AbstractBuild<?, ?> build,
                                               PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReport remoteReport,
                                               QaFrameworkReportSettings qaReportSettings) throws PrqaException {
 
@@ -897,6 +951,7 @@ public class PRQANotifier extends Publisher implements Serializable {
                 build.setResult(Result.FAILURE);
                 throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
+
             remoteReport.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = build.getWorkspace().act(remoteReport);
             currentBuild.setMessagesWithinThresholdForEachMessageGroup(threshholdlevel);
@@ -922,11 +977,10 @@ public class PRQANotifier extends Publisher implements Serializable {
         return currentBuild;
     }
 
-    private PRQAComplianceStatus performUpload(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
+    private void performUpload(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
                                                PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException {
 
-        boolean success = true;
-        PRQAComplianceStatus currentBuild = null;
+        boolean success;
 
         try {
             QaFrameworkVersion qaFrameworkVersion = new QaFrameworkVersion(build.getWorkspace().act(remoteToolCheck));
@@ -936,9 +990,8 @@ public class PRQANotifier extends Publisher implements Serializable {
                 throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
             remoteReportUpload.setQaFrameworkVersion(qaFrameworkVersion);
-            currentBuild = build.getWorkspace().act(remoteReportUpload);
+            build.getWorkspace().act(remoteReportUpload);
         } catch (IOException ex) {
-            success = false;
             outStream.println(ex.getMessage());
             build.setResult(Result.FAILURE);
             throw new PrqaException("IO exception. Please retry.");
@@ -946,11 +999,9 @@ public class PRQANotifier extends Publisher implements Serializable {
             outStream.println(Messages.PRQANotifier_FailedGettingResults());
             outStream.println(ex.getMessage());
             log.log(Level.SEVERE, "Unhandled exception ", ex.getMessage());
-            success = false;
             build.setResult(Result.FAILURE);
             throw new PrqaException("IO exception. Please retry.");
         }
-        return currentBuild;
     }
 
     private boolean isQafVersionSupported(QaFrameworkVersion qaFrameworkVersion) {

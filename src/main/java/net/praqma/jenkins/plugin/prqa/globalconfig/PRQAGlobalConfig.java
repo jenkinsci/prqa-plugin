@@ -27,6 +27,7 @@ package net.praqma.jenkins.plugin.prqa.globalconfig;
 
 import hudson.Extension;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
@@ -91,6 +92,23 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
             }
         }
         return null;
+    }
+
+    public Collection<QAVerifyServerConfiguration> getConfigurationsByNames(Collection<String> names) {
+
+        if (names == null) {
+            return new ArrayList<>();
+        }
+
+        Collection<QAVerifyServerConfiguration> configurations = new ArrayList<>(names.size());
+
+        for(QAVerifyServerConfiguration conf : getServers()) {
+            if (names.contains(conf.getConfigurationName())){
+                configurations.add(conf);
+            }
+        }
+
+        return configurations;
     }
     
     public ViewServerProtocol[] getViewServerProtocols() {

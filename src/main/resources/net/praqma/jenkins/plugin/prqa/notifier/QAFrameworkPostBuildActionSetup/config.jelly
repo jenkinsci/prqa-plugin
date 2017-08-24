@@ -20,10 +20,10 @@
                 <f:block>
                     <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html" checked="${instance.loginToQAV}" inline="true">
                         <j:set var="zervers" value="${descriptor.getServers()}"/>
-                        <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServer">
-                            <select class="chosenServer" name="chosenServer">
+                        <f:entry title="${%Select server configuration}" help="/plugin/prqa-plugin/config/help-configServerSelect.html" field="chosenServers">
+                           <select multiple="true" class="chosenServers" name="chosenServers">
                                 <j:forEach var="l" items="${zervers}">
-                                    <f:option selected="${instance.chosenServer.equals(l.toString())}" value="${l}">${l}</f:option>
+                                    <f:option selected="${instance.chosenServers.contains(l.toString())}" value="${l}">${l}</f:option>
                                 </j:forEach>
                             </select>
                         </f:entry>
@@ -48,6 +48,7 @@
                             <f:entry title="${%Upload Source Code}" field="uploadSourceCode">
                                 <f:select/>
                             </f:entry>
+
                         </f:optionalBlock>
                     </f:optionalBlock>
                 </f:block>
