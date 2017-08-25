@@ -95,8 +95,7 @@ public class QAFrameworkRemoteReportUpload implements FileCallable<Void>, Serial
                 throw new PrqaException("Incorrect configuration!");
             }
             if (reportSetting.isLoginToQAV() && reportSetting.isPublishToQAV()) {
-                CmdResult uploadResult = report.uploadQacli(out);
-                logCmdResult(uploadResult, out);
+                report.uploadQacli(out);
             }
             return null;
         } catch (PrqaException exception) {
@@ -104,13 +103,6 @@ public class QAFrameworkRemoteReportUpload implements FileCallable<Void>, Serial
         } catch (Exception ex) {
             throw new IOException(ex.getMessage());
         }
-    }
-
-    private void logCmdResult(CmdResult result, PrintStream out) {
-        if (result == null) {
-            return;
-        }
-        out.println(result.stdoutBuffer.toString());
     }
 
     public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {

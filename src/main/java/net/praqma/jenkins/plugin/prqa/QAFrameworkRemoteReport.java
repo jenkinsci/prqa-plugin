@@ -96,37 +96,30 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
             }
 
             if (reportSetting.isLoginToQAV() && reportSetting.isPullUnifiedProject()) {
-                CmdResult pullUnifyProject = report.pullUnifyProjectQacli(isUnix, out);
-                logCmdResult(pullUnifyProject, out);
+                report.pullUnifyProjectQacli(isUnix, out);
             }
 
-            CmdResult analyzeResult = report.analyzeQacli(isUnix, "-cf", out);
-            logCmdResult(analyzeResult, out);
+            report.analyzeQacli(isUnix, "-cf", out);
 
             if (reportSetting.isQaCrossModuleAnalysis()) {
-                CmdResult cmaAnalysisResult = report.cmaAnalysisQacli(isUnix, out);
-                logCmdResult(cmaAnalysisResult, out);
+                report.cmaAnalysisQacli(isUnix, out);
             }
 
             if (reportSetting.isGenCrReport()) {
                 String Report = "CRR";
-                CmdResult crrGenerationResult = report.reportQacli(isUnix, Report, out);
-                logCmdResult(crrGenerationResult, out);
+                report.reportQacli(isUnix, Report, out);
             }
             if (reportSetting.isGenMdReport()) {
                 String Report = "MDR";
-                CmdResult mdrGenerationResult = report.reportQacli(isUnix, Report, out);
-                logCmdResult(mdrGenerationResult, out);
+                report.reportQacli(isUnix, Report, out);
             }
             if (reportSetting.isGenSupReport()) {
                 String Report = "SUR";
-                CmdResult srGenerationResult = report.reportQacli(isUnix, Report, out);
-                logCmdResult(srGenerationResult, out);
+                report.reportQacli(isUnix, Report, out);
             }
 
             String Report = "RCR";
-            CmdResult rcrGenerationResult = report.reportQacli(isUnix, Report, out);
-            logCmdResult(rcrGenerationResult, out);
+            report.reportQacli(isUnix, Report, out);
 
             return report.getComplianceStatus(out);
         } catch (PrqaException exception) {
@@ -134,13 +127,6 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
         } catch (Exception ex) {
             throw new IOException(ex.getMessage());
         }
-    }
-
-    private void logCmdResult(CmdResult result, PrintStream out) {
-        if (result == null) {
-            return;
-        }
-        out.println(result.stdoutBuffer.toString());
     }
 
     public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
