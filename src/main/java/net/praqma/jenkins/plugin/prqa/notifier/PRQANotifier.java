@@ -53,6 +53,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static net.praqma.prqa.reports.ReportType.*;
+
 //TODO: Remove all the deprecated fields in the release for the new PRQA API
 public class PRQANotifier extends Publisher implements Serializable {
 
@@ -241,13 +243,19 @@ public class PRQANotifier extends Publisher implements Serializable {
             }
             if (workspace.isDirectory()) {
                 for (File reportFile : files) {
-                    if (reportFile.getName().contains("RCR") || reportFile.getName().contains("SUR") || reportFile.getName().contains("CRR")
-                            || reportFile.getName().contains("MDR")) {
+                    if (containsReportName(reportFile.getName())) {
                         FileUtils.copyFileToDirectory(reportFile, workspace);
                     }
                 }
             }
         }
+    }
+
+    private boolean containsReportName(String fileName) {
+        return fileName.contains(CRR.name()) ||
+                fileName.contains(SUR.name()) ||
+                fileName.contains(RCR.name()) ||
+                fileName.contains(MDR.name());
     }
 
     private void copyReportsFromWorkspaceToArtifactsDir(File artifact, File workspace, long elapsedTime)
@@ -282,12 +290,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             if (file.lastModified() < elapsedTime) {
                 break;
             }
-            String fileName = file.getName();
-            if (
-                    fileName.contains("CRR") ||
-                            fileName.contains("SUR") ||
-                            fileName.contains("RCR") ||
-                            fileName.contains("MDR")) {
+            if (containsReportName(file.getName())) {
                 FileUtils.copyFileToDirectory(file, artifact);
             }
         }

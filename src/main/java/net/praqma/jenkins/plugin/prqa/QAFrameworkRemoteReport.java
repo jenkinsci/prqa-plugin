@@ -30,7 +30,6 @@ import hudson.remoting.VirtualChannel;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
@@ -40,18 +39,18 @@ import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
-import net.praqma.util.execute.CmdResult;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 
 import org.apache.commons.lang.StringUtils;
-import org.jdom2.JDOMException;
+
+import static net.praqma.prqa.reports.ReportType.*;
 
 public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatus> {
 
     private static final long serialVersionUID = 1L;
     private QAFrameworkReport report;
     private BuildListener listener;
-    boolean isUnix;
+    private boolean isUnix;
     private QaFrameworkReportSettings reportSetting;
 
     public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
@@ -60,8 +59,8 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
         this.isUnix = isUnix;
     }
 
-    private Map<String, String> expandEnvironment(Map<String, String> environment, PRQAApplicationSettings appSettings,
-            QaFrameworkReportSettings reportSetting) {
+    private Map<String, String> expandEnvironment(Map<String, String> environment,
+                                                  QaFrameworkReportSettings reportSetting) {
         this.reportSetting = reportSetting;
         if (environment == null) {
             return Collections.emptyMap();
@@ -75,8 +74,7 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
     @Override
     public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
 
-        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getAppSettings(),
-                report.getSettings());
+        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getSettings());
 
         report.setEnvironment(expandedEnvironment);
         report.setWorkspace(f);
@@ -106,20 +104,16 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
             }
 
             if (reportSetting.isGenCrReport()) {
-                String Report = "CRR";
-                report.reportQacli(isUnix, Report, out);
+                report.reportQacli(isUnix, CRR.name(), out);
             }
             if (reportSetting.isGenMdReport()) {
-                String Report = "MDR";
-                report.reportQacli(isUnix, Report, out);
+                report.reportQacli(isUnix, MDR.name(), out);
             }
             if (reportSetting.isGenSupReport()) {
-                String Report = "SUR";
-                report.reportQacli(isUnix, Report, out);
+                report.reportQacli(isUnix, SUR.name(), out);
             }
 
-            String Report = "RCR";
-            report.reportQacli(isUnix, Report, out);
+            report.reportQacli(isUnix, RCR.name(), out);
 
             return report.getComplianceStatus(out);
         } catch (PrqaException exception) {
