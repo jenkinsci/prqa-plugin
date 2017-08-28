@@ -2,11 +2,16 @@ package net.praqma.jenkins.plugin.prqa.setup;
 
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.model.Node;
+import hudson.model.TaskListener;
+import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
+import hudson.tools.ToolLocationNodeProperty;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,7 +29,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import com.google.common.base.Strings;
 
-public class QAFrameworkInstallationConfiguration extends ToolInstallation implements PRQAToolSuite {
+public class QAFrameworkInstallationConfiguration extends ToolInstallation implements PRQAToolSuite, NodeSpecific<QAFrameworkInstallationConfiguration> {
 
 	private static final long serialVersionUID = 1L;
 	public final String qafHome;
@@ -71,6 +76,17 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public QAFrameworkInstallationConfiguration forNode(Node node, TaskListener log) throws IOException, InterruptedException {
+		String translatedHome = translateFor(node, log);
+		return new QAFrameworkInstallationConfiguration(
+				qafName,
+				translatedHome,
+				toolType,
+				tool
+		);
 	}
 
 	@Extension
@@ -128,8 +144,12 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 					}
 				}
 			}
-			save();
-			return super.configure(req, json);
+
+			boolean configure = super.configure(req, json);
+			if (configure) {
+				save();
+			}
+			return configure;
 		}
 
 		private boolean isValidString(String valid) {

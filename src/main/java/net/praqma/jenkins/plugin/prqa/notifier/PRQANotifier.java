@@ -726,11 +726,14 @@ public class PRQANotifier extends Publisher implements Serializable {
         }
     }
 
-    private boolean performQaFrameworkBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) {
+    private boolean performQaFrameworkBuild(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
 
         QAFrameworkPostBuildActionSetup qaFrameworkPostBuildActionSetup = (QAFrameworkPostBuildActionSetup) sourceQAFramework;
         QAFrameworkInstallationConfiguration qaFrameworkInstallationConfiguration = QAFrameworkInstallationConfiguration
                 .getInstallationByName(qaFrameworkPostBuildActionSetup.qaInstallation);
+
+
+        qaFrameworkInstallationConfiguration = qaFrameworkInstallationConfiguration.forNode(Computer.currentComputer().getNode(), listener);
 
         outStream.println(VersionInfo.getPluginVersion());
 
