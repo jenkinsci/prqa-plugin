@@ -22,6 +22,14 @@
                     </td>
                 </tr>
                 <tr>
+                    <td>
+                        <f:label for="servers.externalUrl">${%External Url}</f:label>
+                    </td>
+                    <td>
+                        <f:textbox name="servers.externalUrl" field="External Url" value="${servers.externalUrl}"></f:textbox>
+                    </td>
+                </tr>
+                <tr>
                     <td>        
                         <f:label for="servers.userName">${%User name}</f:label>
                     </td>

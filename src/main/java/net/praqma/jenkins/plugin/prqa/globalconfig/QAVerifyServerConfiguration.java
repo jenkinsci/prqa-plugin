@@ -7,6 +7,7 @@ package net.praqma.jenkins.plugin.prqa.globalconfig;
 import java.io.Serializable;
 
 import hudson.tools.ToolInstallation;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -24,11 +25,12 @@ public class QAVerifyServerConfiguration extends ToolInstallation implements Ser
 	private String password;
 	private String protocol;
 	private Integer viewerPortNumber = 8080;
+	private String externalUrl;
 
 	@DataBoundConstructor
 	public QAVerifyServerConfiguration(String configurationName,
 			String hostName, Integer portNumber, String userName,
-			String password, String protocol, Integer viewerPortNumber) {
+			String password, String protocol, Integer viewerPortNumber, String externalUrl) {
 		super(configurationName, hostName, null);
 		this.configurationName = configurationName;
 		this.hostName = hostName;
@@ -37,6 +39,7 @@ public class QAVerifyServerConfiguration extends ToolInstallation implements Ser
 		this.portNumber = portNumber;
 		this.protocol = protocol;
 		this.viewerPortNumber = viewerPortNumber;
+		this.externalUrl = externalUrl;
 	}
 
 	/**
@@ -142,6 +145,13 @@ public class QAVerifyServerConfiguration extends ToolInstallation implements Ser
 		return full;
 	}
 
+	public String getFullExternalUrl() {
+		if (StringUtils.isEmpty(externalUrl)){
+			return getFullUrl();
+		}
+		return protocol + "://" + externalUrl + ":" + viewerPortNumber;
+	}
+
 	/**
 	 * @return the viewerPortNumber
 	 */
@@ -171,5 +181,9 @@ public class QAVerifyServerConfiguration extends ToolInstallation implements Ser
 	public void setProtocol(String protocol) {
 		this.protocol = protocol;
 	}
+
+	public String getExternalUrl() { return externalUrl; }
+
+	public void setExternalUrl(String externalUrl) { this.externalUrl = externalUrl; }
 
 }
