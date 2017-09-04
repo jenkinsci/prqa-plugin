@@ -1,10 +1,13 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <f:entry title="${%File compliance target}" field="value">
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core"
+         xmlns:f="/lib/form">
+    <f:entry title="${%File compliance target}"
+             field="value">
         <f:textbox/>
     </f:entry>
-    
-    <f:entry title="${%Continuous improvement}" field="improvement" >
+
+    <f:entry title="${%Continuous improvement}"
+             field="improvement">
         <f:checkbox/>
     </f:entry>
 </j:jelly>

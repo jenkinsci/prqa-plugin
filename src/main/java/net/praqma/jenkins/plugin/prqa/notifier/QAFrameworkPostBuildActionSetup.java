@@ -31,6 +31,7 @@ import hudson.util.ListBoxModel;
 import java.util.Arrays;
 import java.util.List;
 
+import jenkins.model.Jenkins;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.setup.QAFrameworkInstallationConfiguration;
@@ -269,8 +270,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     @Extension
     public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
 
-        public boolean enabled = false;
-
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
             save();
@@ -353,7 +352,13 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         }
 
         public List<QAFrameworkInstallationConfiguration> getQAFrameworkTools() {
-            QAFrameworkInstallationConfiguration[] prqaInstallations = Hudson.getInstance()
+            Jenkins jenkins = Jenkins.getInstance();
+
+            if (jenkins == null) {
+                throw new RuntimeException("Unable to aquire Jenkins instance");
+            }
+
+            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins
                     .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
             return Arrays.asList(prqaInstallations);
         }

@@ -27,6 +27,8 @@ import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import jenkins.model.Jenkins;
@@ -35,7 +37,7 @@ import jenkins.model.Jenkins;
  *
  * @author Praqma
  */
-public class PostBuildActionSetup implements Describable<PostBuildActionSetup>, ExtensionPoint {
+public class PostBuildActionSetup implements Describable<PostBuildActionSetup>, ExtensionPoint, Serializable {
 
     @Override
     public Descriptor<PostBuildActionSetup> getDescriptor() {

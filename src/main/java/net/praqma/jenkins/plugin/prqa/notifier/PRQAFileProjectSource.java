@@ -4,11 +4,13 @@ import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import jenkins.model.Jenkins;
 
-public class PRQAFileProjectSource implements Describable<PRQAFileProjectSource>, ExtensionPoint {
+public class PRQAFileProjectSource implements Describable<PRQAFileProjectSource>, ExtensionPoint, Serializable {
 
     @Override
     public Descriptor<PRQAFileProjectSource> getDescriptor() {

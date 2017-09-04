@@ -1,17 +1,22 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
 
-	    	<h3>${%PRQA Links of interest}</h3>
-	    	<ul>
-	        	<j:set var="conf" value="${it.getConfiguration()}"/>
-	        		<j:choose>
-	            		<j:when test="${conf != null}">
-	                		<li>${%PRQA View server location:} <a href="${conf.getFullUrl()}">${%QA&#xb7;Verify server}</a></li>
-	            		</j:when>
-	            		<j:otherwise>
-	                		<li>${%No QA&#xb7;Verify servers defined} - click <a href="${rootURL}/configure">${%here}</a></li>
-	            		</j:otherwise> 
-	        		</j:choose>        
-	    	</ul>
-	    ${it.getLatestActionInProject().getBuildActionStatus(PRQAComplianceStatus.class).toHtml()}         
+    <h3>${%PRQA Links of interest}</h3>
+    <ul>
+        <j:set var="conf"
+               value="${it.getConfiguration()}"/>
+        <j:choose>
+            <j:when test="${conf != null}">
+                <li>${%PRQA View server location:}
+                    <a href="${conf.getFullUrl()}">${%QA&#xb7;Verify server}</a>
+                </li>
+            </j:when>
+            <j:otherwise>
+                <li>${%No QA&#xb7;Verify servers defined} - click
+                    <a href="${rootURL}/configure">${%here}</a>
+                </li>
+            </j:otherwise>
+        </j:choose>
+    </ul>
+    <j:out value="${it.getLatestActionInProject().getBuildActionStatus(PRQAComplianceStatus.class).toHtml()}"/>
 </j:jelly>

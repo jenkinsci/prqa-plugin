@@ -3,17 +3,11 @@ package net.praqma.jenkins.plugin.prqa.graphs;
 import hudson.util.ChartUtil;
 import hudson.util.ColorPalette;
 import hudson.util.DataSetBuilder;
+import hudson.util.Graph;
 import hudson.util.ShiftedCategoryAxis;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAStatusCollection;
+import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.status.StatusCategory;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
@@ -29,7 +23,16 @@ import org.jfree.ui.RectangleEdge;
 import org.jfree.ui.RectangleInsets;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
-import java.util.logging.*;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -102,7 +105,14 @@ public abstract class PRQAGraph implements Serializable {
             }
             log.fine("Iterating using category: "+category);
             if(max != null && min != null) {
-                ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), getTitle() == null ? category.toString() : getTitle() , null, threshHoldMax != null ? threshHoldMax.intValue() : max.intValue(), min.intValue()), width, height );     
+
+                final JFreeChart chart = createChart(dsb.build(), getTitle() == null ? category.toString() : getTitle(), null, threshHoldMax != null ? threshHoldMax.intValue() : max.intValue(), min.intValue());
+
+                new Graph(-1,width,height) {
+                    protected JFreeChart createGraph() {
+                        return chart;
+                    }
+                }.doPng(req,rsp);
             }
         
         }

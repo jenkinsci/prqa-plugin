@@ -29,13 +29,16 @@ import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-import java.util.HashMap;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -79,8 +82,8 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
 
 	public HashMap<String, String> convert(EnvVars vars) {
 		HashMap<String, String> varsMap = new HashMap<String, String>();
-		for (String s : vars.keySet()) {
-			varsMap.put(s, vars.get(s));
+		for (Map.Entry<String, String> s : vars.entrySet()) {
+			varsMap.put(s.getKey(), s.getValue());
 		}
 		return varsMap;
 	}
@@ -120,7 +123,12 @@ public class QACToolSuite extends ToolInstallation implements PRQAToolSuite {
 		}
 
 		@Override
-		public QACToolSuite newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+		public QACToolSuite newInstance(StaplerRequest req, @Nonnull JSONObject formData) throws FormException {
+
+			if (req == null) {
+				throw new FormException(new Exception("Bad request"), "Request is null");
+			}
+
 			QACToolSuite suite = req.bindJSON(QACToolSuite.class, formData);
 
 			save();

@@ -33,6 +33,7 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Map;
 
+import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
@@ -45,7 +46,7 @@ import org.apache.commons.lang.StringUtils;
 
 import static net.praqma.prqa.reports.ReportType.*;
 
-public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatus> {
+public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
 
     private static final long serialVersionUID = 1L;
     private QAFrameworkReport report;

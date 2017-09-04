@@ -27,6 +27,8 @@ import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import jenkins.model.Jenkins;
@@ -37,7 +39,7 @@ import net.praqma.prqa.status.PRQAComplianceStatus;
  * 
  * @author mads
  */
-public abstract class AbstractThreshold implements Describable<AbstractThreshold>, ExtensionPoint {
+public abstract class AbstractThreshold implements Describable<AbstractThreshold>, ExtensionPoint, Serializable {
 
 	public final Boolean improvement;
 

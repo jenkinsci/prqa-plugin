@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.ReportSettings;
 import net.praqma.prqa.exceptions.PrqaSetupException;
@@ -45,7 +46,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Strings;
 
-public class PRQARemoteToolCheck implements FileCallable<String> {
+public class PRQARemoteToolCheck extends MasterToSlaveFileCallable<String> {
 
 	public final BuildListener listener;
 	public final boolean isUnix;

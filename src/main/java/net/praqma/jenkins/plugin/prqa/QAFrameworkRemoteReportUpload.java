@@ -34,6 +34,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
+import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
@@ -44,7 +45,7 @@ import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 
 import org.apache.commons.lang.StringUtils;
 
-public class QAFrameworkRemoteReportUpload implements FileCallable<Void>, Serializable {
+public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Void> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

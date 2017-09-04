@@ -1,6 +1,7 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
+import hudson.model.Run;
 import hudson.tasks.Publisher;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
@@ -156,7 +157,6 @@ public class PRQABuildAction implements Action {
             PRQAGraph graph =  notifier.getGraph(className);
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                 if(prqabuild.getResult() != null) {
-                    PRQAReading stat = prqabuild.getResult();
                     for(StatusCategory cat : graph.getCategories()) {
                         Number threshold = prqabuild.getThreshold(cat);                                                       
                         if(threshold != null) {
@@ -203,7 +203,7 @@ public class PRQABuildAction implements Action {
             
             for(PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                 if(prqabuild.getResult() != null) {
-                    label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build);
+                    label = new ChartUtil.NumberOnlyBuildLabel((Run<?, ?>) prqabuild.build);
                     PRQAReading stat = prqabuild.getResult();
                     for(StatusCategory cat : graph.getCategories()) {
                         Number res = null;
