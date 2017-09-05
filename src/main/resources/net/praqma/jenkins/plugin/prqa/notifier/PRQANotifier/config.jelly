@@ -30,7 +30,8 @@
 
     <f:section title="Threshold">
         <f:entry title="${%Message threshold level}"
-                 field="threshholdlevel">
+                 field="threshholdlevel"
+                 help="/plugin/prqa-plugin/config/help-thresholds.html">
             <f:select/>
         </f:entry>
         <f:block>

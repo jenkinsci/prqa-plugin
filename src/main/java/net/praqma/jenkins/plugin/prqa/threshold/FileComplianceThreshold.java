@@ -80,7 +80,7 @@ public class FileComplianceThreshold extends AbstractThreshold {
 
 		@Override
 		public String getHelpFile() {
-			return "/plugin/prqa-plugin/config/help-thresholds.html";
+			return "/plugin/prqa-plugin/config/help-thresholds-file.html";
 		}
 	}
 }

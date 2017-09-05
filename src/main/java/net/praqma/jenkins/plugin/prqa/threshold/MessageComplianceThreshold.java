@@ -25,17 +25,15 @@ package net.praqma.jenkins.plugin.prqa.threshold;
 
 import hudson.Extension;
 import hudson.util.FormValidation;
-
-import java.util.List;
-import java.util.logging.Logger;
-
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.notifier.ThresholdSelectionDescriptor;
 import net.praqma.prqa.parsers.MessageGroup;
 import net.praqma.prqa.status.PRQAComplianceStatus;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -148,7 +146,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
 
         @Override
         public String getHelpFile() {
-            return "/plugin/prqa-plugin/config/help-thresholds.html";
+            return "/plugin/prqa-plugin/config/help-thresholds-message.html";
         }
     }
 }
