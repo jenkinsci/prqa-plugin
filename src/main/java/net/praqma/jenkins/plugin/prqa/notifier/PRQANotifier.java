@@ -964,6 +964,8 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             return new QaFrameworkReportSettings(
                     qaFrameworkPostBuildActionSetup.qaInstallation,
+                    qaFrameworkPostBuildActionSetup.useCustomLicenseServer,
+                    PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.customLicenseServerAddress, build, listener),
                     PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.qaProject, build, listener),
                     qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
                     PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.unifiedProjectName, build, listener),
