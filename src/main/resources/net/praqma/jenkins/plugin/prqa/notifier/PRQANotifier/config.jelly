@@ -29,11 +29,7 @@
     </f:block>
 
     <f:section title="Threshold">
-        <f:entry title="${%Message threshold level}"
-                 field="threshholdlevel"
-                 help="/plugin/prqa-plugin/config/help-thresholds.html">
-            <f:select/>
-        </f:entry>
+        <f:entry help="/plugin/prqa-plugin/config/help-thresholds.html"/>
         <f:block>
             <f:hetero-list hasHeader="true"
                            name="thresholdsDesc"

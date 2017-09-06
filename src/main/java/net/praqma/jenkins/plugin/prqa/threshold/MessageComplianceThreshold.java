@@ -25,6 +25,7 @@ package net.praqma.jenkins.plugin.prqa.threshold;
 
 import hudson.Extension;
 import hudson.util.FormValidation;
+import hudson.util.ListBoxModel;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.notifier.ThresholdSelectionDescriptor;
 import net.praqma.prqa.parsers.MessageGroup;
@@ -42,20 +43,22 @@ import java.util.logging.Logger;
 public class MessageComplianceThreshold extends AbstractThreshold {
 
     public final Integer value;
+    public final int threshholdlevel;
     private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
 
     @DataBoundConstructor
-    public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
+    public MessageComplianceThreshold(final Integer value, final int threshholdlevel, final Boolean improvement) {
         super(improvement);
         this.value = value;
+        this.threshholdlevel = threshholdlevel;
     }
 
     @Override
-    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
         if (value == null) {
             return true;
         }
-        return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, thresholdLevel);
+        return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, threshholdlevel);
     }
 
     public boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
@@ -90,11 +93,11 @@ public class MessageComplianceThreshold extends AbstractThreshold {
     }
 
     @Override
-    public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+    public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
         if (value == null) {
             return true;
         }
-        return isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
+        return isTresholdValidForMessageGroups(currentComplianceStatus, threshholdlevel);
     }
 
     private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
@@ -127,6 +130,14 @@ public class MessageComplianceThreshold extends AbstractThreshold {
         @Override
         public String getDisplayName() {
             return "Message Compliance Threshold";
+        }
+
+        public ListBoxModel doFillThreshholdlevelItems() {
+            ListBoxModel model = new ListBoxModel();
+            for (int i = 0; i < 10; i++) {
+                model.add(String.valueOf(i));
+            }
+            return model;
         }
 
         @Override

@@ -46,7 +46,7 @@ public class FileComplianceThreshold extends AbstractThreshold {
 	}
 
 	@Override
-	public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+	public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
 		boolean isValidImprovement = true;
 		if (previousComplianceStatus != null) {
 			isValidImprovement = currentComplianceStatus.getFileCompliance() >= previousComplianceStatus.getFileCompliance();
@@ -59,7 +59,7 @@ public class FileComplianceThreshold extends AbstractThreshold {
 	}
 
 	@Override
-	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
 		boolean isValidTreshold = true;
 		if (value != null) {
 			isValidTreshold = currentComplianceStatus.getFileCompliance() >= value;

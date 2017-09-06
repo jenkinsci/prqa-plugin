@@ -20,7 +20,7 @@
                     <j:forEach var="pgraph"
                                items="${publisher.getSupportedGraphs()}">
                         <img style="margin-left:20px;"
-                             src="reportGraphs?width=600&amp;height=340&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.threshholdlevel}"/>
+                             src="reportGraphs?width=600&amp;height=340&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.getThreshholdlevel()}"/>
                     </j:forEach>
                 </j:if>
                 <j:if test="${drawGraphs == false}">

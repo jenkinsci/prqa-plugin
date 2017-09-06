@@ -5,6 +5,10 @@
              field="value">
         <f:textbox/>
     </f:entry>
+    <f:entry title="${%Message threshold level}"
+             field="threshholdlevel">
+        <f:select/>
+    </f:entry>
     <f:entry title="${%Continuous improvement}"
              field="improvement">
         <f:checkbox/>

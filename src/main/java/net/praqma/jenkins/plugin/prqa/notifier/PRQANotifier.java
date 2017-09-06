@@ -74,7 +74,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
     public final PostBuildActionSetup sourceQAFramework;
     public final PRQAFileProjectSource sourceFileProject;
-    public final int threshholdlevel;
+
     public final List<AbstractThreshold> thresholdsDesc;
 
     public final String product;
@@ -86,7 +86,7 @@ public class PRQANotifier extends Publisher implements Serializable {
     @DataBoundConstructor
     public PRQANotifier(
             final String product, final boolean runWhenSuccess, final String settingProjectCompliance,
-            final String snapshotName, final int threshholdlevel, final PostBuildActionSetup sourceQAFramework,
+            final String snapshotName, final PostBuildActionSetup sourceQAFramework,
             final PRQAFileProjectSource sourceFileProject, final List<AbstractThreshold> thresholdsDesc) {
 
         this.product = product;
@@ -96,7 +96,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         this.sourceQAFramework = sourceQAFramework;
         this.sourceFileProject = sourceFileProject;
-        this.threshholdlevel = threshholdlevel;
+
         this.thresholdsDesc = thresholdsDesc;
     }
 
@@ -155,7 +155,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             } else {
                 addThreshold(threshold, tholds);
                 currentComplianceStatus.setThresholds(tholds);
-                if (!threshold.validate(previousComplianceStatus, currentComplianceStatus, threshholdlevel)) {
+                if (!threshold.validate(previousComplianceStatus, currentComplianceStatus)) {
                     return false;
                 }
             }
@@ -273,7 +273,7 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
     private void copyReportsFromWorkspaceToArtifactsDir(AbstractBuild<?, ?> build, BuildListener listener, long elapsedTime)
-                throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
 
         // COPY only last generated reports
         FilePath buildWorkspace = build.getWorkspace();
@@ -512,6 +512,9 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);
             currentBuild = workspace.act(new PRQARemoteReport(report, listener, launcher.isUnix()));
+            int threshholdlevel = getThreshholdlevel();
+
+
             currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(threshholdlevel));
         } catch (IOException ex) {
             success = treatIOException(ex);
@@ -685,14 +688,6 @@ public class PRQANotifier extends Publisher implements Serializable {
         @Override
         public String getDisplayName() {
             return "Programming Research Report";
-        }
-
-        public ListBoxModel doFillThreshholdlevelItems() {
-            ListBoxModel model = new ListBoxModel();
-            for (int i = 0; i < 10; i++) {
-                model.add(String.valueOf(i));
-            }
-            return model;
         }
 
         @Override
@@ -1031,6 +1026,9 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             remoteReport.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = workspace.act(remoteReport);
+
+
+            int threshholdlevel = getThreshholdlevel();
             currentBuild.setMessagesWithinThresholdForEachMessageGroup(threshholdlevel);
         } catch (IOException ex) {
             success = false;
@@ -1054,8 +1052,19 @@ public class PRQANotifier extends Publisher implements Serializable {
         return currentBuild;
     }
 
+    public int getThreshholdlevel() {
+        if (thresholdsDesc != null) {
+            for (AbstractThreshold abstractThreshold : thresholdsDesc) {
+                if (abstractThreshold instanceof MessageComplianceThreshold) {
+                    return ((MessageComplianceThreshold) abstractThreshold).threshholdlevel;
+                }
+            }
+        }
+        return 0;
+    }
+
     private void performUpload(AbstractBuild<?, ?> build, PRQAApplicationSettings appSettings,
-                                               PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException, IOException {
+                               PRQARemoteToolCheck remoteToolCheck, QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException, IOException {
 
         FilePath workspace = build.getWorkspace();
 
