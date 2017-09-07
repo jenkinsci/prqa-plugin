@@ -26,11 +26,18 @@ package net.praqma.jenkins.plugin.prqa.globalconfig;
 
 
 import hudson.Extension;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
@@ -114,4 +121,17 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
     public ViewServerProtocol[] getViewServerProtocols() {
         return ViewServerProtocol.values();  
     }
+
+    public FormValidation doCheckExternalUrl(@QueryParameter String externalUrl) {
+        if (StringUtils.isEmpty(externalUrl)){
+            return FormValidation.ok();
+        }
+        try {
+            new URL(externalUrl);
+        } catch (MalformedURLException e) {
+           return FormValidation.error("External Url is invalid");
+        }
+        return FormValidation.ok();
+    }
+
 }

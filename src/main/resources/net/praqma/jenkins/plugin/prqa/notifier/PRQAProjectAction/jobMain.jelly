@@ -3,10 +3,11 @@
 
     <h3>${%PRQA Links of interest}</h3>
     <ul>
-<<<<<<< HEAD
-        <j:set var="conf" value="${it.getConfigurations()}"/>
+
+        <j:set var="conf"
+               value="${it.getConfigurations()}"/>
         <j:choose>
-            <j:when test="${conf != null &amp;&amp; !empty(conf)}">
+            <j:when test="${conf != null}">
                 <li>${%PRQA View server location:}
                     <j:forEach var="confi" items="${conf}">
                         <li style="margin-left:50px">
@@ -14,14 +15,7 @@
                         </li>
 
                     </j:forEach>
-=======
-        <j:set var="conf"
-               value="${it.getConfiguration()}"/>
-        <j:choose>
-            <j:when test="${conf != null}">
-                <li>${%PRQA View server location:}
-                    <a href="${conf.getFullUrl()}">${%QA&#xb7;Verify server}</a>
->>>>>>> master
+
                 </li>
             </j:when>
             <j:otherwise>
@@ -31,9 +25,6 @@
             </j:otherwise>
         </j:choose>
     </ul>
-<<<<<<< HEAD
-    ${it.getLatestActionInProject().getBuildActionStatus(PRQAComplianceStatus.class).toHtml()}
-=======
     <j:out value="${it.getLatestActionInProject().getBuildActionStatus(PRQAComplianceStatus.class).toHtml()}"/>
->>>>>>> master
+
 </j:jelly>
