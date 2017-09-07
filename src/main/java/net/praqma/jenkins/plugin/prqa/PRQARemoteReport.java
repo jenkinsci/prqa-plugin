@@ -24,9 +24,9 @@
 package net.praqma.jenkins.plugin.prqa;
 
 import hudson.FilePath;
-import hudson.FilePath.FileCallable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
+import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAReportSettings;
@@ -47,7 +47,7 @@ import java.util.Map;
  *
  * @author Praqma
  */
-public class PRQARemoteReport implements FileCallable<PRQAComplianceStatus>{
+public class PRQARemoteReport extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
 
 	private static final long serialVersionUID = 1L;
 	

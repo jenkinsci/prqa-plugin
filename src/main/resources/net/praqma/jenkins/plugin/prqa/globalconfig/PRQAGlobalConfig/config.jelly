@@ -1,87 +1,86 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-                        
+<?jelly escape-by-default='true'?>
+<j:jelly
+        xmlns:j="jelly:core"
+        xmlns:f="/lib/form"
+>
+
     <f:section title="${%PRQA QA·Verify Configuration}">
-        <f:entry title="${%QA·Verify Servers}" description="${%List of available QA·Verify Servers}" help="/plugin/prqa-plugin/config/help-PRQAPluginGlobalConfiguration.html">
-            <f:repeatable var="servers" items="${instance.servers}">
-                <table>
-                <tr>
-                    <td>
-                        <f:label for="servers.configurationName">${%Configuration name}</f:label>
-                    </td>
-                    <td>
-                        <f:textbox name="servers.configurationName" field="configurationName" value="${servers.configurationName}" default="Configuration name"></f:textbox>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <f:label for="servers.hostName">${%Host name}</f:label>
-                    </td>
-                    <td>
-                        <f:textbox name="servers.hostName" field="hostName" value="${servers.hostName}" default="localhost"></f:textbox>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <f:label for="servers.externalUrl">${%External Url}</f:label>
-                    </td>
-                    <td>
-                        <f:textbox name="servers.externalUrl" field="External Url" value="${servers.externalUrl}"></f:textbox>
-                    </td>
-                </tr>
-                <tr>
-                    <td>        
-                        <f:label for="servers.userName">${%User name}</f:label>
-                    </td>
-                    <td>
-                        <f:textbox name="servers.userName" field="userName" value="${servers.userName}" default="upload"></f:textbox>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <f:label for="servers.password">${%Password}</f:label>
-                    </td>
-                    <td>
-                        <f:password name="servers.password" field="password" value="${servers.password}" ></f:password>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <f:label for="servers.portNumber">${%Upload port number}</f:label>
-                    </td>
-                    <td>
-                        <f:textbox name="servers.portNumber" field="portNumber" value="${servers.portNumber}" default="22230">${servers.portNumber}</f:textbox>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <f:label for="serverconfig.viewerPortNumber">${%View server port number}</f:label>
-                    </td>
-                    <td>
-                        <f:textbox name="serverconfig.viewerPortNumber" field="viewerPortNumber" value="${servers.viewerPortNumber}" default="8080">${servers.viewerPortNumber}</f:textbox>
-                    </td>
-                </tr>
-    
-                <tr>
-                    <td>
-                        <f:label for="servers.protocol">${%View server protocol}</f:label>
-                    </td>
-                    <td>
-                        <j:set var="protokol" value="${instance.getViewServerProtocols()}"/>
-                        <select class="protocol" name="protocol">
-                            <j:forEach var="l" items="${protokol}">
-                                <f:option selected="${servers.protocol.equals(l.toString())}" value="${l}">${l}</f:option>
+        <f:entry title="${%QA·Verify Servers}"
+                 description="${%List of available QA·Verify Servers}"
+                 help="/plugin/prqa-plugin/config/help-PRQAPluginGlobalConfiguration.html">
+            <f:repeatable var="servers"
+                          items="${instance.servers}">
+                <table width="100%">
+
+                    <f:entry field="servers.configurationName"
+                             title="${%Configuration name}">
+                        <f:textbox name="servers.configurationName"
+                                   field="configurationName"
+                                   value="${servers.configurationName}"
+                                   default="Configuration name"/>
+                    </f:entry>
+
+                    <f:entry field="servers.hostName"
+                             title="${%Host name}">
+                        <f:textbox name="servers.hostName"
+                                   field="hostName"
+                                   value="${servers.hostName}"
+                                   default="localhost"/>
+                    </f:entry>
+
+                    <f:entry field="servers.userName"
+                             title="${%User name}">
+                        <f:textbox name="servers.userName"
+                                   field="userName"
+                                   value="${servers.userName}"
+                                   default="upload"/>
+                    </f:entry>
+
+                    <f:entry field="servers.password"
+                             title="${%Password}">
+                        <f:password name="servers.password"
+                                    field="password"
+                                    value="${servers.password}"/>
+                    </f:entry>
+
+                    <f:entry field="servers.portNumber"
+                             title="${%Upload port number}">
+                        <f:textbox name="servers.portNumber"
+                                   field="portNumber"
+                                   value="${servers.portNumber}"
+                                   default="22230">
+                        </f:textbox>
+                    </f:entry>
+
+
+                    <f:entry field="serverconfig.viewerPortNumber"
+                             title="${%View server port number}">
+                        <f:textbox name="serverconfig.viewerPortNumber"
+                                   field="viewerPortNumber"
+                                   value="${servers.viewerPortNumber}"
+                                   default="8080">
+                        </f:textbox>
+                    </f:entry>
+
+                    <f:entry field="servers.protocol"
+                             title="${%View server protocol}">
+                        <j:set var="protokol"
+                               value="${instance.getViewServerProtocols()}"/>
+                        <select class="protocol"
+                                name="protocol">
+                            <j:forEach var="l"
+                                       items="${protokol}">
+                                <f:option selected="${servers.protocol.equals(l.toString())}"
+                                          value="${l}">${l}
+                                </f:option>
                             </j:forEach>
                         </select>
-                    </td>
-                </tr>
+                    </f:entry>
 
-                <tr>
-                    <td>
-                        <f:repeatableDeleteButton/>
-                    </td>
-                </tr>
                 </table>
+
+                <f:repeatableDeleteButton/>
+
             </f:repeatable>
         </f:entry>
     </f:section>

@@ -3,10 +3,13 @@ package net.praqma.jenkins.plugin.prqa.graphs;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
 import java.io.IOException;
+
+import hudson.util.Graph;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAStatusCollection;
 import net.praqma.prqa.status.StatusCategory;
+import org.jfree.chart.JFreeChart;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -44,7 +47,13 @@ public class ComplianceIndexGraphs extends PRQAGraph {
             }
         }
         if(max != null && min != null) {
-            ChartUtil.generateGraph( req, rsp, createChart( dsb.build(), getTitle() , null, max.intValue(), min.intValue()), width, height );
+            final JFreeChart chart = createChart(dsb.build(), getTitle(), null, max.intValue(), min.intValue());
+
+            new Graph(-1,width,height) {
+                protected JFreeChart createGraph() {
+                    return chart;
+                }
+            }.doPng(req,rsp);
         }
     }
 }

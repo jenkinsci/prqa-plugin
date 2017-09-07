@@ -1,29 +1,36 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
-    <j:set var="latestAction" value="${from.latestActionInProject}"/>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core">
+    <j:set var="latestAction"
+           value="${from.latestActionInProject}"/>
     <j:if test="${latestAction != null}">
         <j:choose>
             <j:when test="${latestAction.previousAction != null}">
                 <div>
-                    <j:set var="publisher" value="${from.getLatestActionInProject().getPublisher()}"></j:set>
-                    <j:set var="cnt" value="${publisher.getSupportedGraphs()}"></j:set>
-                    <j:forEach var="pgraph" items="${publisher.getSupportedGraphs()}">
-                        <img style="margin-left:20px;" src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.threshholdlevel}"/>
+                    <j:set var="publisher"
+                           value="${from.getLatestActionInProject().getPublisher()}"/>
+                    <j:set var="cnt"
+                           value="${publisher.getSupportedGraphs()}"/>
+                    <j:forEach var="pgraph"
+                               items="${publisher.getSupportedGraphs()}">
+                        <img style="margin-left:20px;"
+                             src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.threshholdlevel}"/>
                     </j:forEach>
                 </div>
             </j:when>
             <j:otherwise>
-            <div id="marginme" style="margin-right:150px">
-                <h3>${%Not enough data}</h3>
-                <p>${%The project needs to have at least two builds with data to generate a graph with results.}</p>
-            </div>
+                <div id="marginme"
+                     style="margin-right:150px">
+                    <h3>${%Not enough data}</h3>
+                    <p>${%The project needs to have at least two builds with data to generate a graph with results.}</p>
+                </div>
             </j:otherwise>
         </j:choose>
     </j:if>
     <j:if test="${latestAction eq null}">
-        <div id="marginme" style="margin-right:150px">
+        <div id="marginme"
+             style="margin-right:150px">
             <h3>${%Not enough data}</h3>
             <p>${%The project needs to have at least two builds with data to generate a graph with results.}</p>
         </div>
-    </j:if>   
+    </j:if>
 </j:jelly>

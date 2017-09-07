@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+import jenkins.model.Jenkins;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.setup.QACToolSuite;
@@ -232,7 +233,13 @@ public class PRQAReportPRQAToolSource extends PostBuildActionSetup {
 		}
 
 		public List<QACToolSuite> getQAFrameworkTools() {
-			QACToolSuite[] prqaInstallations = Hudson.getInstance().getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
+			Jenkins instance = Jenkins.getInstance();
+
+			if (instance == null) {
+				throw new RuntimeException("Unable to aquire Jenkins instance");
+			}
+
+			QACToolSuite[] prqaInstallations = instance.getDescriptorByType(QACToolSuite.DescriptorImpl.class).getInstallations();
 			return Arrays.asList(prqaInstallations);
 		}
 

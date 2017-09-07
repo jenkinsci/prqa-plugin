@@ -24,29 +24,29 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import hudson.Extension;
-import hudson.model.Hudson;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-
-import java.util.Arrays;
-import java.util.List;
-
+import jenkins.model.Jenkins;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
 import net.praqma.jenkins.plugin.prqa.setup.QAFrameworkInstallationConfiguration;
 import net.praqma.jenkins.plugin.prqa.threshold.AbstractThreshold;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public String qaInstallation;
     public String qaProject;
     public String unifiedProjectName;
+    public final boolean useCustomLicenseServer;
+    public final String customLicenseServerAddress;
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
     public boolean enableDependencyMode;
@@ -68,14 +68,35 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean assembleSupportAnalytics;
 
     @DataBoundConstructor
-    public QAFrameworkPostBuildActionSetup(String qaInstallation, String qaProject, boolean downloadUnifiedProjectDefinition, String unifiedProjectName,
-            boolean performCrossModuleAnalysis, boolean enableDependencyMode,
-            boolean generateReport, boolean publishToQAV, boolean loginToQAV, List<String> chosenServers, boolean uploadWhenStable, String qaVerifyProjectName,
-            String uploadSnapshotName, String buildNumber, String uploadSourceCode, boolean generateCrr, boolean generateMdr, boolean generateSup,
-            boolean analysisSettings, boolean stopWhenFail, boolean generatePreprocess, boolean assembleSupportAnalytics) {
+    public QAFrameworkPostBuildActionSetup(String qaInstallation,
+                                           String qaProject,
+                                           boolean useCustomLicenseServer,
+                                           String customLicenseServerAddress,
+                                           boolean downloadUnifiedProjectDefinition,
+                                           String unifiedProjectName,
+                                           boolean performCrossModuleAnalysis,
+                                           boolean enableDependencyMode,
+                                           boolean generateReport,
+                                           boolean publishToQAV,
+                                           boolean loginToQAV,
+                                           List<String> chosenServers,
+                                           boolean uploadWhenStable,
+                                           String qaVerifyProjectName,
+                                           String uploadSnapshotName,
+                                           String buildNumber,
+                                           String uploadSourceCode,
+                                           boolean generateCrr,
+                                           boolean generateMdr,
+                                           boolean generateSup,
+                                           boolean analysisSettings,
+                                           boolean stopWhenFail,
+                                           boolean generatePreprocess,
+                                           boolean assembleSupportAnalytics) {
 
         this.qaInstallation = qaInstallation;
         this.qaProject = qaProject;
+        this.useCustomLicenseServer = useCustomLicenseServer;
+        this.customLicenseServerAddress = customLicenseServerAddress;
         this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
         this.unifiedProjectName = unifiedProjectName;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
@@ -269,8 +290,6 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     @Extension
     public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
 
-        public boolean enabled = false;
-
         @Override
         public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
             save();
@@ -285,6 +304,18 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         @Override
         public String getDisplayName() {
             return "PRQA·Framework";
+        }
+
+        public FormValidation doCheckCustomLicenseServerAddress(@QueryParameter String customLicenseServerAddress) {
+            final String serverRegex = "^(\\d{1,5})@(.+)$";
+
+            if (StringUtils.isBlank(customLicenseServerAddress)) {
+                return FormValidation.error("Custom license server address must not be empty");
+            } else if (!customLicenseServerAddress.matches(serverRegex)) {
+                return FormValidation.error("License server format must be <port>@<host>");
+            } else {
+                return FormValidation.ok();
+            }
         }
 
         public FormValidation doCheckQAInstallation(@QueryParameter String value) {
@@ -353,7 +384,13 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         }
 
         public List<QAFrameworkInstallationConfiguration> getQAFrameworkTools() {
-            QAFrameworkInstallationConfiguration[] prqaInstallations = Hudson.getInstance()
+            Jenkins jenkins = Jenkins.getInstance();
+
+            if (jenkins == null) {
+                throw new RuntimeException("Unable to aquire Jenkins instance");
+            }
+
+            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins
                     .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
             return Arrays.asList(prqaInstallations);
         }

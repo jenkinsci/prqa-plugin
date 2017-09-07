@@ -33,6 +33,7 @@ import java.io.PrintStream;
 import java.util.Collections;
 import java.util.Map;
 
+import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
@@ -45,7 +46,7 @@ import org.apache.commons.lang.StringUtils;
 
 import static net.praqma.prqa.reports.ReportType.*;
 
-public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatus> {
+public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
 
     private static final long serialVersionUID = 1L;
     private QAFrameworkReport report;
@@ -88,9 +89,13 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
          *
          * We skip the analysis phase
          */
+        boolean customServerWasApplied = false;
         try {
+
+            customServerWasApplied = report.applyCustomLicenseServer(out);
+
             if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
-                throw new PrqaException("Incorrect configuration!");
+                throw new PrqaException("Incorrect configuration of QA framework installation!");
             }
 
             if (reportSetting.isLoginToQAV() && reportSetting.isPullUnifiedProject()) {
@@ -119,7 +124,13 @@ public class QAFrameworkRemoteReport implements FileCallable<PRQAComplianceStatu
         } catch (PrqaException exception) {
             throw new IOException(exception.getMessage(), exception);
         } catch (Exception ex) {
-            throw new IOException(ex.getMessage());
+            throw new IOException(ex.getMessage(), ex);
+        } finally {
+            try {
+                report.unsetCustomLicenseServer(customServerWasApplied, out);
+            } catch (PrqaException e) {
+                throw new IOException(e.getMessage(), e);
+            }
         }
     }
 

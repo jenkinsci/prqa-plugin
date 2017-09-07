@@ -1,21 +1,21 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-import hudson.model.ProminentProjectAction;
+import com.google.common.collect.Iterables;
 import hudson.model.AbstractProject;
 import hudson.model.Actionable;
 import hudson.model.Descriptor;
+import hudson.model.ProminentProjectAction;
 import hudson.tasks.Publisher;
 import hudson.util.DescribableList;
+import hudson.util.RunList;
+import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
+import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
-
-import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
-import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
-
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
 
 /**
  * 
@@ -63,7 +63,8 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 	 * @return true when there are more than 2 or more builds available.
 	 */
 	public boolean isDrawGraphs() {
-		return project.getBuilds().size() >= 2;
+		RunList<?> builds = project.getBuilds();
+		return Iterables.size(builds) >= 2;
 	}
 
 	/**

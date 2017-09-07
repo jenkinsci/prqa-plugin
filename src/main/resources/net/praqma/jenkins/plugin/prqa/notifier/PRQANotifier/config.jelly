@@ -1,28 +1,46 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    
+<?jelly escape-by-default='true'?>
+<j:jelly
+        xmlns:j="jelly:core"
+        xmlns:f="/lib/form"
+>
     <style>
         td.setting-name {
         vertical-align:middle;
-        }        
+        }
     </style>
-	
-    <f:entry title="${%Run PRQA Analysis only when build is successful}" field="runWhenSuccess" help="/plugin/prqa-plugin/config/help-runWhenSuccess.html">
-        <f:checkbox name="runWhenSuccess" value="${instance.runWhenSuccess}" checked="${instance.runWhenSuccess}"/>
-    </f:entry> 
-    
+
+    <f:entry title="${%Run PRQA Analysis only when build is successful}"
+             field="runWhenSuccess"
+             help="/plugin/prqa-plugin/config/help-runWhenSuccess.html">
+        <f:checkbox name="runWhenSuccess"
+                    value="${instance.runWhenSuccess}"
+                    checked="${instance.runWhenSuccess}"/>
+    </f:entry>
+
     <f:block>
-        <f:entry field="sourceQAFramework">
-            <f:descriptorRadioList descriptors="${descriptor.getReportSources()}" varName="sourceQAFramework" instance="${instance.sourceQAFramework}"  help="/plugin/prqa-plugin/config/help-configProductType.html"/>
+        <f:entry field="sourceQAFramework"
+                 help="/plugin/prqa-plugin/config/help-configProductType.html">
+            <f:descriptorRadioList title=""
+                                   descriptors="${descriptor.getReportSources()}"
+                                   varName="sourceQAFramework"
+                                   instance="${instance.sourceQAFramework}"
+            />
         </f:entry>
     </f:block>
-        
+
     <f:section title="Threshold">
-        <f:entry title="${%Message threshold level}" field="threshholdlevel">
+        <f:entry title="${%Message threshold level}"
+                 field="threshholdlevel">
             <f:select/>
         </f:entry>
-        <f:block> 
-            <f:hetero-list hasHeader="true" name="thresholdsDesc" addCaption="${%Add threshold}" deleteCaption="${%Remove threshold}" oneEach="true" descriptors="${descriptor.getThresholdSelections()}" items="${instance.thresholdsDesc}"/> 
+        <f:block>
+            <f:hetero-list hasHeader="true"
+                           name="thresholdsDesc"
+                           addCaption="${%Add threshold}"
+                           deleteCaption="${%Remove threshold}"
+                           oneEach="true"
+                           descriptors="${descriptor.getThresholdSelections()}"
+                           items="${instance.thresholdsDesc}"/>
         </f:block>
     </f:section>
 </j:jelly>
