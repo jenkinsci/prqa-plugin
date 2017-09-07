@@ -122,14 +122,14 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
         return ViewServerProtocol.values();  
     }
 
-    public FormValidation doCheckExternalUrl(@QueryParameter String externalUrl) {
-        if (StringUtils.isEmpty(externalUrl)){
+    public FormValidation doCheckExternalUrl(@QueryParameter String value) {
+        if (StringUtils.isEmpty(value)){
             return FormValidation.ok();
         }
         try {
-            new URL(externalUrl);
+            new URL(value);
         } catch (MalformedURLException e) {
-           return FormValidation.error("External Url is invalid");
+           return FormValidation.error(e.getMessage());
         }
         return FormValidation.ok();
     }

@@ -8,10 +8,9 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import hudson.tools.ToolInstallation;
-import hudson.util.FormValidation;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
+
 
 /**
  * @author Praqma
