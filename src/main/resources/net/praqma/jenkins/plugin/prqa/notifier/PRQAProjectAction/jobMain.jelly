@@ -7,20 +7,18 @@
         <j:set var="conf"
                value="${it.getConfigurations()}"/>
         <j:choose>
-            <j:when test="${conf != null}">
+            <j:when test="${conf != null &amp;&amp; !empty(conf)}">
                 <li>${%PRQA View server location:}
                     <j:forEach var="confi" items="${conf}">
                         <li style="margin-left:50px">
                             <a href="${confi.getFullExternalUrl()}">${confi}</a>
                         </li>
-
                     </j:forEach>
-
                 </li>
             </j:when>
             <j:otherwise>
-                <li>${%No QA&#xb7;Verify servers defined} - click
-                    <a href="${rootURL}/configure">${%here}</a>
+                <li>${%No QA&#xb7;Verify servers selected} - click
+                    <a href="./configure">${%here}</a>
                 </li>
             </j:otherwise>
         </j:choose>
