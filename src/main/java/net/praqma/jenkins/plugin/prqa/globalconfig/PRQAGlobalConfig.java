@@ -130,17 +130,4 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
         return Collections.singletonList(instance
                                                 .getDescriptor(QAVerifyServerConfiguration.class));
     }
-
-    public FormValidation doCheckExternalUrl(@QueryParameter String value) {
-        if (StringUtils.isEmpty(value)){
-            return FormValidation.ok();
-        }
-        try {
-            new URL(value);
-        } catch (MalformedURLException e) {
-           return FormValidation.error(e.getMessage());
-        }
-        return FormValidation.ok();
-    }
-
 }
