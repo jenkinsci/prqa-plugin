@@ -8,80 +8,13 @@
         <f:entry title="${%QA·Verify Servers}"
                  description="${%List of available QA·Verify Servers}"
                  help="/plugin/prqa-plugin/config/help-PRQAPluginGlobalConfiguration.html">
-            <f:repeatable var="servers"
-                          items="${instance.servers}">
-                <table width="100%">
 
-                    <f:entry field="servers.configurationName"
-                             title="${%Configuration name}">
-                        <f:textbox name="servers.configurationName"
-                                   field="configurationName"
-                                   value="${servers.configurationName}"
-                                   default="Configuration name"/>
-                    </f:entry>
+            <f:hetero-list
+                    addCaption="${%Add QA·Verify Server}"
+                    name="servers"
+                    items="${instance.servers}"
+                    descriptors="${descriptor.descriptors()}"/>
 
-                    <f:entry field="servers.hostName"
-                             title="${%Host name}">
-                        <f:textbox name="servers.hostName"
-                                   field="hostName"
-                                   value="${servers.hostName}"
-                                   default="localhost"/>
-                    </f:entry>
-
-                    <f:entry field="servers.userName"
-                             title="${%User name}">
-                        <f:textbox name="servers.userName"
-                                   field="userName"
-                                   value="${servers.userName}"
-                                   default="upload"/>
-                    </f:entry>
-
-                    <f:entry field="servers.password"
-                             title="${%Password}">
-                        <f:password name="servers.password"
-                                    field="password"
-                                    value="${servers.password}"/>
-                    </f:entry>
-
-                    <f:entry field="servers.portNumber"
-                             title="${%Upload port number}">
-                        <f:textbox name="servers.portNumber"
-                                   field="portNumber"
-                                   value="${servers.portNumber}"
-                                   default="22230">
-                        </f:textbox>
-                    </f:entry>
-
-
-                    <f:entry field="serverconfig.viewerPortNumber"
-                             title="${%View server port number}">
-                        <f:textbox name="serverconfig.viewerPortNumber"
-                                   field="viewerPortNumber"
-                                   value="${servers.viewerPortNumber}"
-                                   default="8080">
-                        </f:textbox>
-                    </f:entry>
-
-                    <f:entry field="servers.protocol"
-                             title="${%View server protocol}">
-                        <j:set var="protokol"
-                               value="${instance.getViewServerProtocols()}"/>
-                        <select class="protocol"
-                                name="protocol">
-                            <j:forEach var="l"
-                                       items="${protokol}">
-                                <f:option selected="${servers.protocol.equals(l.toString())}"
-                                          value="${l}">${l}
-                                </f:option>
-                            </j:forEach>
-                        </select>
-                    </f:entry>
-
-                </table>
-
-                <f:repeatableDeleteButton/>
-
-            </f:repeatable>
         </f:entry>
     </f:section>
 </j:jelly>
