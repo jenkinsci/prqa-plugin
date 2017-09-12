@@ -26,19 +26,21 @@ package net.praqma.jenkins.plugin.prqa.globalconfig;
 
 
 import hudson.Extension;
-
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import hudson.model.Descriptor;
 
 import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  *
@@ -46,17 +48,17 @@ import org.kohsuke.stapler.StaplerRequest;
  */
 @Extension
 public class PRQAGlobalConfig extends GlobalConfiguration {
-    
-	
-    public enum ViewServerProtocol {
-        http,
-        https,
-    }
-    
-    private List<QAVerifyServerConfiguration> servers = new ArrayList<QAVerifyServerConfiguration>();
-    
+
+
+    private List<QAVerifyServerConfiguration> servers = new ArrayList<>();
+
+    @Inject
     public PRQAGlobalConfig() {
         load();
+    }
+
+    public PRQAGlobalConfig(List<QAVerifyServerConfiguration> servers) {
+        this.servers = servers;
     }
 
     @Override
@@ -73,6 +75,8 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
         }
         return result;
     }
+
+
     
     public static PRQAGlobalConfig get() {
         return GlobalConfiguration.all().get(PRQAGlobalConfig.class);
@@ -88,6 +92,7 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
     /**
      * @param servers the servers to set
      */
+    @SuppressWarnings("unused")
     public void setServers(List<QAVerifyServerConfiguration> servers) {
         this.servers = servers;
     }
@@ -117,9 +122,13 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
 
         return configurations;
     }
-    
-    public ViewServerProtocol[] getViewServerProtocols() {
-        return ViewServerProtocol.values();  
+
+    @SuppressWarnings("unused")
+    public List<Descriptor> descriptors() {
+        Jenkins instance = Jenkins.getInstance();
+        assert instance != null;
+        return Collections.singletonList(instance
+                                                .getDescriptor(QAVerifyServerConfiguration.class));
     }
 
     public FormValidation doCheckExternalUrl(@QueryParameter String value) {

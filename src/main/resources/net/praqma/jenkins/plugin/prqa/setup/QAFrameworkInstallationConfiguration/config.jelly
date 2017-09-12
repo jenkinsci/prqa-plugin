@@ -3,9 +3,13 @@
          xmlns:f="/lib/form">
     <style>
         .not-impl {
-        font-style:italic;
+            font-style:italic;
+        }
+        .selectorHelper + table tr.optional-block-start {
+            display:none;
         }
     </style>
+    <div class="selectorHelper"><!--please do not remove this empty div--></div>
 
     <f:entry title="${%PRQA·Framework Installation name}"
              field="qafName">
@@ -15,9 +19,4 @@
              field="qafHome">
         <f:textbox/>
     </f:entry>
-    <tr>
-        <td colspan="3">
-            <span class="not-impl">The install automatically feature is not implemented.</span>
-        </td>
-    </tr>
 </j:jelly>
