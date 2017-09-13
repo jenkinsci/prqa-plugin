@@ -66,6 +66,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean stopWhenFail;
     public boolean generatePreprocess;
     public boolean assembleSupportAnalytics;
+    public boolean generateReportOnAnalysisError;
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation,
@@ -91,7 +92,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
                                            boolean analysisSettings,
                                            boolean stopWhenFail,
                                            boolean generatePreprocess,
-                                           boolean assembleSupportAnalytics) {
+                                           boolean assembleSupportAnalytics,
+                                           boolean generateReportOnAnalysisError) {
 
         this.qaInstallation = qaInstallation;
         this.qaProject = qaProject;
@@ -117,6 +119,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.stopWhenFail = stopWhenFail;
         this.generatePreprocess = generatePreprocess;
         this.assembleSupportAnalytics = assembleSupportAnalytics;
+        this.generateReportOnAnalysisError = generateReportOnAnalysisError;
     }
 
     public List<String> getChosenServers() {
@@ -285,6 +288,10 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public boolean isAssembleSupportAnalytics() {
         return assembleSupportAnalytics;
+    }
+
+    public boolean isGenerateReportOnAnalysisError() {
+        return generateReportOnAnalysisError;
     }
 
     @Extension
