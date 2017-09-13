@@ -38,9 +38,9 @@ import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
+import net.praqma.prqa.exceptions.PrqaUploadException;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
-import net.praqma.util.execute.CmdResult;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 
 import org.apache.commons.lang.StringUtils;
@@ -90,16 +90,16 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
          */
         try {
             if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
-                throw new PrqaException("Incorrect configuration!");
+                throw new PrqaException("Incorrect configuration of QA framework installation!");
             }
             if (reportSetting.isLoginToQAV() && reportSetting.isPublishToQAV()) {
                 report.uploadQacli(out);
             }
             return null;
+        } catch (PrqaUploadException ex) {
+            throw new IOException(ex.getMessage(), ex);
         } catch (PrqaException exception) {
             throw new IOException(exception.getMessage(), exception);
-        } catch (Exception ex) {
-            throw new IOException(ex.getMessage());
         }
     }
 
