@@ -102,6 +102,10 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
                 report.pullUnifyProjectQacli(isUnix, out);
             }
 
+            if (reportSetting.isAnalysisSettings() && reportSetting.isCustomCpuThreads()) {
+                report.applyCpuThreads(out);
+            }
+
             try {
                 report.analyzeQacli(isUnix, "-cf", out);
             } catch (PrqaException e) {

@@ -48,10 +48,29 @@
 
                 <f:nested>
                     <f:optionalBlock name="performCrossModuleAnalysis"
-                                     title="Run Project Based CMA Analysis (prior to PRQA Framework 2.1.0)"
+                                     title="Run Project Based CMA Analysis"
                                      help="/plugin/prqa-plugin/config/help-qaCMA.html"
                                      checked="${instance.performCrossModuleAnalysis}"
                                      inline="true">
+                        <f:entry title="${%CMA project name}"
+                                 field="cmaProjectName"
+                                 help="/plugin/prqa-plugin/config/help-qaCMAProjectName.html">
+                            <f:textbox value="${instance.cmaProjectName}"/>
+                        </f:entry>
+                        <f:entry title="${%Reuse CMA Database}"
+                                 field="reuseCmaDb"
+                                 help="/plugin/prqa-plugin/config/help-qaReuseCmaDb.html">
+                            <f:checkbox name="reuseCmaDb"
+                                        value="${instance.reuseCmaDb}"
+                                        checked="${instance.reuseCmaDb}"/>
+                        </f:entry>
+                        <f:entry title="${%Use Temporary Disk Storage for CMA}"
+                                 field="useDiskStorage"
+                                 help="/plugin/prqa-plugin/config/help-qaUseDiskStorage.html">
+                            <f:checkbox name="useDiskStorage"
+                                        value="${instance.useDiskStorage}"
+                                        checked="${instance.useDiskStorage}"/>
+                        </f:entry>
                     </f:optionalBlock>
                 </f:nested>
 
@@ -82,6 +101,17 @@
                                             checked="${instance.assembleSupportAnalytics}"/>
                             </f:entry>
 
+                        </f:optionalBlock>
+
+                        <f:optionalBlock name="customCpuThreads"
+                                         title="Set Threads used for analysis"
+                                         help="/plugin/prqa-plugin/config/help-qaCustomCpu.html"
+                                         checked="${instance.customCpuThreads}"
+                                         inline="true">
+                            <f:entry title="${%Max. Number of Analysis Threads}"
+                                     field="maxNumThreads">
+                                <f:textbox value="${instance.maxNumThreads}"/>
+                            </f:entry>
                         </f:optionalBlock>
                     </f:optionalBlock>
                 </f:nested>
