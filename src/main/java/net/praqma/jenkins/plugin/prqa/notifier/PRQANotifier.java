@@ -964,7 +964,8 @@ public class PRQANotifier extends Publisher implements Serializable {
                 qaFrameworkPostBuildActionSetup.maxNumThreads,
                 qaFrameworkPostBuildActionSetup.generatePreprocess,
                 qaFrameworkPostBuildActionSetup.assembleSupportAnalytics,
-                qaFrameworkPostBuildActionSetup.generateReportOnAnalysisError);
+                qaFrameworkPostBuildActionSetup.generateReportOnAnalysisError,
+                qaFrameworkPostBuildActionSetup.addBuildNumber);
     }
 
     // Function to pull details from QAV Configuration.
