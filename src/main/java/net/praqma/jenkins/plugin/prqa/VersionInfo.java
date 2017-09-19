@@ -8,10 +8,18 @@ import jenkins.model.Jenkins;
  */
 
 public class VersionInfo implements Serializable{
-    
+
     public static final String WIKI_PAGE="https://wiki.jenkins-ci.org/display/JENKINS/PRQA+Plugin";
-    
+
+    private static final String ARTIFACT_ID = "prqa-plugin";
+
     public static String getPluginVersion() {
-        return String.format("Programming Research Quality Assurance Plugin version %s", Jenkins.getInstance().getPlugin("prqa-plugin").getWrapper().getVersion());        
-    }    
+        Jenkins jenkins = Jenkins.getInstance();
+
+        if (jenkins == null) {
+            throw new RuntimeException("Unable to get Jenkins instance");
+        }
+
+        return jenkins.getPlugin(ARTIFACT_ID).getWrapper().getVersion();
+    }
 }

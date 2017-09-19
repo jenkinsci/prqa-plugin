@@ -60,6 +60,7 @@ import java.util.logging.Logger;
 
 import static hudson.model.Result.*;
 import static java.util.logging.Level.*;
+import static net.praqma.prqa.QaFrameworkVersion.MINIMUM_SUPPORTED_VERSION;
 import static net.praqma.prqa.reports.ReportType.*;
 
 //TODO: Remove all the deprecated fields in the release for the new PRQA API
@@ -812,7 +813,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         qaFrameworkInstallationConfiguration = qaFrameworkInstallationConfiguration.forNode(node, listener);
 
-        outStream.println(VersionInfo.getPluginVersion());
+        outStream.println(String.format("Programming Research Quality Assurance Plugin version %s", VersionInfo.getPluginVersion()));
 
         PRQAToolSuite suite = qaFrameworkInstallationConfiguration;
 
@@ -1007,11 +1008,9 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         try {
             QaFrameworkVersion qaFrameworkVersion = new QaFrameworkVersion(workspace.act(remoteToolCheck));
-
             if (!isQafVersionSupported(qaFrameworkVersion)) {
                 throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
-
             remoteReport.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = workspace.act(remoteReport);
             currentBuild.setMessagesWithinThresholdForEachMessageGroup(threshholdlevel);
@@ -1032,12 +1031,9 @@ public class PRQANotifier extends Publisher implements Serializable {
             throw new IOException("Invalid workspace. Cannot continue.");
         }
 
-        boolean success;
-
         try {
             QaFrameworkVersion qaFrameworkVersion = new QaFrameworkVersion(workspace.act(remoteToolCheck));
-            success = isQafVersionSupported(qaFrameworkVersion);
-            if (!success) {
+            if (!isQafVersionSupported(qaFrameworkVersion)) {
                 throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
             remoteReportUpload.setQaFrameworkVersion(qaFrameworkVersion);
@@ -1050,15 +1046,13 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
     private boolean isQafVersionSupported(QaFrameworkVersion qaFrameworkVersion) {
-        String shortVersion = qaFrameworkVersion.getVersionShortFormat();
-        String qafVersion = shortVersion.substring(shortVersion.lastIndexOf(" ") + 1);
+        outStream.println(String.format("PRQA Source Code Analysis Framework version %s",
+                qaFrameworkVersion.getQaFrameworkVersion()));
 
-        outStream.println("PRQA Source Code Analysis Framework " + qafVersion);
-
-        if (!qaFrameworkVersion.isQAFVersionSupported()) {
+        if (!qaFrameworkVersion.isVersionSupported()) {
             outStream.println(String.format(
-                    "Your QA·CLI version is %s.In order to use our product install a newer version of PRQA·Framework!",
-                    qaFrameworkVersion.getQaFrameworkVersion()));
+                    "ERROR: In order to use the PRQA plugin please install a version of PRQA·Framework greater or equal to %s!",
+                    MINIMUM_SUPPORTED_VERSION));
             return false;
         }
         return true;
