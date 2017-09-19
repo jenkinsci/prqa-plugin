@@ -23,6 +23,12 @@
                     <f:textbox/>
                 </f:entry>
 
+                <f:entry title="${%Configuration}"
+                         field="projectConfiguration"
+                         help="/plugin/prqa-plugin/config/help-projectConfiguration.html">
+                    <f:textbox/>
+                </f:entry>
+
                 <f:nested>
                     <f:optionalBlock name="useCustomLicenseServer"
                                      title="${%Set custom licence server}"

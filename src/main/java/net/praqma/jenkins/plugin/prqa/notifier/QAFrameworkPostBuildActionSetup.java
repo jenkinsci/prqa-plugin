@@ -73,6 +73,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean assembleSupportAnalytics;
     public boolean generateReportOnAnalysisError;
     public boolean addBuildNumber;
+    public String projectConfiguration;
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation,
@@ -105,7 +106,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
                                            boolean generatePreprocess,
                                            boolean assembleSupportAnalytics,
                                            boolean generateReportOnAnalysisError,
-                                           boolean addBuildNumber) {
+                                           boolean addBuildNumber,
+                                           String projectConfiguration) {
 
         this.qaInstallation = qaInstallation;
         this.qaProject = qaProject;
@@ -138,6 +140,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.assembleSupportAnalytics = assembleSupportAnalytics;
         this.generateReportOnAnalysisError = generateReportOnAnalysisError;
         this.addBuildNumber = addBuildNumber;
+        this.projectConfiguration = projectConfiguration;
     }
 
     public List<String> getChosenServers() {
@@ -358,6 +361,14 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public void setAddBuildNumber(boolean addBuildNumber) {
         this.addBuildNumber = addBuildNumber;
+    }
+
+    public String getProjectConfiguration() {
+        return projectConfiguration;
+    }
+
+    public void setProjectConfiguration(String projectConfiguration) {
+        this.projectConfiguration = projectConfiguration;
     }
 
     @Extension

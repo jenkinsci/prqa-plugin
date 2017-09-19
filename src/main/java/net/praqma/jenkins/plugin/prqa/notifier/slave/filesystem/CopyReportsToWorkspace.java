@@ -18,9 +18,12 @@ import static net.praqma.prqa.reports.ReportType.SUR;
 public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> implements Serializable {
 
     private final String qaProject;
+    private final String projectConfiguration;
 
-    public CopyReportsToWorkspace(String qaProject) {
+    public CopyReportsToWorkspace(String qaProject,
+                                  String projectConfiguration) {
         this.qaProject = qaProject;
+        this.projectConfiguration = projectConfiguration;
     }
 
     @Override
@@ -28,7 +31,9 @@ public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> i
 
         final String reportsPath;
         try {
-            reportsPath = QAFrameworkReport.extractReportsPath(f.getAbsolutePath(), qaProject);
+            reportsPath = QAFrameworkReport.extractReportsPath(f.getAbsolutePath(),
+                                                               qaProject,
+                                                               projectConfiguration);
         } catch (PrqaException e) {
             throw new IOException(e);
         }

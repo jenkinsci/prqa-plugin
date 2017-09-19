@@ -56,7 +56,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Serializable;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static hudson.model.Result.*;
@@ -244,12 +243,19 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             QaFrameworkReportSettings qaFrameworkSettings = (QaFrameworkReportSettings) settings;
 
-            copyGeneratedReportsToJobWorkspace(build, qaFrameworkSettings.getQaProject());
+            copyGeneratedReportsToJobWorkspace(build,
+                                               qaFrameworkSettings.getQaProject(),
+                                               qaFrameworkSettings.getProjectConfiguration());
             copyReportsFromWorkspaceToArtifactsDir(build, listener);
         }
     }
 
-    private void copyGeneratedReportsToJobWorkspace(AbstractBuild<?, ?> build, final String qaProject) throws IOException, InterruptedException {
+    private void copyGeneratedReportsToJobWorkspace(AbstractBuild<?, ?> build,
+                                                    final String qaProject,
+                                                    String projectConfiguration)
+            throws
+            IOException,
+            InterruptedException {
 
         FilePath buildWorkspace = build.getWorkspace();
 
@@ -257,7 +263,8 @@ public class PRQANotifier extends Publisher implements Serializable {
             throw new IOException("Invalid workspace");
         }
 
-        buildWorkspace.act(new CopyReportsToWorkspace(qaProject));
+        buildWorkspace.act(new CopyReportsToWorkspace(qaProject,
+                                                      projectConfiguration));
     }
 
     private boolean containsReportName(String fileName) {
@@ -965,7 +972,8 @@ public class PRQANotifier extends Publisher implements Serializable {
                 qaFrameworkPostBuildActionSetup.generatePreprocess,
                 qaFrameworkPostBuildActionSetup.assembleSupportAnalytics,
                 qaFrameworkPostBuildActionSetup.generateReportOnAnalysisError,
-                qaFrameworkPostBuildActionSetup.addBuildNumber);
+                qaFrameworkPostBuildActionSetup.addBuildNumber,
+                qaFrameworkPostBuildActionSetup.projectConfiguration);
     }
 
     // Function to pull details from QAV Configuration.
