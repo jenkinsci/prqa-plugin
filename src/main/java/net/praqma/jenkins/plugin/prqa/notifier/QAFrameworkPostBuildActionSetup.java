@@ -49,6 +49,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public final String customLicenseServerAddress;
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
+    public String cmaProjectName;
+    public boolean reuseCmaDb;
+    public boolean useDiskStorage;
     public boolean enableDependencyMode;
     public boolean generateReport;
     public boolean publishToQAV;
@@ -64,8 +67,13 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public boolean generateSup;
     public boolean analysisSettings;
     public boolean stopWhenFail;
+    public boolean customCpuThreads;
+    public String maxNumThreads;
     public boolean generatePreprocess;
     public boolean assembleSupportAnalytics;
+    public boolean generateReportOnAnalysisError;
+    public boolean addBuildNumber;
+    public String projectConfiguration;
 
     @DataBoundConstructor
     public QAFrameworkPostBuildActionSetup(String qaInstallation,
@@ -75,6 +83,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
                                            boolean downloadUnifiedProjectDefinition,
                                            String unifiedProjectName,
                                            boolean performCrossModuleAnalysis,
+                                           String cmaProjectName,
+                                           boolean reuseCmaDb,
+                                           boolean useDiskStorage,
                                            boolean enableDependencyMode,
                                            boolean generateReport,
                                            boolean publishToQAV,
@@ -90,8 +101,13 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
                                            boolean generateSup,
                                            boolean analysisSettings,
                                            boolean stopWhenFail,
+                                           boolean customCpuThreads,
+                                           String maxNumThreads,
                                            boolean generatePreprocess,
-                                           boolean assembleSupportAnalytics) {
+                                           boolean assembleSupportAnalytics,
+                                           boolean generateReportOnAnalysisError,
+                                           boolean addBuildNumber,
+                                           String projectConfiguration) {
 
         this.qaInstallation = qaInstallation;
         this.qaProject = qaProject;
@@ -100,6 +116,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.downloadUnifiedProjectDefinition = downloadUnifiedProjectDefinition;
         this.unifiedProjectName = unifiedProjectName;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
+        this.cmaProjectName = cmaProjectName;
+        this.reuseCmaDb = reuseCmaDb;
         this.enableDependencyMode = enableDependencyMode;
         this.generateReport = generateReport;
         this.publishToQAV = publishToQAV;
@@ -115,8 +133,14 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.generateSup = generateSup;
         this.analysisSettings = analysisSettings;
         this.stopWhenFail = stopWhenFail;
+        this.useDiskStorage = useDiskStorage;
+        this.customCpuThreads = customCpuThreads;
+        this.maxNumThreads = maxNumThreads;
         this.generatePreprocess = generatePreprocess;
         this.assembleSupportAnalytics = assembleSupportAnalytics;
+        this.generateReportOnAnalysisError = generateReportOnAnalysisError;
+        this.addBuildNumber = addBuildNumber;
+        this.projectConfiguration = projectConfiguration;
     }
 
     public List<String> getChosenServers() {
@@ -271,6 +295,22 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         this.assembleSupportAnalytics = assembleSupportAnalytics;
     }
 
+    public void setReuseCmaDb(boolean reuseCmaDb) {
+        this.reuseCmaDb = reuseCmaDb;
+    }
+
+    public void setUseDiskStorage(boolean useDiskStorage) {
+        this.useDiskStorage = useDiskStorage;
+    }
+
+    public void setMaxNumThreads(String maxNumThreads) {
+        this.maxNumThreads = maxNumThreads;
+    }
+
+    public void setCustomCpuThreads(boolean customCpuThreads) {
+        this.customCpuThreads = customCpuThreads;
+    }
+
     public boolean isAnalysisSettings() {
         return analysisSettings;
     }
@@ -285,6 +325,50 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
     public boolean isAssembleSupportAnalytics() {
         return assembleSupportAnalytics;
+    }
+
+    public boolean isGenerateReportOnAnalysisError() {
+        return generateReportOnAnalysisError;
+    }
+
+    public boolean isReuseCmaDb() {
+        return reuseCmaDb;
+    }
+
+    public boolean isUseDiskStorage() {
+        return useDiskStorage;
+    }
+
+    public String getMaxNumThreads() {
+        return maxNumThreads;
+    }
+
+    public boolean isCustomCpuThreads() {
+        return customCpuThreads;
+    }
+
+    public String getCmaProjectName() {
+        return cmaProjectName;
+    }
+
+    public void setCmaProjectName(String cmaProjectName) {
+        this.cmaProjectName = cmaProjectName;
+    }
+
+    public boolean isAddBuildNumber() {
+        return addBuildNumber;
+    }
+
+    public void setAddBuildNumber(boolean addBuildNumber) {
+        this.addBuildNumber = addBuildNumber;
+    }
+
+    public String getProjectConfiguration() {
+        return projectConfiguration;
+    }
+
+    public void setProjectConfiguration(String projectConfiguration) {
+        this.projectConfiguration = projectConfiguration;
     }
 
     @Extension
@@ -334,12 +418,12 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return SourceOption;
         }
 
-        public FormValidation doCheckCMAProjectName(@QueryParameter String CMAProjectName) {
-            if (StringUtils.isBlank(CMAProjectName)) {
+        public FormValidation doCheckCmaProjectName(@QueryParameter String cmaProjectName) {
+            if (StringUtils.isBlank(cmaProjectName)) {
                 return FormValidation.errorWithMarkup("CMA project name should not be empty!");
             }
-            if (!CMAProjectName.matches("^[a-zA-Z0-9_-]+$")) {
-                return FormValidation.errorWithMarkup("CMA project name is not valid [characters allowed: a-zA-Z0-9-_]");
+            if (!cmaProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
+                return FormValidation.errorWithMarkup("CMA project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
@@ -371,6 +455,23 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             if (!qaVerifyProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
                 return FormValidation.errorWithMarkup("Project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckMaxNumThreads(@QueryParameter String maxNumThreads) {
+            final Integer minValue = 0;
+            if (StringUtils.isBlank(maxNumThreads)) {
+                return FormValidation.errorWithMarkup(Messages.PRQANotifier_NotEmptyValue("Max. Number of Threads for Analysis"));
+            }
+            try {
+                final Integer parsedValue = Integer.parseInt(maxNumThreads);
+                if (parsedValue <= minValue) {
+                    return FormValidation.error(Messages.PRQANotifier_WrongIntegerGreatherThan(minValue));
+                }
+            } catch (NumberFormatException ex) {
+                return FormValidation.error(Messages.PRQANotifier_UseInteger());
+            }
+
             return FormValidation.ok();
         }
 

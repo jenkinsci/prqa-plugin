@@ -23,16 +23,8 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.FilePath.FileCallable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.Collections;
-import java.util.Map;
-
 import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.QaFrameworkVersion;
@@ -41,10 +33,18 @@ import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
-
 import org.apache.commons.lang.StringUtils;
 
-import static net.praqma.prqa.reports.ReportType.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Map;
+
+import static net.praqma.prqa.reports.ReportType.CRR;
+import static net.praqma.prqa.reports.ReportType.MDR;
+import static net.praqma.prqa.reports.ReportType.RCR;
+import static net.praqma.prqa.reports.ReportType.SUR;
 
 public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
 
@@ -102,10 +102,28 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
                 report.pullUnifyProjectQacli(isUnix, out);
             }
 
-            report.analyzeQacli(isUnix, "-cf", out);
+            if (reportSetting.isAnalysisSettings() && reportSetting.isCustomCpuThreads()) {
+                report.applyCpuThreads(out);
+            }
+
+            try {
+                report.analyzeQacli(isUnix, "-cf", out);
+            } catch (PrqaException e) {
+                if (!reportSetting.isGenerateReportOnAnalysisError()) {
+                    out.println("Failed to perform analysis. Will not continue with report generation");
+                    throw e;
+                }
+            }
 
             if (reportSetting.isQaCrossModuleAnalysis()) {
-                report.cmaAnalysisQacli(isUnix, out);
+                try {
+                    report.cmaAnalysisQacli(isUnix, out);
+                } catch (PrqaException e) {
+                    if (!reportSetting.isGenerateReportOnAnalysisError()) {
+                        out.println("Failed to perform analysis. Will not continue with report generation");
+                        throw e;
+                    }
+                }
             }
 
             if (reportSetting.isGenCrReport()) {

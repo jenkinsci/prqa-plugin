@@ -2,44 +2,43 @@ package net.praqma.jenkins.plugin.prqa.notifier.slave.filesystem;
 
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
+import net.praqma.prqa.exceptions.PrqaException;
+import net.praqma.prqa.reports.QAFrameworkReport;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
-import static net.praqma.prqa.reports.ReportType.*;
+import static net.praqma.prqa.reports.ReportType.CRR;
+import static net.praqma.prqa.reports.ReportType.MDR;
+import static net.praqma.prqa.reports.ReportType.RCR;
+import static net.praqma.prqa.reports.ReportType.SUR;
 
 public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> implements Serializable {
 
     private final String qaProject;
+    private final String projectConfiguration;
 
-    public CopyReportsToWorkspace(String qaProject) {
+    public CopyReportsToWorkspace(String qaProject,
+                                  String projectConfiguration) {
         this.qaProject = qaProject;
+        this.projectConfiguration = projectConfiguration;
     }
 
     @Override
     public Boolean invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
 
-        final String reportsPath = "prqa/reports";
-        File qaFReports;
-
-        if (StringUtils.isEmpty(qaProject)) {
-            qaFReports = new File(reportsPath);
-        } else {
-            qaFReports = new File(qaProject + "/" + reportsPath);
+        final String reportsPath;
+        try {
+            reportsPath = QAFrameworkReport.extractReportsPath(f.getAbsolutePath(),
+                                                               qaProject,
+                                                               projectConfiguration);
+        } catch (PrqaException e) {
+            throw new IOException(e);
         }
 
-        if (!qaFReports.isDirectory()) {
-            qaFReports = new File(f + "/" + reportsPath);
-        }
-
-        if (!qaFReports.isDirectory()) {
-            return Boolean.FALSE;
-        }
-
-        File[] files = qaFReports.listFiles();
+        File[] files = new File(reportsPath).listFiles();
         assert files != null;
 
         for (File reportFile : files) {
