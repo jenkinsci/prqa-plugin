@@ -16,13 +16,20 @@
                          help="/plugin/prqa-plugin/config/help-qaInstallation.html">
                     <f:select/>
                 </f:entry>
+
                 <f:entry title="${%PRQA·Framework Project}"
                          field="qaProject"
                          help="/plugin/prqa-plugin/config/help-qaProject.html">
                     <f:textbox/>
                 </f:entry>
 
-                <f:block>
+                <f:entry title="${%Configuration}"
+                         field="projectConfiguration"
+                         help="/plugin/prqa-plugin/config/help-projectConfiguration.html">
+                    <f:textbox/>
+                </f:entry>
+
+                <f:nested>
                     <f:optionalBlock name="useCustomLicenseServer"
                                      title="${%Set custom licence server}"
                                      help="/plugin/prqa-plugin/config/help-configUseCustomLicenseServer.html"
@@ -34,10 +41,110 @@
                             <f:textbox/>
                         </f:entry>
                     </f:optionalBlock>
-                </f:block>
+                </f:nested>
+
+                <f:nested>
+                    <f:optionalBlock name="enableDependencyMode"
+                                     title="${%Enable Dependency Based Analysis}"
+                                     help="/plugin/prqa-plugin/config/help-qaDependencyMode.html"
+                                     checked="${instance.enableDependencyMode}"
+                                     inline="true">
+                    </f:optionalBlock>
+                </f:nested>
+
+                <f:nested>
+                    <f:optionalBlock name="performCrossModuleAnalysis"
+                                     title="Run Project Based CMA Analysis"
+                                     help="/plugin/prqa-plugin/config/help-qaCMA.html"
+                                     checked="${instance.performCrossModuleAnalysis}"
+                                     inline="true">
+                        <f:entry title="${%CMA project name}"
+                                 field="cmaProjectName"
+                                 help="/plugin/prqa-plugin/config/help-qaCMAProjectName.html">
+                            <f:textbox value="${instance.cmaProjectName}"/>
+                        </f:entry>
+                        <f:entry title="${%Reuse CMA Database}"
+                                 field="reuseCmaDb"
+                                 help="/plugin/prqa-plugin/config/help-qaReuseCmaDb.html">
+                            <f:checkbox name="reuseCmaDb"
+                                        value="${instance.reuseCmaDb}"
+                                        checked="${instance.reuseCmaDb}"/>
+                        </f:entry>
+                        <f:entry title="${%Use Temporary Disk Storage for CMA}"
+                                 field="useDiskStorage"
+                                 help="/plugin/prqa-plugin/config/help-qaUseDiskStorage.html">
+                            <f:checkbox name="useDiskStorage"
+                                        value="${instance.useDiskStorage}"
+                                        checked="${instance.useDiskStorage}"/>
+                        </f:entry>
+                    </f:optionalBlock>
+                </f:nested>
+
+                <f:nested>
+                    <f:optionalBlock name="analysisSettings"
+                                     title="${%Analysis Settings}"
+                                     help="/plugin/prqa-plugin/config/help-qaAnalysisSettings.html"
+                                     checked="${instance.analysisSettings}"
+                                     inline="true">
+                        <f:entry title="${%Stop Analysis Upon Failure}"
+                                 field="stopWhenFail"
+                                 help="/plugin/prqa-plugin/config/help-qaStopWhenFail.html">
+                            <f:checkbox name="stopWhenFail"
+                                        value="${instance.stopWhenFail}"
+                                        checked="${instance.stopWhenFail}"/>
+                        </f:entry>
+
+                        <f:optionalBlock title="${%Generate Preprocessed Source}"
+                                         name="generatePreprocess"
+                                         help="/plugin/prqa-plugin/config/help-qaGeneratePreprocess.html"
+                                         checked="${instance.generatePreprocess}"
+                                         inline="true">
+                            <f:entry title="${%Assemble Support Analytic for failed Files}"
+                                     field="assembleSupportAnalytics"
+                                     help="/plugin/prqa-plugin/config/help-qaAssembleSupportAnalytics.html">
+                                <f:checkbox name="assembleSupportAnalytics"
+                                            value="${instance.assembleSupportAnalytics}"
+                                            checked="${instance.assembleSupportAnalytics}"/>
+                            </f:entry>
+
+                        </f:optionalBlock>
+
+                        <f:optionalBlock name="customCpuThreads"
+                                         title="Set Threads used for analysis"
+                                         help="/plugin/prqa-plugin/config/help-qaCustomCpu.html"
+                                         checked="${instance.customCpuThreads}"
+                                         inline="true">
+                            <f:entry title="${%Max. Number of Analysis Threads}"
+                                     field="maxNumThreads">
+                                <f:textbox value="${instance.maxNumThreads}"/>
+                            </f:entry>
+                        </f:optionalBlock>
+                    </f:optionalBlock>
+                </f:nested>
+
+                <f:nested>
+                    <f:optionalBlock name="generateReportOnAnalysisError"
+                                     title="${%Generate report on analysis error}"
+                                     checked="${instance.generateReportOnAnalysisError}"
+                                     inline="true"/>
+                    <f:optionalBlock name="generateCrr"
+                                     title="${%Code Review Report}"
+                                     checked="${instance.generateCrr}"
+                                     inline="true"/>
+                    <f:optionalBlock name="generateMdr"
+                                     title="${%Metrics Data Report}"
+                                     checked="${instance.generateMdr}"
+                                     inline="true"/>
+                    <f:optionalBlock name="generateSup"
+                                     title="${%Suppression Report}"
+                                     checked="${instance.generateSup}"
+                                     inline="true"/>
+                </f:nested>
 
                 <f:block>
-                    <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}" help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html" checked="${instance.loginToQAV}" inline="true">
+                    <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}"
+                                     help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html"
+                                     checked="${instance.loginToQAV}" inline="true">
                         <j:set var="zervers" value="${descriptor.getServers()}"/>
                         <j:choose>
                             <j:when test="${zervers != null &amp;&amp; !empty(zervers)}">
@@ -98,6 +205,15 @@
                                 <f:textbox value="${instance.uploadSnapshotName}"/>
                             </f:entry>
 
+                            <f:entry title="${%Add Build Number to Snapshot Name}"
+                                     field="addBuildNumber">
+                                <f:checkbox name="addBuildNumber"
+                                            value="${instance.addBuildNumber}"
+                                            checked="${instance.addBuildNumber}"
+                                            default="true"/>
+                            </f:entry>
+
+
                             <f:entry title="${%Upload Source Code}"
                                      field="uploadSourceCode">
                                 <f:select/>
@@ -107,66 +223,6 @@
                     </f:optionalBlock>
                 </f:block>
 
-                <f:entry title="${%Enable Dependency Based Analysis}"
-                         field="enableDependencyMode"
-                         help="/plugin/prqa-plugin/config/help-qaDependencyMode.html">
-                    <f:checkbox name="enableDependencyMode"
-                                value="${instance.enableDependencyMode}"
-                                checked="${instance.enableDependencyMode}"/>
-                </f:entry>
-
-                <f:block>
-                    <f:optionalBlock name="performCrossModuleAnalysis"
-                                     title="Run Project Based CMA Analysis (prior to PRQA Framework 2.1.0)"
-                                     help="/plugin/prqa-plugin/config/help-qaCMA.html"
-                                     checked="${instance.performCrossModuleAnalysis}"
-                                     inline="true">
-                    </f:optionalBlock>
-                </f:block>
-
-                <f:block>
-                    <f:optionalBlock name="generateCrr"
-                                     title="${%Code Review Report}"
-                                     checked="${instance.generateCrr}"
-                                     inline="true"/>
-                    <f:optionalBlock name="generateMdr"
-                                     title="${%Metrics Data Report}"
-                                     checked="${instance.generateMdr}"
-                                     inline="true"/>
-                    <f:optionalBlock name="generateSup"
-                                     title="${%Suppression Report}"
-                                     checked="${instance.generateSup}"
-                                     inline="true"/>
-                </f:block>
-
-                <f:block>
-                    <f:optionalBlock name="analysisSettings"
-                                     title="${%Analysis Settings}"
-                                     help="/plugin/prqa-plugin/config/help-qaAnalysisSettings.html"
-                                     checked="${instance.analysisSettings}"
-                                     inline="true">
-                        <f:entry title="${%Stop Analysis Upon Failure}"
-                                 field="stopWhenFail"
-                                 help="/plugin/prqa-plugin/config/help-qaStopWhenFail.html">
-                            <f:checkbox name="stopWhenFail"
-                                        value="${instance.stopWhenFail}"
-                                        checked="${instance.stopWhenFail}"/>
-                        </f:entry>
-                        <f:optionalBlock title="${%Generate Preprocessed Source}"
-                                         name="generatePreprocess"
-                                         help="/plugin/prqa-plugin/config/help-qaGeneratePreprocess.html"
-                                         checked="${instance.generatePreprocess}"
-                                         inline="true">
-                            <f:entry title="${%Assemble Support Analytic for failed Files}"
-                                     field="assembleSupportAnalytics"
-                                     help="/plugin/prqa-plugin/config/help-qaAssembleSupportAnalytics.html">
-                                <f:checkbox name="assembleSupportAnalytics"
-                                            value="${instance.assembleSupportAnalytics}"
-                                            checked="${instance.assembleSupportAnalytics}"/>
-                            </f:entry>
-                        </f:optionalBlock>
-                    </f:optionalBlock>
-                </f:block>
             </table>
         </f:block>
     </f:section>
