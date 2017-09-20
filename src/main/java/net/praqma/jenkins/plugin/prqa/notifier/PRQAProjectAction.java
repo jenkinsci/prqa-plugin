@@ -10,6 +10,7 @@ import hudson.util.DescribableList;
 import hudson.util.RunList;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
+import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -116,5 +117,16 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 			return qavconfig;
 		}
 		return null;
+	}
+
+	public boolean showLinksofInterest() {
+		DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
+		PRQANotifier notifier = publishersList.get(PRQANotifier.class);
+		if (notifier != null) {
+			if (notifier.sourceQAFramework instanceof QAFrameworkPostBuildActionSetup) {
+				return ((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).loginToQAV;
+			}
+		}
+		return false;
 	}
 }
