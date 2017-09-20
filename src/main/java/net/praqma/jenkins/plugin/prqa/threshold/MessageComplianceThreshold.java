@@ -30,6 +30,7 @@ import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.notifier.ThresholdSelectionDescriptor;
 import net.praqma.prqa.parsers.MessageGroup;
 import net.praqma.prqa.status.PRQAComplianceStatus;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -143,6 +144,9 @@ public class MessageComplianceThreshold extends AbstractThreshold {
         @Override
         public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
             if (!improvement) {
+                if (StringUtils.isEmpty(value)) {
+                    return FormValidation.ok();
+                }
                 try {
                     Integer parsedValue = Integer.parseInt(value);
                     if (parsedValue < 0) {
