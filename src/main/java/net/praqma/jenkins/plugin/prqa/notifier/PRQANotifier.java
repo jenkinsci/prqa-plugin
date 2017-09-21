@@ -7,7 +7,6 @@ import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
-import hudson.util.ListBoxModel;
 import jenkins.model.ArtifactManager;
 import jenkins.model.Jenkins;
 import jenkins.util.BuildListenerAdapter;
@@ -515,10 +514,10 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);
             currentBuild = workspace.act(new PRQARemoteReport(report, listener, launcher.isUnix()));
-            int threshholdlevel = getThreshholdlevel();
+            int thresholdLevel = getThresholdLevel();
 
 
-            currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(threshholdlevel));
+            currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(thresholdLevel));
         } catch (IOException ex) {
             success = treatIOException(ex);
             return success;
@@ -1010,8 +1009,8 @@ public class PRQANotifier extends Publisher implements Serializable {
             currentBuild = workspace.act(remoteReport);
 
 
-            int threshholdlevel = getThreshholdlevel();
-            currentBuild.setMessagesWithinThresholdForEachMessageGroup(threshholdlevel);
+            int thresholdLevel = getThresholdLevel();
+            currentBuild.setMessagesWithinThresholdForEachMessageGroup(thresholdLevel);
             copyArtifacts(build, qaReportSettings, listener);
         } catch (IOException | InterruptedException ex) {
             outStream.println(Messages.PRQANotifier_FailedGettingResults());
@@ -1020,11 +1019,11 @@ public class PRQANotifier extends Publisher implements Serializable {
         return currentBuild;
     }
 
-    public int getThreshholdlevel() {
+    public int getThresholdLevel() {
         if (thresholdsDesc != null) {
             for (AbstractThreshold abstractThreshold : thresholdsDesc) {
                 if (abstractThreshold instanceof MessageComplianceThreshold) {
-                    return ((MessageComplianceThreshold) abstractThreshold).threshholdlevel;
+                    return ((MessageComplianceThreshold) abstractThreshold).thresholdLevel;
                 }
             }
         }

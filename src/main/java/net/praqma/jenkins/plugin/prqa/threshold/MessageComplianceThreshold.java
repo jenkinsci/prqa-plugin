@@ -44,14 +44,14 @@ import java.util.logging.Logger;
 public class MessageComplianceThreshold extends AbstractThreshold {
 
     public final Integer value;
-    public final int threshholdlevel;
+    public final int thresholdLevel;
     private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
 
     @DataBoundConstructor
-    public MessageComplianceThreshold(final Integer value, final int threshholdlevel, final Boolean improvement) {
+    public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
         super(improvement);
         this.value = value;
-        this.threshholdlevel = threshholdlevel;
+        this.thresholdLevel = thresholdLevel;
     }
 
     @Override
@@ -59,7 +59,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
         if (value == null) {
             return true;
         }
-        return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, threshholdlevel);
+        return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, thresholdLevel);
     }
 
     public boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
@@ -98,7 +98,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
         if (value == null) {
             return true;
         }
-        return isTresholdValidForMessageGroups(currentComplianceStatus, threshholdlevel);
+        return isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
     }
 
     private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
@@ -133,7 +133,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
             return "Message Compliance Threshold";
         }
 
-        public ListBoxModel doFillThreshholdlevelItems() {
+        public ListBoxModel doFillThresholdLevelItems() {
             ListBoxModel model = new ListBoxModel();
             for (int i = 0; i < 10; i++) {
                 model.add(String.valueOf(i));
