@@ -1006,10 +1006,8 @@ public class PRQANotifier extends Publisher implements Serializable {
             }
             remoteReport.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = workspace.act(remoteReport);
-
-
-            int thresholdLevel = getThresholdLevel();
-            currentBuild.setMessagesWithinThresholdForEachMessageGroup(thresholdLevel);
+            
+            currentBuild.setMessagesWithinThresholdForEachMessageGroup(getThresholdLevel(););
             copyArtifacts(build, qaReportSettings, listener);
         } catch (IOException | InterruptedException ex) {
             outStream.println(Messages.PRQANotifier_FailedGettingResults());
