@@ -514,10 +514,9 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);
             currentBuild = workspace.act(new PRQARemoteReport(report, listener, launcher.isUnix()));
-            int thresholdLevel = getThresholdLevel();
 
 
-            currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(thresholdLevel));
+            currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(getThresholdLevel()));
         } catch (IOException ex) {
             success = treatIOException(ex);
             return success;
