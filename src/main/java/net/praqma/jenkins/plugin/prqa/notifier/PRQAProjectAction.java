@@ -10,7 +10,6 @@ import hudson.util.DescribableList;
 import hudson.util.RunList;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
-import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
