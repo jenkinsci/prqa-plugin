@@ -77,7 +77,7 @@ public abstract class PRQAGraph implements Serializable {
         return categories.contains(cat);
     }
     
-    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb, Double threshHoldMax) throws IOException {
+    public void drawGraph(StaplerRequest req, StaplerResponse rsp, DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb, Double thresholdMax) throws IOException {
         try {
         Number max = null;
         Number min = null;
@@ -106,7 +106,7 @@ public abstract class PRQAGraph implements Serializable {
             log.fine("Iterating using category: "+category);
             if(max != null && min != null) {
 
-                final JFreeChart chart = createChart(dsb.build(), getTitle() == null ? category.toString() : getTitle(), null, threshHoldMax != null ? threshHoldMax.intValue() : max.intValue(), min.intValue());
+                final JFreeChart chart = createChart(dsb.build(), getTitle() == null ? category.toString() : getTitle(), null, thresholdMax != null ? thresholdMax.intValue() : max.intValue(), min.intValue());
 
                 new Graph(-1,width,height) {
                     protected JFreeChart createGraph() {

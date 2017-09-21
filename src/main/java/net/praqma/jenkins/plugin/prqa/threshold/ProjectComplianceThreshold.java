@@ -24,12 +24,10 @@
 package net.praqma.jenkins.plugin.prqa.threshold;
 
 import hudson.Extension;
-import hudson.util.FormValidation;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.notifier.ThresholdSelectionDescriptor;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
 /**
  * 
@@ -46,7 +44,7 @@ public class ProjectComplianceThreshold extends AbstractThreshold {
 	}
 
 	@Override
-	public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+	public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
 		boolean isValidImprovement = true;
 		if (previousComplianceStatus != null) {
 			isValidImprovement = currentComplianceStatus.getProjectCompliance() >= previousComplianceStatus.getProjectCompliance();
@@ -59,7 +57,7 @@ public class ProjectComplianceThreshold extends AbstractThreshold {
 	}
 
 	@Override
-	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
 		boolean isValidTreshold = true;
 		if (value != null) {
 			isValidTreshold = currentComplianceStatus.getProjectCompliance() >= value;
@@ -81,7 +79,7 @@ public class ProjectComplianceThreshold extends AbstractThreshold {
 
 		@Override
 		public String getHelpFile() {
-			return "/plugin/prqa-plugin/config/help-thresholds.html";
+			return "/plugin/prqa-plugin/config/help-thresholds-project.html";
 		}
 	}
 }
