@@ -27,13 +27,9 @@ package net.praqma.jenkins.plugin.prqa.globalconfig;
 
 import hudson.Extension;
 import hudson.model.Descriptor;
-
-import hudson.util.FormValidation;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import javax.inject.Inject;
