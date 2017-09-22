@@ -25,17 +25,17 @@ package net.praqma.jenkins.plugin.prqa.threshold;
 
 import hudson.Extension;
 import hudson.util.FormValidation;
-
-import java.util.List;
-import java.util.logging.Logger;
-
+import hudson.util.ListBoxModel;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.notifier.ThresholdSelectionDescriptor;
 import net.praqma.prqa.parsers.MessageGroup;
 import net.praqma.prqa.status.PRQAComplianceStatus;
-
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
+
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -44,16 +44,18 @@ import org.kohsuke.stapler.QueryParameter;
 public class MessageComplianceThreshold extends AbstractThreshold {
 
     public final Integer value;
+    public final int thresholdLevel;
     private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
 
     @DataBoundConstructor
     public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
         super(improvement);
         this.value = value;
+        this.thresholdLevel = thresholdLevel;
     }
 
     @Override
-    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
         if (value == null) {
             return true;
         }
@@ -92,7 +94,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
     }
 
     @Override
-    public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+    public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
         if (value == null) {
             return true;
         }
@@ -131,9 +133,20 @@ public class MessageComplianceThreshold extends AbstractThreshold {
             return "Message Compliance Threshold";
         }
 
+        public ListBoxModel doFillThresholdLevelItems() {
+            ListBoxModel model = new ListBoxModel();
+            for (int i = 0; i < 10; i++) {
+                model.add(String.valueOf(i));
+            }
+            return model;
+        }
+
         @Override
         public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
             if (!improvement) {
+                if (StringUtils.isEmpty(value)) {
+                    return FormValidation.ok();
+                }
                 try {
                     Integer parsedValue = Integer.parseInt(value);
                     if (parsedValue < 0) {
@@ -148,7 +161,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
 
         @Override
         public String getHelpFile() {
-            return "/plugin/prqa-plugin/config/help-thresholds.html";
+            return "/plugin/prqa-plugin/config/help-thresholds-message.html";
         }
     }
 }

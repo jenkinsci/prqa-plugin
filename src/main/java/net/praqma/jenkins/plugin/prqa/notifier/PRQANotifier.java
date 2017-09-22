@@ -7,7 +7,6 @@ import hudson.model.*;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
-import hudson.util.ListBoxModel;
 import jenkins.model.ArtifactManager;
 import jenkins.model.Jenkins;
 import jenkins.util.BuildListenerAdapter;
@@ -76,7 +75,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
     public final PostBuildActionSetup sourceQAFramework;
     public final PRQAFileProjectSource sourceFileProject;
-    public final int threshholdlevel;
+
     public final List<AbstractThreshold> thresholdsDesc;
 
     public final String product;
@@ -88,7 +87,7 @@ public class PRQANotifier extends Publisher implements Serializable {
     @DataBoundConstructor
     public PRQANotifier(
             final String product, final boolean runWhenSuccess, final String settingProjectCompliance,
-            final String snapshotName, final int threshholdlevel, final PostBuildActionSetup sourceQAFramework,
+            final String snapshotName, final PostBuildActionSetup sourceQAFramework,
             final PRQAFileProjectSource sourceFileProject, final List<AbstractThreshold> thresholdsDesc) {
 
         this.product = product;
@@ -98,7 +97,7 @@ public class PRQANotifier extends Publisher implements Serializable {
 
         this.sourceQAFramework = sourceQAFramework;
         this.sourceFileProject = sourceFileProject;
-        this.threshholdlevel = threshholdlevel;
+
         this.thresholdsDesc = thresholdsDesc;
     }
 
@@ -157,7 +156,7 @@ public class PRQANotifier extends Publisher implements Serializable {
             } else {
                 addThreshold(threshold, tholds);
                 currentComplianceStatus.setThresholds(tholds);
-                if (!threshold.validate(previousComplianceStatus, currentComplianceStatus, threshholdlevel)) {
+                if (!threshold.validate(previousComplianceStatus, currentComplianceStatus)) {
                     return false;
                 }
             }
@@ -276,7 +275,7 @@ public class PRQANotifier extends Publisher implements Serializable {
     }
 
     private void copyReportsFromWorkspaceToArtifactsDir(AbstractBuild<?, ?> build, BuildListener listener)
-                throws IOException, InterruptedException {
+            throws IOException, InterruptedException {
 
         // COPY only last generated reports
         FilePath buildWorkspace = build.getWorkspace();
@@ -515,7 +514,9 @@ public class PRQANotifier extends Publisher implements Serializable {
 
             PRQAReport report = new PRQAReport(settings, qavSettings, uploadSettings, appSettings, environment);
             currentBuild = workspace.act(new PRQARemoteReport(report, listener, launcher.isUnix()));
-            currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(threshholdlevel));
+
+
+            currentBuild.setMessagesWithinThreshold(currentBuild.getMessageCount(getThresholdLevel()));
         } catch (IOException ex) {
             success = treatIOException(ex);
             return success;
@@ -688,14 +689,6 @@ public class PRQANotifier extends Publisher implements Serializable {
         @Override
         public String getDisplayName() {
             return "Programming Research Report";
-        }
-
-        public ListBoxModel doFillThreshholdlevelItems() {
-            ListBoxModel model = new ListBoxModel();
-            for (int i = 0; i < 10; i++) {
-                model.add(String.valueOf(i));
-            }
-            return model;
         }
 
         @Override
@@ -1013,7 +1006,8 @@ public class PRQANotifier extends Publisher implements Serializable {
             }
             remoteReport.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = workspace.act(remoteReport);
-            currentBuild.setMessagesWithinThresholdForEachMessageGroup(threshholdlevel);
+            
+            currentBuild.setMessagesWithinThresholdForEachMessageGroup(getThresholdLevel());
             copyArtifacts(build, qaReportSettings, listener);
         } catch (IOException | InterruptedException ex) {
             outStream.println(Messages.PRQANotifier_FailedGettingResults());
@@ -1022,8 +1016,21 @@ public class PRQANotifier extends Publisher implements Serializable {
         return currentBuild;
     }
 
+    public int getThresholdLevel() {
+        if (thresholdsDesc != null) {
+            for (AbstractThreshold abstractThreshold : thresholdsDesc) {
+                if (abstractThreshold instanceof MessageComplianceThreshold) {
+                    return ((MessageComplianceThreshold) abstractThreshold).thresholdLevel;
+                }
+            }
+        }
+        return 0;
+    }
+
+
     private void performUpload(AbstractBuild<?, ?> build, PRQARemoteToolCheck remoteToolCheck,
                                QAFrameworkRemoteReportUpload remoteReportUpload) throws PrqaException, IOException {
+
 
         FilePath workspace = build.getWorkspace();
 

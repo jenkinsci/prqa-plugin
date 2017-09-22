@@ -9,25 +9,7 @@
     The default value <i>None</i> means that this field is ignored, so it can have any value without affecting the build stability.
     Threshold levels are displayed on the trending graphs.
 	</p>
-	<h4>Threshold Level</h4>
-	<p>
-	This sets the message level from which the message total is calculated. Only messages from this level and
-above are summed to give the message total which is used for the Messages Threshold comparison.
-Note that Compliance Index thresholds are not affected by this setting.
-    </p>
-    <h4>Messages</h4>
-    <p>This is the total number of messages on all levels for all the files in the project. Messages in header files are de-duplicated (they are only counted once and not for each source file the header is included into).</p>
-	<h4>Project Compliance Index</h4>
-    <p>This is the percentage of message groups (a coding standard &quot;rule&quot;) for which there are no messages in the project. </p>
-	<h4>File Compliance Index</h4>
-    <p>This is the mean across all files of the percentage of message groups (a coding standard &quot;rule&quot;) for which there are no messages in each file. </p>
-
-    <p>A high File Compliance Index and low Project Compliance Index indicates that each file violates only a small number of rules but each file violates a different rule.
-    </p>
     <p>
-If the Compliance Indices are close then each file is violating more or less the same rules.
-    </p>
-    <p>
-    Note that you can have thresholds set on more than one item - if <i>any</i> of the data fields fall below their threshold then the build will be marked as unstable.
+        Note that you can have thresholds set on more than one item - if <i>any</i> of the data fields fall below their threshold then the build will be marked as unstable.
     </p>
 </div>

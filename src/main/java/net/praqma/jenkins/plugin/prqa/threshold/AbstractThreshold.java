@@ -64,14 +64,14 @@ public abstract class AbstractThreshold implements Describable<AbstractThreshold
 		return list;
 	}
 
-	public abstract boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel);
-	public abstract boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel);
+	public abstract boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus);
+	public abstract boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus);
 
-	public boolean validate(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+	public boolean validate(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
 		if (improvement) {
-			return validateImprovement(previousComplianceStatus, currentComplianceStatus, thresholdLevel);
+			return validateImprovement(previousComplianceStatus, currentComplianceStatus);
 		} else {
-			return validateThreshold(currentComplianceStatus, thresholdLevel);
+			return validateThreshold(currentComplianceStatus);
 		}
 	}
 }

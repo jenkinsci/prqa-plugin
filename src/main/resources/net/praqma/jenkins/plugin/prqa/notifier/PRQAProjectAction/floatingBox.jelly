@@ -13,7 +13,7 @@
                     <j:forEach var="pgraph"
                                items="${publisher.getSupportedGraphs()}">
                         <img style="margin-left:20px;"
-                             src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.threshholdlevel}"/>
+                             src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.getThresholdLevel()}"/>
                     </j:forEach>
                 </div>
             </j:when>
