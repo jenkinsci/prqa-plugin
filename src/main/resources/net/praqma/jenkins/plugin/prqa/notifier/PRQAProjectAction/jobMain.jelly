@@ -1,22 +1,30 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core">
 
-    <h3>${%PRQA Links of interest}</h3>
-    <ul>
-        <j:set var="conf"
-               value="${it.getConfiguration()}"/>
-        <j:choose>
-            <j:when test="${conf != null}">
-                <li>${%PRQA View server location:}
-                    <a href="${conf.getFullUrl()}">${%QA&#xb7;Verify server}</a>
-                </li>
-            </j:when>
-            <j:otherwise>
-                <li>${%No QA&#xb7;Verify servers defined} - click
-                    <a href="${rootURL}/configure">${%here}</a>
-                </li>
-            </j:otherwise>
-        </j:choose>
-    </ul>
+    <j:if test="${it.showLinksofInterest()}">
+        <h3>${%PRQA Links of interest}</h3>
+        <ul>
+
+            <j:set var="conf"
+                   value="${it.getConfigurations()}"/>
+            <j:choose>
+                <j:when test="${conf != null &amp;&amp; !empty(conf)}">
+                    <li>${%PRQA View server location:}
+                        <j:forEach var="confi" items="${conf}">
+                            <li style="margin-left:50px">
+                                <a href="${confi.getFullExternalUrl()}">${confi}</a>
+                            </li>
+                        </j:forEach>
+                    </li>
+                </j:when>
+                <j:otherwise>
+                    <li>${%No QA&#xb7;Verify servers selected} - click
+                        <a href="./configure">${%here}</a>
+                    </li>
+                </j:otherwise>
+            </j:choose>
+        </ul>
+    </j:if>
     <j:out value="${it.getLatestActionInProject().getBuildActionStatus(PRQAComplianceStatus.class).toHtml()}"/>
+
 </j:jelly>

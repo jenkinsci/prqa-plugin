@@ -117,4 +117,15 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 		}
 		return null;
 	}
+
+	public boolean showLinksofInterest() {
+		DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
+		PRQANotifier notifier = publishersList.get(PRQANotifier.class);
+		if (notifier != null) {
+			if (notifier.sourceQAFramework instanceof QAFrameworkPostBuildActionSetup) {
+				return ((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).loginToQAV;
+			}
+		}
+		return false;
+	}
 }

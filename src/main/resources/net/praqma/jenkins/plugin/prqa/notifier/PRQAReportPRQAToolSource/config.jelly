@@ -71,20 +71,31 @@
 
                     <j:set var="zervers"
                            value="${descriptor.getServers()}"/>
-                    <f:entry title="${%Select server configuration}"
-                             help="/plugin/prqa-plugin/config/help-configServerSelect.html"
-                             field="chosenServers">
-                        <select multiple="true"
-                                class="chosenServers"
-                                name="chosenServers">
-                            <j:forEach var="l"
-                                       items="${zervers}">
-                                <f:option selected="${instance.chosenServers.contains(l.toString())}"
-                                          value="${l}">${l}
-                                </f:option>
-                            </j:forEach>
-                        </select>
-                    </f:entry>
+                    <j:choose>
+                        <j:when test="${zervers != null &amp;&amp; !empty(zervers)}">
+                            <f:entry title="${%Select server configuration}"
+                                     help="/plugin/prqa-plugin/config/help-configServerSelect.html"
+                                     field="chosenServers">
+                                <select multiple="true"
+                                        class="chosenServers"
+                                        name="chosenServers">
+                                    <j:forEach var="l"
+                                               items="${zervers}">
+                                        <f:option selected="${instance.chosenServers.contains(l.toString())}"
+                                                  value="${l}">${l}
+                                        </f:option>
+                                    </j:forEach>
+                                </select>
+                            </f:entry>
+                        </j:when>
+                        <j:otherwise>
+                            <f:entry title="${%No QA&#xb7;Verify servers defined}">
+                                <p>click
+                                    <a href="${rootURL}/configure">${%here}</a>
+                                </p>
+                            </f:entry>
+                        </j:otherwise>
+                    </j:choose>
 
                     <j:set var="zettings"
                            value="${descriptor.getUploadSettings()}"/>

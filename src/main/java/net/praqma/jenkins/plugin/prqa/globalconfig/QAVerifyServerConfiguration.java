@@ -9,13 +9,17 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
+import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
 import javax.annotation.Nonnull;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
+
 
 /**
  * @author Praqma
@@ -33,6 +37,7 @@ public class QAVerifyServerConfiguration
     private String password;
     private String protocol;
     private Integer viewerPortNumber = 8080;
+    private String externalUrl;
 
     @DataBoundConstructor
     public QAVerifyServerConfiguration(String configurationName,
@@ -41,7 +46,8 @@ public class QAVerifyServerConfiguration
                                        String userName,
                                        String password,
                                        String protocol,
-                                       Integer viewerPortNumber) {
+                                       Integer viewerPortNumber,
+                                       String externalUrl) {
         this.configurationName = configurationName;
         this.hostName = hostName;
         this.password = password;
@@ -49,6 +55,7 @@ public class QAVerifyServerConfiguration
         this.portNumber = portNumber;
         this.protocol = protocol;
         this.viewerPortNumber = viewerPortNumber;
+        this.externalUrl = externalUrl;
     }
 
     /**
@@ -153,6 +160,13 @@ public class QAVerifyServerConfiguration
         return protocol + "://" + hostName + ":" + viewerPortNumber;
     }
 
+    public String getFullExternalUrl() {
+        if (StringUtils.isEmpty(externalUrl)) {
+            return getFullUrl();
+        }
+        return externalUrl;
+    }
+
     /**
      * @return the viewerPortNumber
      */
@@ -181,6 +195,15 @@ public class QAVerifyServerConfiguration
     @DataBoundSetter
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+
+    public String getExternalUrl() {
+        return externalUrl;
+    }
+
+    @DataBoundSetter
+    public void setExternalUrl(String externalUrl) {
+        this.externalUrl = externalUrl;
     }
 
     public enum ViewServerProtocol {
@@ -225,6 +248,18 @@ public class QAVerifyServerConfiguration
 
         public FormValidation doCheckViewerPortNumber(@QueryParameter String value) {
             return checkValidPort(value);
+        }
+
+        public FormValidation doCheckExternalUrl(@QueryParameter String value) {
+            if (StringUtils.isEmpty(value)){
+                return FormValidation.ok();
+            }
+            try {
+                new URL(value);
+            } catch (MalformedURLException e) {
+                return FormValidation.error(e.getMessage());
+            }
+            return FormValidation.ok();
         }
 
         private FormValidation checkValidPort(@QueryParameter String value) {

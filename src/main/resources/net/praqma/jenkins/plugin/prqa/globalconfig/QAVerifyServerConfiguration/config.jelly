@@ -20,6 +20,13 @@
                    default="localhost"/>
     </f:entry>
 
+    <f:entry field="servers.externalUrl"
+             title="${%External Url}">
+        <f:textbox name="servers.externalUrl"
+                   field="externalUrl"
+                   value="${servers.externalUrl}"/>
+    </f:entry>
+
     <f:entry field="servers.userName"
              title="${%User name}">
         <f:textbox name="servers.userName"
