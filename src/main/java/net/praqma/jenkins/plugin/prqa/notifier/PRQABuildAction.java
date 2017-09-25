@@ -57,7 +57,7 @@ public class PRQABuildAction implements Action {
     }
     
     public <T extends Publisher> T getPublisher(Class<T> clazz) {
-        return clazz.cast(publisher);
+        return (T)publisher;
     }
     
     public PRQAReading getResult() {
@@ -83,7 +83,7 @@ public class PRQABuildAction implements Action {
     public <T extends PRQAStatus> T getResult(Class<T> clazz) {
         try {
             if(this.result.getClass().isAssignableFrom(clazz)) {
-                return clazz.cast(this.result);
+                return (T)this.result;
             } else {
                 return null;
             }
@@ -136,7 +136,7 @@ public class PRQABuildAction implements Action {
     }
     
     public <T extends PRQAStatus> T getBuildActionStatus(Class<T> clazz) {
-        return clazz.cast(this.result);
+        return (T)this.result;
     }
       
     public StatusCategory[] getComplianceCategories() {

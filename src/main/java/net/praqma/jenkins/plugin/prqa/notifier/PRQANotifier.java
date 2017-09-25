@@ -84,7 +84,7 @@ import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
 
-public class PRQANotifier extends Recorder
+public class PRQANotifier extends Publisher
         implements Serializable {
 
     private static final long serialVersionUID = 1L;
