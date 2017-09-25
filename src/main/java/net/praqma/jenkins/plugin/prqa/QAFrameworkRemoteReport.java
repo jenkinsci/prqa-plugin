@@ -147,8 +147,4 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
         }
     }
-
-    public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
-        report.setQaFrameworkVersion(qaFrameworkVersion);
-    }
 }

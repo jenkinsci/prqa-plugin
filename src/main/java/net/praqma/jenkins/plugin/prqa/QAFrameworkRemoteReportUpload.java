@@ -94,8 +94,4 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
             throw new IOException(exception.getMessage(), exception);
         }
     }
-
-    public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
-        report.setQaFrameworkVersion(qaFrameworkVersion);
-    }
 }

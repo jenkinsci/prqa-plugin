@@ -84,7 +84,7 @@ import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
 
-public class PRQANotifier extends Publisher
+public class PRQANotifier extends Recorder
         implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -757,7 +757,6 @@ public class PRQANotifier extends Publisher
             if (!isQafVersionSupported(qaFrameworkVersion)) {
                 throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
-            remoteReport.setQaFrameworkVersion(qaFrameworkVersion);
             currentBuild = workspace.act(remoteReport);
             
             currentBuild.setMessagesWithinThresholdForEachMessageGroup(getThresholdLevel());
@@ -796,7 +795,6 @@ public class PRQANotifier extends Publisher
             if (!isQafVersionSupported(qaFrameworkVersion)) {
                 throw new PrqaException("Build failure. Please upgrade to a newer version of PRQA Framework");
             }
-            remoteReportUpload.setQaFrameworkVersion(qaFrameworkVersion);
             workspace.act(remoteReportUpload);
         } catch (IOException | InterruptedException ex) {
             throw new PrqaException(ex);

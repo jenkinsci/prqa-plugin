@@ -56,8 +56,13 @@ public class PRQABuildAction implements Action {
         return publisher;
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends Publisher> T getPublisher(Class<T> clazz) {
-        return (T)publisher;
+        try {
+            return clazz.cast(publisher);
+        } catch (Exception e) {
+            return (T) publisher;
+        }
     }
     
     public PRQAReading getResult() {
@@ -80,15 +85,12 @@ public class PRQABuildAction implements Action {
      * @param clazz
      * @return 
      */
+    @SuppressWarnings("unchecked")
     public <T extends PRQAStatus> T getResult(Class<T> clazz) {
         try {
-            if(this.result.getClass().isAssignableFrom(clazz)) {
-                return (T)this.result;
-            } else {
-                return null;
-            }
-        } catch (NullPointerException nex) {
-            return null;
+                return clazz.cast(this.result);
+        } catch (Exception nex) {
+            return (T) this.result;
         }      
     }
         
@@ -135,8 +137,13 @@ public class PRQABuildAction implements Action {
         return this.result;
     }
     
+    @SuppressWarnings("unchecked")
     public <T extends PRQAStatus> T getBuildActionStatus(Class<T> clazz) {
-        return (T)this.result;
+        try {
+            return clazz.cast(this.result);
+        } catch (Exception e) {
+            return (T) this.result;
+        }
     }
       
     public StatusCategory[] getComplianceCategories() {
