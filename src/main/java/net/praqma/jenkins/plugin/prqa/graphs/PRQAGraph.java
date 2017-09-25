@@ -168,7 +168,7 @@ public abstract class PRQAGraph implements Serializable {
    
     public PRQAGraph(String title, PRQAContext.QARReportType type, StatusCategory... category) {
         this.data = new PRQAStatusCollection();
-        this.categories = new ArrayList<StatusCategory>();
+        this.categories = new ArrayList<>();
         this.categories.addAll(Arrays.asList(category));
         this.type = type;
         this.title = title;

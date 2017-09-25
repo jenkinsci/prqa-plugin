@@ -57,7 +57,7 @@ public class PRQABuildAction implements Action {
     }
     
     public <T extends Publisher> T getPublisher(Class<T> clazz) {
-        return (T)publisher;
+        return clazz.cast(publisher);
     }
     
     public PRQAReading getResult() {
@@ -83,7 +83,7 @@ public class PRQABuildAction implements Action {
     public <T extends PRQAStatus> T getResult(Class<T> clazz) {
         try {
             if(this.result.getClass().isAssignableFrom(clazz)) {
-                return (T)this.result;
+                return clazz.cast(this.result);
             } else {
                 return null;
             }
@@ -117,7 +117,7 @@ public class PRQABuildAction implements Action {
      * Goes to the end of list.
      */ 
     public PRQABuildAction getPreviousAction(AbstractBuild<?,?> base) {
-        PRQABuildAction action = null;
+        PRQABuildAction action;
         AbstractBuild<?,?> start = base;
         while(true) {
             start = start.getPreviousNotFailedBuild(); 
@@ -136,7 +136,7 @@ public class PRQABuildAction implements Action {
     }
     
     public <T extends PRQAStatus> T getBuildActionStatus(Class<T> clazz) {
-        return (T)this.result;
+        return clazz.cast(this.result);
     }
       
     public StatusCategory[] getComplianceCategories() {
@@ -151,7 +151,7 @@ public class PRQABuildAction implements Action {
      */
     private HashMap<StatusCategory,Boolean>  _doDrawThresholds(StaplerRequest req, StaplerResponse rsp) {
         PRQANotifier notifier = (PRQANotifier)getPublisher();
-        HashMap<StatusCategory,Boolean> stats = new HashMap<StatusCategory, Boolean>();
+        HashMap<StatusCategory,Boolean> stats = new HashMap<>();
         if(notifier != null) {             
             String className = req.getParameter("graph");
             PRQAGraph graph =  notifier.getGraph(className);
@@ -196,8 +196,8 @@ public class PRQABuildAction implements Action {
             String className = req.getParameter("graph");
             PRQAGraph graph =  notifier.getGraph(className);
             PRQAStatusCollection collection = new PRQAStatusCollection();
-            DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel>();
-            ChartUtil.NumberOnlyBuildLabel label = null;
+            DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
+            ChartUtil.NumberOnlyBuildLabel label;
             
             Double tMax = null;
             
@@ -206,7 +206,7 @@ public class PRQABuildAction implements Action {
                     label = new ChartUtil.NumberOnlyBuildLabel((Run<?, ?>) prqabuild.build);
                     PRQAReading stat = prqabuild.getResult();
                     for(StatusCategory cat : graph.getCategories()) {
-                        Number res = null;
+                        Number res;
                         try
                         {
                             PRQAComplianceStatus cs = (PRQAComplianceStatus)stat;
@@ -225,7 +225,7 @@ public class PRQABuildAction implements Action {
                             if(threshold != null) {
                                 if(tMax == null) {
                                     tMax = threshold.doubleValue();
-                                } else if(tMax.doubleValue() < threshold.doubleValue()) {
+                                } else if(tMax < threshold.doubleValue()) {
                                     tMax = threshold.doubleValue();
                                 }
 

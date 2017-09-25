@@ -51,13 +51,11 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
     private static final long serialVersionUID = 1L;
     private QAFrameworkReport report;
     private BuildListener listener;
-    private boolean isUnix;
     private QaFrameworkReportSettings reportSetting;
 
-    public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
+    public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener) {
         this.report = report;
         this.listener = listener;
-        this.isUnix = isUnix;
     }
 
     private Map<String, String> expandEnvironment(Map<String, String> environment,

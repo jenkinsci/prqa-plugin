@@ -593,14 +593,14 @@ public class PRQANotifier extends Recorder
                                                                  qaVerifySettings,
                                                                  environmentVariables);
 
-                remoteReports.add(new QAFrameworkRemoteReport(report, listener, launcher.isUnix()));
+                remoteReports.add(new QAFrameworkRemoteReport(report, listener));
                 remoteReportUploads.add(new QAFrameworkRemoteReportUpload(report, listener));
             }
         } else {
             QAFrameworkReport report = new QAFrameworkReport(qaReportSettings,
                                                              setQaVerifyServerSettings(null),
                                                              environmentVariables);
-            remoteReports.add(new QAFrameworkRemoteReport(report, listener, launcher.isUnix()));
+            remoteReports.add(new QAFrameworkRemoteReport(report, listener));
         }
 
         PRQARemoteToolCheck remoteToolCheck = new PRQARemoteToolCheck(new QACli(), environmentVariables, appSettings,
@@ -704,7 +704,6 @@ public class PRQANotifier extends Recorder
                 qaFrameworkPostBuildActionSetup.generateReport,
                 qaFrameworkPostBuildActionSetup.publishToQAV,
                 qaFrameworkPostBuildActionSetup.loginToQAV,
-                product,
                 qaFrameworkPostBuildActionSetup.uploadWhenStable,
                 PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.qaVerifyProjectName, build, listener),
                 PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.uploadSnapshotName, build, listener),

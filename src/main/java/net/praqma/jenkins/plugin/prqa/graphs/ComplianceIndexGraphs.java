@@ -43,7 +43,7 @@ public class ComplianceIndexGraphs extends PRQAGraph {
                 max = data.getMax(category);
                 min = data.getMin(category);
             } catch (PrqaException iex) {
-                continue;
+                // noop
             }
         }
         if(max != null && min != null) {

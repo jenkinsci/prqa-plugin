@@ -30,5 +30,5 @@ import java.util.HashMap;
  * @author Praqma
  */
 public interface PRQAToolSuite {
-    public HashMap<String, String> createEnvironmentVariables(String workspaceRoot);
+    HashMap<String, String> createEnvironmentVariables(String workspaceRoot);
 }
