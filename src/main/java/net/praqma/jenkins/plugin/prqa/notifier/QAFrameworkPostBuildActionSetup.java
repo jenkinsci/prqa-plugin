@@ -440,7 +440,7 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
         public FormValidation doCheckUploadSnapshotName(@QueryParameter String uploadSnapshotName) {
             if (StringUtils.isBlank(uploadSnapshotName)) {
-                return FormValidation.errorWithMarkup("Snapshot name should not be empty!");
+                return FormValidation.ok();
             }
             if (!uploadSnapshotName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
                 return FormValidation.errorWithMarkup("Snapshot name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
