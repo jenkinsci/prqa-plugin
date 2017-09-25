@@ -23,16 +23,9 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.FilePath.FileCallable;
+import com.google.common.base.Strings;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.ReportSettings;
@@ -41,10 +34,13 @@ import net.praqma.prqa.products.Product;
 import net.praqma.prqa.products.QAC;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.products.QACpp;
-
 import org.apache.commons.lang.StringUtils;
 
-import com.google.common.base.Strings;
+import java.io.File;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class PRQARemoteToolCheck extends MasterToSlaveFileCallable<String> {
 

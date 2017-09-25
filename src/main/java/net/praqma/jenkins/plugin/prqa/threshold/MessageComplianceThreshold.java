@@ -56,13 +56,14 @@ public class MessageComplianceThreshold extends AbstractThreshold {
 
     @Override
     public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
-        if (value == null) {
-            return true;
-        }
-        return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, thresholdLevel);
+        return value == null || isImprovementForMessageGroups(previousComplianceStatus,
+                                                              currentComplianceStatus,
+                                                              thresholdLevel);
     }
 
-    public boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+    private boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus,
+                                                  PRQAComplianceStatus currentComplianceStatus,
+                                                  int thresholdLevel) {
         boolean areAllMessagesValid = true;
         List<MessageGroup> currentComplianceStatusMessageGroups = currentComplianceStatus.getMessagesGroups();
 
@@ -95,14 +96,12 @@ public class MessageComplianceThreshold extends AbstractThreshold {
 
     @Override
     public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
-        if (value == null) {
-            return true;
-        }
-        return isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
+        return value == null || isTresholdValidForMessageGroups(currentComplianceStatus,
+                                                                thresholdLevel);
     }
 
     private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
-        boolean isValidTreshold = true;
+        boolean isValidTreshold;
         boolean isStableBuild = true;
         List<MessageGroup> messageGroups = currentComplianceStatus.getMessagesGroups();
         if (messageGroups == null || messageGroups.isEmpty()) {
@@ -133,6 +132,7 @@ public class MessageComplianceThreshold extends AbstractThreshold {
             return "Message Compliance Threshold";
         }
 
+        @SuppressWarnings("unused")
         public ListBoxModel doFillThresholdLevelItems() {
             ListBoxModel model = new ListBoxModel();
             for (int i = 0; i < 10; i++) {

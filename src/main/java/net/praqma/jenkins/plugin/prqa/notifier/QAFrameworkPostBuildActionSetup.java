@@ -45,8 +45,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     public String qaInstallation;
     public String qaProject;
     public String unifiedProjectName;
-    public final boolean useCustomLicenseServer;
-    public final String customLicenseServerAddress;
+    public boolean useCustomLicenseServer;
+    public String customLicenseServerAddress;
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
     public String cmaProjectName;

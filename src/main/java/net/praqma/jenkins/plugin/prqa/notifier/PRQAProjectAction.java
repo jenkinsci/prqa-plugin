@@ -89,15 +89,9 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 		PRQANotifier notifier = publishersList.get(PRQANotifier.class);
 		if (notifier != null) {
 			QAVerifyServerConfiguration qavconfig;
-			if (notifier.sourceQAFramework instanceof PRQAReportPRQAToolSource) {
-				List<String> servers = ((PRQAReportPRQAToolSource) notifier.sourceQAFramework).chosenServers;
-				String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
-				qavconfig = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
-			} else {
-				List<String> servers = ((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).chosenServers;
-				String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
-				qavconfig = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
-			}
+			List<String> servers = ((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).chosenServers;
+			String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
+			qavconfig = PRQAGlobalConfig.get().getConfigurationByName(chosenServer);
 			return qavconfig;
 		}
 		return null;
@@ -108,11 +102,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 		PRQANotifier notifier = publishersList.get(PRQANotifier.class);
 		if (notifier != null) {
 			Collection<QAVerifyServerConfiguration> qavconfig;
-			if (notifier.sourceQAFramework instanceof PRQAReportPRQAToolSource) {
-				qavconfig = PRQAGlobalConfig.get().getConfigurationsByNames(((PRQAReportPRQAToolSource) notifier.sourceQAFramework).chosenServers);
-			} else {
-				qavconfig = PRQAGlobalConfig.get().getConfigurationsByNames(((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).chosenServers);
-			}
+			qavconfig = PRQAGlobalConfig.get().getConfigurationsByNames(((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).chosenServers);
 			return qavconfig;
 		}
 		return null;
@@ -122,7 +112,7 @@ public class PRQAProjectAction extends Actionable implements ProminentProjectAct
 		DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
 		PRQANotifier notifier = publishersList.get(PRQANotifier.class);
 		if (notifier != null) {
-			if (notifier.sourceQAFramework instanceof QAFrameworkPostBuildActionSetup) {
+			if (notifier.sourceQAFramework != null) {
 				return ((QAFrameworkPostBuildActionSetup) notifier.sourceQAFramework).loginToQAV;
 			}
 		}

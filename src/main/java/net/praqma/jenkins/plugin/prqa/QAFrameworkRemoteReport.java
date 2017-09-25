@@ -83,11 +83,11 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
         PrintStream out = listener.getLogger();
         out.println("Workspace from invoke:" + f.getAbsolutePath());
 
-        /**
-         * If the project file is null at this point. It means that this is a
-         * report based on a settings file.
-         *
-         * We skip the analysis phase
+        /*
+          If the project file is null at this point. It means that this is a
+          report based on a settings file.
+
+          We skip the analysis phase
          */
         boolean customServerWasApplied = false;
         try {
@@ -139,8 +139,6 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             report.reportQacli(isUnix, RCR.name(), out);
 
             return report.getComplianceStatus(out);
-        } catch (PrqaException exception) {
-            throw new IOException(exception.getMessage(), exception);
         } catch (Exception ex) {
             throw new IOException(ex.getMessage(), ex);
         } finally {

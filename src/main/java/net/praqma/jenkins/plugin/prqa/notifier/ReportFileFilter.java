@@ -47,9 +47,8 @@ public class ReportFileFilter implements FileFilter, Serializable {
 
 	@Override
 	public boolean accept(File pathname) {
-		boolean match = compliance.matcher(pathname.getName()).matches() || suppression.matcher(pathname.getName()).matches()
+		return compliance.matcher(pathname.getName()).matches() || suppression.matcher(pathname.getName()).matches()
 				|| codereview.matcher(pathname.getName()).matches();
-		return match;
 	}
 
 }

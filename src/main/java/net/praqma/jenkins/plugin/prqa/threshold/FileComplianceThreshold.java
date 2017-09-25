@@ -24,13 +24,10 @@
 package net.praqma.jenkins.plugin.prqa.threshold;
 
 import hudson.Extension;
-import hudson.util.FormValidation;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import net.praqma.jenkins.plugin.prqa.notifier.ThresholdSelectionDescriptor;
 import net.praqma.prqa.status.PRQAComplianceStatus;
-
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
 /**
  * @author mads

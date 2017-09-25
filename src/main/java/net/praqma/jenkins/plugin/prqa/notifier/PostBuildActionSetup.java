@@ -41,22 +41,37 @@ public class PostBuildActionSetup implements Describable<PostBuildActionSetup>, 
 
     @Override
     public Descriptor<PostBuildActionSetup> getDescriptor() {
-        return (Descriptor<PostBuildActionSetup>) Jenkins.getInstance().getDescriptorOrDie( getClass() );
+        Jenkins instance = Jenkins.getInstance();
+        if (instance == null) {
+            return null;
+        }
+
+        //noinspection unchecked
+        return (Descriptor<PostBuildActionSetup>) instance
+                                                         .getDescriptorOrDie(getClass());
     }
     
     /**PRQAReportSource
     * All registered {@link PostBuildActionSetup}s.
     */
    public static DescriptorExtensionList<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> all() {
-           return Jenkins.getInstance().<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> getDescriptorList( PostBuildActionSetup.class );
+       Jenkins instance = Jenkins.getInstance();
+       if (instance == null) {
+           return null;
+       }
+
+       return instance.getDescriptorList(PostBuildActionSetup.class);
    }
    
    public static List<PRQAReportSourceDescriptor<?>> getDescriptors() {
-       List<PRQAReportSourceDescriptor<?>> descriptors = new ArrayList<PRQAReportSourceDescriptor<?>>();
-       for(PRQAReportSourceDescriptor<?> desc : all()) {
-           descriptors.add(desc);
+       List<PRQAReportSourceDescriptor<?>> descriptors = new ArrayList<>();
+       DescriptorExtensionList<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> all = all();
+       if (all  == null) {
+           return descriptors;
        }
-       
+
+       descriptors.addAll(all);
+
        return descriptors;
    }
     

@@ -48,14 +48,14 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 
 	@Override
 	public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
-		HashMap<String, String> environment = new HashMap<String, String>();
+		HashMap<String, String> environment = new HashMap<>();
 		environment.put(QACli.QAF_INSTALL_PATH, getHome());
 		environment.put(QACli.WORKSPACE_PATH, workspaceRoot);
 		return environment;
 	}
 
 	public HashMap<String, String> convert(EnvVars vars) {
-		HashMap<String, String> varsMap = new HashMap<String, String>();
+		HashMap<String, String> varsMap = new HashMap<>();
 		for (Map.Entry<String, String> s : vars.entrySet()) {
 			varsMap.put(s.getKey(), s.getValue());
 		}
@@ -66,8 +66,14 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 		if (StringUtils.isBlank(qafName)) {
 			return null;
 		} else {
-			QAFrameworkInstallationConfiguration[] installations = Jenkins.getInstance()
-					.getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
+			Jenkins instance = Jenkins.getInstance();
+
+			if (instance == null) {
+				return null;
+			}
+
+			QAFrameworkInstallationConfiguration[] installations = instance
+																		  .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
 			for (QAFrameworkInstallationConfiguration install : installations) {
 				if (install.getName().equals(qafName)) {
 					return install;
@@ -121,7 +127,7 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 			String tool = "tool";
 
 			if (!json.isEmpty()) {
-				List<String> qaInstallationNames = new ArrayList<String>();
+				List<String> qaInstallationNames = new ArrayList<>();
 				if (json.get(tool) instanceof JSONArray) {
 					JSONArray array = json.getJSONArray(tool);
 					Iterator it = array.iterator();
@@ -173,9 +179,13 @@ public class QAFrameworkInstallationConfiguration extends ToolInstallation imple
 		}
 
 		public QAFrameworkInstallationConfiguration[] getQaInstallations() {
-			QAFrameworkInstallationConfiguration[] installations = Jenkins.getInstance()
-					.getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
-			return installations;
+            Jenkins instance = Jenkins.getInstance();
+
+            if (instance == null) {
+                return new QAFrameworkInstallationConfiguration[0];
+            }
+
+            return instance.getDescriptorByType(DescriptorImpl.class).getInstallations();
 		}
 
 		public FormValidation doCheckQafHome(@QueryParameter String qafHome) {

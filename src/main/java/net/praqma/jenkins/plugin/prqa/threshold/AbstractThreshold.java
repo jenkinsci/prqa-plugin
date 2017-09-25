@@ -43,24 +43,37 @@ public abstract class AbstractThreshold implements Describable<AbstractThreshold
 
 	public final Boolean improvement;
 
-	public AbstractThreshold(final Boolean improvement) {
+	AbstractThreshold(final Boolean improvement) {
 		this.improvement = improvement;
 	}
 
-	@Override
+	@SuppressWarnings("unchecked")
+    @Override
 	public Descriptor<AbstractThreshold> getDescriptor() {
-		return (Descriptor<AbstractThreshold>) Jenkins.getInstance().getDescriptorOrDie(getClass());
+		Jenkins instance = Jenkins.getInstance();
+		if (instance == null) {
+		    return null;
+        }
+
+        return (Descriptor<AbstractThreshold>) instance.getDescriptorOrDie(getClass());
 	}
 
 	public static DescriptorExtensionList<AbstractThreshold, ThresholdSelectionDescriptor<AbstractThreshold>> all() {
-		return Jenkins.getInstance().<AbstractThreshold, ThresholdSelectionDescriptor<AbstractThreshold>> getDescriptorList(AbstractThreshold.class);
+        Jenkins instance = Jenkins.getInstance();
+        if (instance == null) {
+            return null;
+        }
+
+        return instance.getDescriptorList(AbstractThreshold.class);
 	}
 
 	public static List<ThresholdSelectionDescriptor<?>> getDescriptors() {
-		List<ThresholdSelectionDescriptor<?>> list = new ArrayList<ThresholdSelectionDescriptor<?>>();
-		for (ThresholdSelectionDescriptor<?> d : all()) {
-			list.add(d);
-		}
+		List<ThresholdSelectionDescriptor<?>> list = new ArrayList<>();
+        DescriptorExtensionList<AbstractThreshold, ThresholdSelectionDescriptor<AbstractThreshold>> all = all();
+        if (all != null) {
+            list.addAll(all);
+        }
+
 		return list;
 	}
 
