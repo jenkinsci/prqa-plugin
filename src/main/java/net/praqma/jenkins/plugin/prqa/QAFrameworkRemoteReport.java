@@ -99,7 +99,7 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
 
             if (reportSetting.isLoginToQAV() && reportSetting.isPullUnifiedProject()) {
-                report.pullUnifyProjectQacli(isUnix, out);
+                report.pullUnifyProjectQacli(out);
             }
 
             if (reportSetting.isAnalysisSettings() && reportSetting.isCustomCpuThreads()) {
@@ -107,7 +107,7 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
 
             try {
-                report.analyzeQacli(isUnix, "-cf", out);
+                report.analyzeQacli("-cf", out);
             } catch (PrqaException e) {
                 if (!reportSetting.isGenerateReportOnAnalysisError()) {
                     out.println("Failed to perform analysis. Will not continue with report generation");
@@ -117,7 +117,7 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
 
             if (reportSetting.isQaCrossModuleAnalysis()) {
                 try {
-                    report.cmaAnalysisQacli(isUnix, out);
+                    report.cmaAnalysisQacli(out);
                 } catch (PrqaException e) {
                     if (!reportSetting.isGenerateReportOnAnalysisError()) {
                         out.println("Failed to perform analysis. Will not continue with report generation");
@@ -127,16 +127,16 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
 
             if (reportSetting.isGenCrReport()) {
-                report.reportQacli(isUnix, CRR.name(), out);
+                report.reportQacli(CRR.name(), out);
             }
             if (reportSetting.isGenMdReport()) {
-                report.reportQacli(isUnix, MDR.name(), out);
+                report.reportQacli(MDR.name(), out);
             }
             if (reportSetting.isGenSupReport()) {
-                report.reportQacli(isUnix, SUR.name(), out);
+                report.reportQacli(SUR.name(), out);
             }
 
-            report.reportQacli(isUnix, RCR.name(), out);
+            report.reportQacli(RCR.name(), out);
 
             return report.getComplianceStatus(out);
         } catch (Exception ex) {

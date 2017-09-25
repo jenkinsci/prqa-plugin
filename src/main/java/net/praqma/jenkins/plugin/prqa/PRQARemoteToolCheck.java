@@ -31,9 +31,7 @@ import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.ReportSettings;
 import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.products.Product;
-import net.praqma.prqa.products.QAC;
 import net.praqma.prqa.products.QACli;
-import net.praqma.prqa.products.QACpp;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -66,8 +64,10 @@ public class PRQARemoteToolCheck extends MasterToSlaveFileCallable<String> {
 	 * Expands the environment if the environment field for this object is set.
 	 * This is only done when the user uses a product configuration.
 	 */
-	public static Map<String, String> expandEnvironment(Map<String, String> environment, PRQAApplicationSettings appSettings, ReportSettings reportSetting,
-			boolean isUnix) throws PrqaSetupException {
+	private static Map<String, String> expandEnvironment(Map<String, String> environment,
+														 PRQAApplicationSettings appSettings,
+														 ReportSettings reportSetting,
+														 boolean isUnix) throws PrqaSetupException {
 
 		if (environment == null) {
 			return Collections.emptyMap();
@@ -126,7 +126,7 @@ public class PRQARemoteToolCheck extends MasterToSlaveFileCallable<String> {
 		}
 
 		if (!StringUtils.isBlank(appSettings.qavClientHome) && reportSetting.publishToQAV()) {
-			String qavClientHome = null;
+			String qavClientHome;
 			if (isUnix) {
 				qavClientHome = PRQAApplicationSettings.addSlash(appSettings.qavClientHome, delimiter) + "bin";
 			} else {
@@ -154,86 +154,11 @@ public class PRQARemoteToolCheck extends MasterToSlaveFileCallable<String> {
 		return environment;
 	}
 
-	private void _checkImportantEnvVars(Map<String, String> env, Product product) throws PrqaSetupException {
-		if (env == null) {
-			return;
-		}
-		if (product instanceof QAC) {
-			for (String s : QAC.envVarsForTool) {
-				String value = env.get(s);
-				if (value == null) {
-					throw new PrqaSetupException(String.format("The environment variable %s is not defined", s));
-				}
-				File f = new File(value);
-				if (!f.exists()) {
-					throw new PrqaSetupException(
-							String.format(
-									"Configuration error - Check your QA·C Product installation path%nThe environment created points to a non-existing location%nCheck your tool settings%nThe tool location missing was: %s",
-									f.getAbsolutePath()));
-				}
-			}
-		} else if (product instanceof QACpp) {
-			for (String s : QACpp.envVarsForTool) {
-				String value = env.get(s);
-				if (value == null) {
-					throw new PrqaSetupException(String.format("The environment variable %s is not defined", s));
-				}
-				File f = new File(value);
-				if (!f.exists()) {
-					throw new PrqaSetupException(
-							String.format(
-									"Configuration error - Check your QA·C++ Product installation path%nThe environment created points to a non-existing location%n Check your tool settings%nThe tool location missing was: %s",
-									f.getAbsolutePath()));
-				}
-			}
-		}
-	}
-
-	private void _checkBinaryMatch(Map<String, String> env, Product product) throws PrqaSetupException {
-		if (env == null) {
-			return;
-		}
-		String pathSep = System.getProperty("file.separator");
-		if (isUnix) {
-			if (product instanceof QAC) {
-				File f = new File(env.get("QACBIN") + pathSep + "qac");
-				String path = f.getPath();
-				if (!f.exists()) {
-					throw new PrqaSetupException(String.format("QA·C was selected as product, but no qac binary found in location: %s", path));
-				}
-			} else {
-				File f = new File(env.get("QACPPBIN") + pathSep + "qacpp");
-				String path = f.getPath();
-				if (!f.exists()) {
-					throw new PrqaSetupException(String.format("QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
-				}
-			}
-		} else {
-			if (product instanceof QAC) {
-				File f = new File(env.get("QACBIN") + pathSep + "qac.exe");
-				String path = f.getPath();
-				if (!f.exists()) {
-					throw new PrqaSetupException(String.format("QA·C was selected as product, but no qac binary found in location: %s", path));
-				}
-			} else {
-				File f = new File(env.get("QACPPBIN") + pathSep + "qacpp.exe");
-				String path = f.getPath();
-				if (!f.exists()) {
-					throw new PrqaSetupException(String.format("QA·C++ was selected as product, but no qacpp binary found in location: %s", path));
-				}
-			}
-		}
-	}
-
 	@Override
 	public String invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
 		try {
 
 			Map<String, String> envExpanded = expandEnvironment(environment, appSettings, reportSettings, isUnix);
-			_checkImportantEnvVars(envExpanded, product);
-			if (product instanceof QAC || product instanceof QACpp) {
-				_checkBinaryMatch(envExpanded, product);
-			}
 			return product.getProductVersion(envExpanded, f, isUnix);
 		} catch (PrqaSetupException setupException) {
 			throw new IOException("Tool misconfiguration detected", setupException);

@@ -1,5 +1,6 @@
 package net.praqma.jenkins.plugin.prqa.setup;
 
+import com.google.common.base.Strings;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.model.Node;
@@ -7,26 +8,24 @@ import hudson.model.TaskListener;
 import hudson.slaves.NodeSpecific;
 import hudson.tools.ToolDescriptor;
 import hudson.tools.ToolInstallation;
-import hudson.tools.ToolLocationNodeProperty;
 import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
-
-import java.io.IOException;
-import java.util.*;
-
 import jenkins.model.Jenkins;
 import net.praqma.prqa.products.QACli;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
-import com.google.common.base.Strings;
-
 import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class QAFrameworkInstallationConfiguration extends ToolInstallation implements PRQAToolSuite, NodeSpecific<QAFrameworkInstallationConfiguration> {
 

@@ -589,15 +589,17 @@ public class PRQANotifier extends Recorder
                 !qaFrameworkPostBuildActionSetup.chosenServers.isEmpty()) {
             for (String chosenServer : qaFrameworkPostBuildActionSetup.chosenServers) {
                 QAVerifyServerSettings qaVerifySettings = setQaVerifyServerSettings(chosenServer);
-                QAFrameworkReport report = new QAFrameworkReport(qaReportSettings, qaVerifySettings, appSettings,
-                        environmentVariables);
+                QAFrameworkReport report = new QAFrameworkReport(qaReportSettings,
+                                                                 qaVerifySettings,
+                                                                 environmentVariables);
 
                 remoteReports.add(new QAFrameworkRemoteReport(report, listener, launcher.isUnix()));
                 remoteReportUploads.add(new QAFrameworkRemoteReportUpload(report, listener));
             }
         } else {
-            QAFrameworkReport report = new QAFrameworkReport(qaReportSettings, setQaVerifyServerSettings(null),
-                    appSettings, environmentVariables);
+            QAFrameworkReport report = new QAFrameworkReport(qaReportSettings,
+                                                             setQaVerifyServerSettings(null),
+                                                             environmentVariables);
             remoteReports.add(new QAFrameworkRemoteReport(report, listener, launcher.isUnix()));
         }
 
