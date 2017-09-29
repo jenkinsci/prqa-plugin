@@ -38,48 +38,61 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- *
  * @author mads
  */
-public class MessageComplianceThreshold extends AbstractThreshold {
+public class MessageComplianceThreshold
+        extends AbstractThreshold {
 
     public final Integer value;
     public final int thresholdLevel;
     private static final Logger log = Logger.getLogger(MessageComplianceThreshold.class.getName());
 
     @DataBoundConstructor
-    public MessageComplianceThreshold(final Integer value, final int thresholdLevel, final Boolean improvement) {
+    public MessageComplianceThreshold(final Integer value,
+                                      final int thresholdLevel,
+                                      final Boolean improvement) {
         super(improvement);
         this.value = value;
         this.thresholdLevel = thresholdLevel;
     }
 
     @Override
-    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
-        if (value == null) {
-            return true;
-        }
-        return isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus, thresholdLevel);
+    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus,
+                                       PRQAComplianceStatus currentComplianceStatus) {
+        return value == null || isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus,
+                                                              thresholdLevel);
     }
 
-    public boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
+    private boolean isImprovementForMessageGroups(PRQAComplianceStatus previousComplianceStatus,
+                                                  PRQAComplianceStatus currentComplianceStatus,
+                                                  int thresholdLevel) {
         boolean areAllMessagesValid = true;
         List<MessageGroup> currentComplianceStatusMessageGroups = currentComplianceStatus.getMessagesGroups();
 
         if (currentComplianceStatusMessageGroups == null || currentComplianceStatusMessageGroups.isEmpty()) {
-            areAllMessagesValid = currentComplianceStatus.getMessageCount(thresholdLevel) <= previousComplianceStatus.getMessageCount(thresholdLevel);
+            areAllMessagesValid = currentComplianceStatus.getMessageCount(
+                    thresholdLevel) <= previousComplianceStatus.getMessageCount(thresholdLevel);
             if (!areAllMessagesValid) {
-                currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(currentComplianceStatus.getMessageCount(thresholdLevel), previousComplianceStatus.getMessageCount(thresholdLevel)));
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(
+                        currentComplianceStatus.getMessageCount(thresholdLevel),
+                        previousComplianceStatus.getMessageCount(thresholdLevel)));
             }
         } else {
             List<MessageGroup> previousComplianceStatusMessageGroups = previousComplianceStatus.getMessagesGroups();
             for (int i = 0; i < currentComplianceStatusMessageGroups.size(); i++) {
                 MessageGroup currentMessageGroup = currentComplianceStatusMessageGroups.get(i);
                 for (int j = 0; j < previousComplianceStatusMessageGroups.size(); j++) {
-                    if (currentMessageGroup.getMessageGroupName().equals(previousComplianceStatusMessageGroups.get(j).getMessageGroupName())) {
-                        if (currentMessageGroup.getMessagesWithinThreshold() <= previousComplianceStatusMessageGroups.get(j).getMessagesWithinThreshold()) {
-                            currentComplianceStatus.addNotification(onUnstableMessage(currentMessageGroup.getMessageGroupName(),
-                                    currentMessageGroup.getMessagesWithinThreshold(), previousComplianceStatusMessageGroups.get(j).getMessagesWithinThreshold()));
+                    if (currentMessageGroup.getMessageGroupName()
+                                           .equals(previousComplianceStatusMessageGroups.get(j)
+                                                                                        .getMessageGroupName())) {
+                        if (currentMessageGroup.getMessagesWithinThreshold() <= previousComplianceStatusMessageGroups.get(
+                                j)
+                                                                                                                     .getMessagesWithinThreshold()) {
+                            currentComplianceStatus.addNotification(
+                                    onUnstableMessage(currentMessageGroup.getMessageGroupName(),
+                                                      currentMessageGroup.getMessagesWithinThreshold(),
+                                                      previousComplianceStatusMessageGroups.get(j)
+                                                                                           .getMessagesWithinThreshold()));
                             areAllMessagesValid = false;
                         }
                     }
@@ -89,20 +102,20 @@ public class MessageComplianceThreshold extends AbstractThreshold {
         return areAllMessagesValid;
     }
 
-    private String onUnstableMessage(String messageGroupName, int actualValue, int comparisonValue) {
+    private String onUnstableMessage(String messageGroupName,
+                                     int actualValue,
+                                     int comparisonValue) {
         return Messages.PRQANotifier_MaxMessagesRequirementNotMet(messageGroupName, actualValue, comparisonValue);
     }
 
     @Override
     public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
-        if (value == null) {
-            return true;
-        }
-        return isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
+        return value == null || isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
     }
 
-    private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus, int thresholdLevel) {
-        boolean isValidTreshold = true;
+    private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus,
+                                                    int thresholdLevel) {
+        boolean isValidTreshold;
         boolean isStableBuild = true;
         List<MessageGroup> messageGroups = currentComplianceStatus.getMessagesGroups();
         if (messageGroups == null || messageGroups.isEmpty()) {
@@ -115,10 +128,13 @@ public class MessageComplianceThreshold extends AbstractThreshold {
             for (MessageGroup messageGroup : currentComplianceStatus.getMessagesGroups()) {
                 isValidTreshold = messageGroup.getMessagesWithinThreshold() <= value;
                 if (!isValidTreshold) {
-                    currentComplianceStatus.addNotification(onUnstableMessage(messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinThreshold(), value));
+                    currentComplianceStatus.addNotification(onUnstableMessage(messageGroup.getMessageGroupName(),
+                                                                              messageGroup.getMessagesWithinThreshold(),
+                                                                              value));
                     isStableBuild = false;
                 }
-                log.fine(String.format("For %s are %s mesages, comparing to: %s", messageGroup.getMessageGroupName(), messageGroup.getMessagesWithinThreshold(), value));
+                log.fine(String.format("For %s are %s mesages, comparing to: %s", messageGroup.getMessageGroupName(),
+                                       messageGroup.getMessagesWithinThreshold(), value));
                 log.fine(String.format("ValidateThreshold returned %s", isValidTreshold));
             }
         }
@@ -126,13 +142,15 @@ public class MessageComplianceThreshold extends AbstractThreshold {
     }
 
     @Extension
-    public static final class DescriptorImpl extends ThresholdSelectionDescriptor<MessageComplianceThreshold> {
+    public static final class DescriptorImpl
+            extends ThresholdSelectionDescriptor<MessageComplianceThreshold> {
 
         @Override
         public String getDisplayName() {
             return "Message Compliance Threshold";
         }
 
+        @SuppressWarnings("unused")
         public ListBoxModel doFillThresholdLevelItems() {
             ListBoxModel model = new ListBoxModel();
             for (int i = 0; i < 10; i++) {
@@ -142,7 +160,11 @@ public class MessageComplianceThreshold extends AbstractThreshold {
         }
 
         @Override
-        public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
+        public FormValidation doCheckValue(
+                @QueryParameter
+                        String value,
+                @QueryParameter
+                        boolean improvement) {
             if (!improvement) {
                 if (StringUtils.isEmpty(value)) {
                     return FormValidation.ok();

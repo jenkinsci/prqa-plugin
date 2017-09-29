@@ -8,13 +8,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 
-public class DeleteReportsFromWorkspace extends MasterToSlaveFileCallable<Boolean> implements Serializable {
+public class DeleteReportsFromWorkspace
+        extends MasterToSlaveFileCallable<Boolean>
+        implements Serializable {
 
     public DeleteReportsFromWorkspace() {
     }
 
     @Override
-    public Boolean invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public Boolean invoke(File f,
+                          VirtualChannel channel)
+            throws IOException, InterruptedException {
 
         File[] files = f.listFiles(new ReportFileFilter());
 

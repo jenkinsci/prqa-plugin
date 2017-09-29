@@ -23,9 +23,15 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.FilePath.FileCallable;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
+import jenkins.MasterToSlaveFileCallable;
+import net.praqma.prqa.PRQAApplicationSettings;
+import net.praqma.prqa.exceptions.PrqaException;
+import net.praqma.prqa.products.QACli;
+import net.praqma.prqa.reports.QAFrameworkReport;
+import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,30 +40,20 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-import jenkins.MasterToSlaveFileCallable;
-import net.praqma.prqa.PRQAApplicationSettings;
-import net.praqma.prqa.QaFrameworkVersion;
-import net.praqma.prqa.exceptions.PrqaException;
-import net.praqma.prqa.exceptions.PrqaUploadException;
-import net.praqma.prqa.products.QACli;
-import net.praqma.prqa.reports.QAFrameworkReport;
-import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
-
-import org.apache.commons.lang.StringUtils;
-
-public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Void> implements Serializable {
+public class QAFrameworkRemoteReportUpload
+        extends MasterToSlaveFileCallable<Void>
+        implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
     private QAFrameworkReport report;
     private BuildListener listener;
-    private boolean isUnix;
     private QaFrameworkReportSettings reportSetting;
 
-    public QAFrameworkRemoteReportUpload(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
+    public QAFrameworkRemoteReportUpload(QAFrameworkReport report,
+                                         BuildListener listener) {
         this.report = report;
         this.listener = listener;
-        this.isUnix = isUnix;
     }
 
     private Map<String, String> expandEnvironment(Map<String, String> environment,
@@ -66,14 +62,15 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
         if (environment == null) {
             return Collections.emptyMap();
         }
-        environment.put(QACli.QAF_BIN_PATH,
-                PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), File.separator) + "common"
-                + File.separator + "bin");
+        environment.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                                             File.separator) + "common" + File.separator + "bin");
         return environment;
     }
 
     @Override
-    public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public Void invoke(File f,
+                       VirtualChannel channel)
+            throws IOException, InterruptedException {
 
         Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getSettings());
 
@@ -81,29 +78,24 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
         report.setWorkspace(f);
 
         PrintStream out = listener.getLogger();
-        /**
-         * If the project file is null at this point. It means that this is a
-         * report based on a settings file.
-         *
-         * We skip the analysis phase
-         *
+        /*
+          If the project file is null at this point. It means that this is a
+          report based on a settings file.
+
+          We skip the analysis phase
+
          */
         try {
-            if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
+            if (StringUtils.isBlank(report.getSettings()
+                                          .getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration of QA framework installation!");
             }
             if (reportSetting.isLoginToQAV() && reportSetting.isPublishToQAV()) {
                 report.uploadQacli(out);
             }
             return null;
-        } catch (PrqaUploadException ex) {
-            throw new IOException(ex.getMessage(), ex);
         } catch (PrqaException exception) {
             throw new IOException(exception.getMessage(), exception);
         }
-    }
-
-    public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
-        report.setQaFrameworkVersion(qaFrameworkVersion);
     }
 }

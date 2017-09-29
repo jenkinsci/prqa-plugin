@@ -27,37 +27,52 @@ import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
+import jenkins.model.Jenkins;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import jenkins.model.Jenkins;
 
 /**
- *
  * @author Praqma
  */
-public class PostBuildActionSetup implements Describable<PostBuildActionSetup>, ExtensionPoint, Serializable {
+public class PostBuildActionSetup
+        implements Describable<PostBuildActionSetup>, ExtensionPoint, Serializable {
 
     @Override
     public Descriptor<PostBuildActionSetup> getDescriptor() {
-        return (Descriptor<PostBuildActionSetup>) Jenkins.getInstance().getDescriptorOrDie( getClass() );
+        Jenkins instance = Jenkins.getInstance();
+        if (instance == null) {
+            return null;
+        }
+
+        //noinspection unchecked
+        return (Descriptor<PostBuildActionSetup>) instance.getDescriptorOrDie(getClass());
     }
-    
-    /**PRQAReportSource
-    * All registered {@link PostBuildActionSetup}s.
-    */
-   public static DescriptorExtensionList<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> all() {
-           return Jenkins.getInstance().<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> getDescriptorList( PostBuildActionSetup.class );
-   }
-   
-   public static List<PRQAReportSourceDescriptor<?>> getDescriptors() {
-       List<PRQAReportSourceDescriptor<?>> descriptors = new ArrayList<PRQAReportSourceDescriptor<?>>();
-       for(PRQAReportSourceDescriptor<?> desc : all()) {
-           descriptors.add(desc);
-       }
-       
-       return descriptors;
-   }
-    
+
+    /**
+     * PRQAReportSource
+     * All registered {@link PostBuildActionSetup}s.
+     */
+    public static DescriptorExtensionList<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> all() {
+        Jenkins instance = Jenkins.getInstance();
+        if (instance == null) {
+            return null;
+        }
+
+        return instance.getDescriptorList(PostBuildActionSetup.class);
+    }
+
+    public static List<PRQAReportSourceDescriptor<?>> getDescriptors() {
+        List<PRQAReportSourceDescriptor<?>> descriptors = new ArrayList<>();
+        DescriptorExtensionList<PostBuildActionSetup, PRQAReportSourceDescriptor<PostBuildActionSetup>> all = all();
+        if (all == null) {
+            return descriptors;
+        }
+
+        descriptors.addAll(all);
+
+        return descriptors;
+    }
+
 }

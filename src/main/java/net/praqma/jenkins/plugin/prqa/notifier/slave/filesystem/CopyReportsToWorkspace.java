@@ -15,7 +15,9 @@ import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
 
-public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> implements Serializable {
+public class CopyReportsToWorkspace
+        extends MasterToSlaveFileCallable<Boolean>
+        implements Serializable {
 
     private final String qaProject;
     private final String projectConfiguration;
@@ -27,13 +29,13 @@ public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> i
     }
 
     @Override
-    public Boolean invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public Boolean invoke(File f,
+                          VirtualChannel channel)
+            throws IOException, InterruptedException {
 
         final String reportsPath;
         try {
-            reportsPath = QAFrameworkReport.extractReportsPath(f.getAbsolutePath(),
-                                                               qaProject,
-                                                               projectConfiguration);
+            reportsPath = QAFrameworkReport.extractReportsPath(f.getAbsolutePath(), qaProject, projectConfiguration);
         } catch (PrqaException e) {
             throw new IOException(e);
         }
@@ -51,9 +53,7 @@ public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> i
     }
 
     private boolean containsReportName(String fileName) {
-        return fileName.contains(CRR.name()) ||
-                fileName.contains(SUR.name()) ||
-                fileName.contains(RCR.name()) ||
-                fileName.contains(MDR.name());
+        return fileName.contains(CRR.name()) || fileName.contains(SUR.name()) || fileName.contains(
+                RCR.name()) || fileName.contains(MDR.name());
     }
 }

@@ -27,7 +27,6 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
-import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
@@ -46,18 +45,18 @@ import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
 
-public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
+public class QAFrameworkRemoteReport
+        extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
 
     private static final long serialVersionUID = 1L;
     private QAFrameworkReport report;
     private BuildListener listener;
-    private boolean isUnix;
     private QaFrameworkReportSettings reportSetting;
 
-    public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener, boolean isUnix) {
+    public QAFrameworkRemoteReport(QAFrameworkReport report,
+                                   BuildListener listener) {
         this.report = report;
         this.listener = listener;
-        this.isUnix = isUnix;
     }
 
     private Map<String, String> expandEnvironment(Map<String, String> environment,
@@ -66,14 +65,15 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
         if (environment == null) {
             return Collections.emptyMap();
         }
-        environment.put(QACli.QAF_BIN_PATH,
-                PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), File.separator) + "common"
-                + File.separator + "bin");
+        environment.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                                             File.separator) + "common" + File.separator + "bin");
         return environment;
     }
 
     @Override
-    public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public PRQAComplianceStatus invoke(File f,
+                                       VirtualChannel channel)
+            throws IOException, InterruptedException {
 
         Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getSettings());
 
@@ -83,23 +83,24 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
         PrintStream out = listener.getLogger();
         out.println("Workspace from invoke:" + f.getAbsolutePath());
 
-        /**
-         * If the project file is null at this point. It means that this is a
-         * report based on a settings file.
-         *
-         * We skip the analysis phase
+        /*
+          If the project file is null at this point. It means that this is a
+          report based on a settings file.
+
+          We skip the analysis phase
          */
         boolean customServerWasApplied = false;
         try {
 
             customServerWasApplied = report.applyCustomLicenseServer(out);
 
-            if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
+            if (StringUtils.isBlank(report.getSettings()
+                                          .getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration of QA framework installation!");
             }
 
             if (reportSetting.isLoginToQAV() && reportSetting.isPullUnifiedProject()) {
-                report.pullUnifyProjectQacli(isUnix, out);
+                report.pullUnifyProjectQacli(out);
             }
 
             if (reportSetting.isAnalysisSettings() && reportSetting.isCustomCpuThreads()) {
@@ -107,7 +108,7 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
 
             try {
-                report.analyzeQacli(isUnix, "-cf", out);
+                report.analyzeQacli("-cf", out);
             } catch (PrqaException e) {
                 if (!reportSetting.isGenerateReportOnAnalysisError()) {
                     out.println("Failed to perform analysis. Will not continue with report generation");
@@ -117,7 +118,7 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
 
             if (reportSetting.isQaCrossModuleAnalysis()) {
                 try {
-                    report.cmaAnalysisQacli(isUnix, out);
+                    report.cmaAnalysisQacli(out);
                 } catch (PrqaException e) {
                     if (!reportSetting.isGenerateReportOnAnalysisError()) {
                         out.println("Failed to perform analysis. Will not continue with report generation");
@@ -127,20 +128,18 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
 
             if (reportSetting.isGenCrReport()) {
-                report.reportQacli(isUnix, CRR.name(), out);
+                report.reportQacli(CRR.name(), out);
             }
             if (reportSetting.isGenMdReport()) {
-                report.reportQacli(isUnix, MDR.name(), out);
+                report.reportQacli(MDR.name(), out);
             }
             if (reportSetting.isGenSupReport()) {
-                report.reportQacli(isUnix, SUR.name(), out);
+                report.reportQacli(SUR.name(), out);
             }
 
-            report.reportQacli(isUnix, RCR.name(), out);
+            report.reportQacli(RCR.name(), out);
 
             return report.getComplianceStatus(out);
-        } catch (PrqaException exception) {
-            throw new IOException(exception.getMessage(), exception);
         } catch (Exception ex) {
             throw new IOException(ex.getMessage(), ex);
         } finally {
@@ -150,9 +149,5 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
                 throw new IOException(e.getMessage(), e);
             }
         }
-    }
-
-    public void setQaFrameworkVersion(QaFrameworkVersion qaFrameworkVersion) {
-        report.setQaFrameworkVersion(qaFrameworkVersion);
     }
 }

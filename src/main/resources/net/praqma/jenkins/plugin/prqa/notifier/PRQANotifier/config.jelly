@@ -2,6 +2,7 @@
 <j:jelly
         xmlns:j="jelly:core"
         xmlns:f="/lib/form"
+        xmlns:st="jelly:stapler"
 >
     <style>
         td.setting-name {
@@ -17,16 +18,17 @@
                     checked="${instance.runWhenSuccess}"/>
     </f:entry>
 
-    <f:block>
-        <f:entry field="sourceQAFramework"
-                 help="/plugin/prqa-plugin/config/help-configProductType.html">
-            <f:descriptorRadioList title=""
-                                   descriptors="${descriptor.getReportSources()}"
-                                   varName="sourceQAFramework"
-                                   instance="${instance.sourceQAFramework}"
-            />
-        </f:entry>
-    </f:block>
+
+    <f:entry field="sourceQAFramework">
+        <j:set var="instance" value="${instance.sourceQAFramework}"/>
+        <j:set var="d" value="${descriptor.getReportSource()}"/>
+        <f:section name="sourceQAFramework"
+                   title="${d.displayName}">
+            <j:set var="descriptor" value="${d}"/>
+            <f:class-entry descriptor="${descriptor}"/>
+            <st:include from="${d}" page="${d.configPage}" optional="true"/>
+        </f:section>
+    </f:entry>
 
     <f:section title="Threshold">
         <f:entry help="/plugin/prqa-plugin/config/help-thresholds.html"/>

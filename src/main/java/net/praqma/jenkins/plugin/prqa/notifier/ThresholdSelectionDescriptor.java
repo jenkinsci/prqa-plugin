@@ -31,17 +31,23 @@ import org.kohsuke.stapler.QueryParameter;
 import org.kohsuke.stapler.StaplerRequest;
 
 /**
- *
  * @author mads
  */
-public abstract class ThresholdSelectionDescriptor<T extends AbstractThreshold> extends Descriptor<AbstractThreshold> {
+public abstract class ThresholdSelectionDescriptor<T extends AbstractThreshold>
+        extends Descriptor<AbstractThreshold> {
 
     @Override
-    public AbstractThreshold newInstance(StaplerRequest req, JSONObject formData) throws FormException {
+    public AbstractThreshold newInstance(StaplerRequest req,
+                                         JSONObject formData)
+            throws FormException {
         return super.newInstance(req, formData); //To change body of generated methods, choose Tools | Templates.
     }
 
-    public FormValidation doCheckValue(@QueryParameter String value, @QueryParameter boolean improvement) {
+    public FormValidation doCheckValue(
+            @QueryParameter
+                    String value,
+            @QueryParameter
+                    boolean improvement) {
         if (!improvement) {
             try {
                 Double parsedValue = Double.parseDouble(value);
@@ -54,5 +60,5 @@ public abstract class ThresholdSelectionDescriptor<T extends AbstractThreshold> 
         }
         return FormValidation.ok();
     }
-        
+
 }

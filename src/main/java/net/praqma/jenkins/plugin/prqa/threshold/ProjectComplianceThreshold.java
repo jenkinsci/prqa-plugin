@@ -30,56 +30,60 @@ import net.praqma.prqa.status.PRQAComplianceStatus;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
- * 
  * @author mads
  */
-public class ProjectComplianceThreshold extends AbstractThreshold {
+public class ProjectComplianceThreshold
+        extends AbstractThreshold {
 
-	public final Double value;
+    public final Double value;
 
-	@DataBoundConstructor
-	public ProjectComplianceThreshold(final Double value, final Boolean improvement) {
-		super(improvement);
-		this.value = value;
-	}
+    @DataBoundConstructor
+    public ProjectComplianceThreshold(final Double value,
+                                      final Boolean improvement) {
+        super(improvement);
+        this.value = value;
+    }
 
-	@Override
-	public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
-		boolean isValidImprovement = true;
-		if (previousComplianceStatus != null) {
-			isValidImprovement = currentComplianceStatus.getProjectCompliance() >= previousComplianceStatus.getProjectCompliance();
-			if (!isValidImprovement) {
-				currentComplianceStatus.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(
-						currentComplianceStatus.getProjectCompliance(), previousComplianceStatus.getProjectCompliance()));
-			}
-		}
-		return isValidImprovement;
-	}
+    @Override
+    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus,
+                                       PRQAComplianceStatus currentComplianceStatus) {
+        boolean isValidImprovement = true;
+        if (previousComplianceStatus != null) {
+            isValidImprovement = currentComplianceStatus.getProjectCompliance() >= previousComplianceStatus.getProjectCompliance();
+            if (!isValidImprovement) {
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(
+                        currentComplianceStatus.getProjectCompliance(),
+                        previousComplianceStatus.getProjectCompliance()));
+            }
+        }
+        return isValidImprovement;
+    }
 
-	@Override
-	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
-		boolean isValidTreshold = true;
-		if (value != null) {
-			isValidTreshold = currentComplianceStatus.getProjectCompliance() >= value;
-			if (!isValidTreshold) {
-				currentComplianceStatus.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(
-						currentComplianceStatus.getProjectCompliance(), value));
-			}
-		}
-		return isValidTreshold;
-	}
+    @Override
+    public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
+        boolean isValidTreshold = true;
+        if (value != null) {
+            isValidTreshold = currentComplianceStatus.getProjectCompliance() >= value;
+            if (!isValidTreshold) {
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(
+                        currentComplianceStatus.getProjectCompliance(), value));
+            }
+        }
+        return isValidTreshold;
+    }
 
-	@Extension
-	public static final class DescriptorImpl extends ThresholdSelectionDescriptor<ProjectComplianceThreshold> {
+    @Extension
+    public static final class DescriptorImpl
+            extends ThresholdSelectionDescriptor<ProjectComplianceThreshold> {
 
-		@Override
-		public String getDisplayName() {
-			return "Project Compliance Threshold";
-		}
+        @Override
+        public String getDisplayName() {
+            return "Project Compliance Threshold";
+        }
 
-		@Override
-		public String getHelpFile() {
-			return "/plugin/prqa-plugin/config/help-thresholds-project.html";
-		}
-	}
+        @Override
+        public String getHelpFile() {
+            return "/plugin/prqa-plugin/config/help-thresholds-project.html";
+        }
+    }
 }

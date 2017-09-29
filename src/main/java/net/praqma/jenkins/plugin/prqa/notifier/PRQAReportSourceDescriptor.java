@@ -26,13 +26,17 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 import hudson.model.Descriptor;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.StaplerRequest;
+
 /**
- *
  * @author Praqma
  */
-public abstract class PRQAReportSourceDescriptor<T extends PostBuildActionSetup> extends Descriptor<PostBuildActionSetup> {
-    public PostBuildActionSetup newInstance( StaplerRequest req, JSONObject formData, PostBuildActionSetup instance ) throws FormException { 
-        return super.newInstance( req, formData );
+public abstract class PRQAReportSourceDescriptor<T extends PostBuildActionSetup>
+        extends Descriptor<PostBuildActionSetup> {
+    public PostBuildActionSetup newInstance(StaplerRequest req,
+                                            JSONObject formData,
+                                            PostBuildActionSetup instance)
+            throws FormException {
+        return super.newInstance(req, formData);
     }
 }    
 

@@ -24,28 +24,30 @@
 package net.praqma.jenkins.plugin.prqa.graphs;
 
 import junit.framework.TestCase;
-import net.praqma.jenkins.plugin.prqa.graphs.*;
-import net.praqma.prqa.PRQAContext;
 import net.praqma.prqa.PRQAStatusCollection;
 import net.praqma.prqa.status.StatusCategory;
 import org.junit.Test;
 
 /**
- *
  * @author Praqma
  */
-public class GraphTest extends TestCase {
+public class GraphTest
+        extends TestCase {
     @Test
-    public void testGraphInitialization() { 
+    public void testGraphInitialization() {
         ComplianceIndexGraphs cGraphs = new ComplianceIndexGraphs();
         System.out.println("Test max values");
         cGraphs.setData(new PRQAStatusCollection());
-                
-        assertEquals(cGraphs.getData().getOverriddenMax(StatusCategory.FileCompliance), Integer.valueOf(100));
-        assertEquals(cGraphs.getData().getOverriddenMax(StatusCategory.ProjectCompliance),Integer.valueOf(100));
+
+        assertEquals(cGraphs.getData()
+                            .getOverriddenMax(StatusCategory.FileCompliance), Integer.valueOf(100));
+        assertEquals(cGraphs.getData()
+                            .getOverriddenMax(StatusCategory.ProjectCompliance), Integer.valueOf(100));
         System.out.println("Test min values");
-        assertEquals(cGraphs.getData().getOverriddenMin(StatusCategory.FileCompliance),Integer.valueOf(0));
-        assertEquals(cGraphs.getData().getOverriddenMin(StatusCategory.ProjectCompliance),Integer.valueOf(0));
+        assertEquals(cGraphs.getData()
+                            .getOverriddenMin(StatusCategory.FileCompliance), Integer.valueOf(0));
+        assertEquals(cGraphs.getData()
+                            .getOverriddenMin(StatusCategory.ProjectCompliance), Integer.valueOf(0));
         assertNotNull(cGraphs.getTitle());
         assertNotNull(cGraphs.getType());
 

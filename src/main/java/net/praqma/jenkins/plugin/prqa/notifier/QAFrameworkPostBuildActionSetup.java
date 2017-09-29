@@ -40,13 +40,14 @@ import org.kohsuke.stapler.StaplerRequest;
 import java.util.Arrays;
 import java.util.List;
 
-public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
+public class QAFrameworkPostBuildActionSetup
+        extends PostBuildActionSetup {
 
     public String qaInstallation;
     public String qaProject;
     public String unifiedProjectName;
-    public final boolean useCustomLicenseServer;
-    public final String customLicenseServerAddress;
+    public boolean useCustomLicenseServer;
+    public String customLicenseServerAddress;
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
     public String cmaProjectName;
@@ -372,10 +373,13 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     }
 
     @Extension
-    public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
+    public final static class DescriptorImpl
+            extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+        public boolean configure(StaplerRequest req,
+                                 JSONObject json)
+                throws FormException {
             save();
             return super.configure(req, json);
         }
@@ -390,7 +394,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return "PRQA·Framework";
         }
 
-        public FormValidation doCheckCustomLicenseServerAddress(@QueryParameter String customLicenseServerAddress) {
+        public FormValidation doCheckCustomLicenseServerAddress(
+                @QueryParameter
+                        String customLicenseServerAddress) {
             final String serverRegex = "^(\\d{1,5})@(.+)$";
 
             if (StringUtils.isBlank(customLicenseServerAddress)) {
@@ -402,7 +408,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
         }
 
-        public FormValidation doCheckQAInstallation(@QueryParameter String value) {
+        public FormValidation doCheckQAInstallation(
+                @QueryParameter
+                        String value) {
             if (StringUtils.isBlank(value)) {
                 return FormValidation.error("Error");
             } else {
@@ -418,50 +426,65 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return SourceOption;
         }
 
-        public FormValidation doCheckCmaProjectName(@QueryParameter String cmaProjectName) {
+        public FormValidation doCheckCmaProjectName(
+                @QueryParameter
+                        String cmaProjectName) {
             if (StringUtils.isBlank(cmaProjectName)) {
                 return FormValidation.errorWithMarkup("CMA project name should not be empty!");
             }
             if (!cmaProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("CMA project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "CMA project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckUnifiedProjectName(@QueryParameter String unifiedProjectName) {
+        public FormValidation doCheckUnifiedProjectName(
+                @QueryParameter
+                        String unifiedProjectName) {
             if (StringUtils.isBlank(unifiedProjectName)) {
                 return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
             }
             if (!unifiedProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("Unified project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "Unified project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckUploadSnapshotName(@QueryParameter String uploadSnapshotName) {
+        public FormValidation doCheckUploadSnapshotName(
+                @QueryParameter
+                        String uploadSnapshotName) {
             if (StringUtils.isBlank(uploadSnapshotName)) {
                 return FormValidation.ok();
             }
             if (!uploadSnapshotName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("Snapshot name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "Snapshot name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckQaVerifyProjectName(@QueryParameter String qaVerifyProjectName) {
+        public FormValidation doCheckQaVerifyProjectName(
+                @QueryParameter
+                        String qaVerifyProjectName) {
             if (StringUtils.isBlank(qaVerifyProjectName)) {
                 return FormValidation.errorWithMarkup("Project name should not be empty!");
             }
             if (!qaVerifyProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("Project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "Project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckMaxNumThreads(@QueryParameter String maxNumThreads) {
+        public FormValidation doCheckMaxNumThreads(
+                @QueryParameter
+                        String maxNumThreads) {
             final Integer minValue = 0;
             if (StringUtils.isBlank(maxNumThreads)) {
-                return FormValidation.errorWithMarkup(Messages.PRQANotifier_NotEmptyValue("Max. Number of Threads for Analysis"));
+                return FormValidation.errorWithMarkup(
+                        Messages.PRQANotifier_NotEmptyValue("Max. Number of Threads for Analysis"));
             }
             try {
                 final Integer parsedValue = Integer.parseInt(maxNumThreads);
@@ -491,8 +514,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
                 throw new RuntimeException("Unable to aquire Jenkins instance");
             }
 
-            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins
-                    .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
+            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins.getDescriptorByType(
+                    QAFrameworkInstallationConfiguration.DescriptorImpl.class)
+                                                                              .getInstallations();
             return Arrays.asList(prqaInstallations);
         }
 
@@ -501,7 +525,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         }
 
         public List<QAVerifyServerConfiguration> getServers() {
-            return PRQAGlobalConfig.get().getServers();
+            return PRQAGlobalConfig.get()
+                                   .getServers();
         }
 
         public List<PRQAFileProjectSourceDescriptor<?>> getFileProjectSources() {
