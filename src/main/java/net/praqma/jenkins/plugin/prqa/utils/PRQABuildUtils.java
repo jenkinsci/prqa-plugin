@@ -16,7 +16,9 @@ import java.util.TreeMap;
 
 public class PRQABuildUtils {
 
-    public static String normalizeWithEnv(final String in, final AbstractBuild<?, ?> build, final TaskListener listener) {
+    public static String normalizeWithEnv(final String in,
+                                          final AbstractBuild<?, ?> build,
+                                          final TaskListener listener) {
 
         FilePath buildWorkspace = build.getWorkspace();
         if (buildWorkspace == null) {
@@ -27,8 +29,9 @@ public class PRQABuildUtils {
         try {
             isOsWindows = buildWorkspace.act(new MasterToSlaveCallable<Boolean, RuntimeException>() {
                 @Override
-                public Boolean call() throws
-                                      RuntimeException {
+                public Boolean call()
+                        throws
+                        RuntimeException {
                     return SystemUtils.IS_OS_WINDOWS;
                 }
             });
@@ -64,7 +67,9 @@ public class PRQABuildUtils {
 
         for (Map.Entry<String, String> entry : envVars.entrySet()) {
             for (String regex : regexTemplate) {
-                out = out.replaceAll(String.format(regex, entry.getKey()), entry.getValue());
+                out = out.replaceAll(String.format(regex,
+                                                   entry.getKey()),
+                                     entry.getValue());
             }
         }
 

@@ -230,28 +230,40 @@ public class QAVerifyServerConfiguration
             return "QA·Verify Server";
         }
 
-        public FormValidation doCheckConfigurationName(@QueryParameter String value) {
+        public FormValidation doCheckConfigurationName(
+                @QueryParameter
+                        String value) {
             return FormValidation.validateRequired(value);
         }
 
-        public FormValidation doCheckHostName(@QueryParameter String value) {
+        public FormValidation doCheckHostName(
+                @QueryParameter
+                        String value) {
             return FormValidation.validateRequired(value);
         }
 
-        public FormValidation doCheckPortNumber(@QueryParameter String value) {
+        public FormValidation doCheckPortNumber(
+                @QueryParameter
+                        String value) {
             return checkValidPort(value);
         }
 
-        public FormValidation doCheckUserName(@QueryParameter String value) {
+        public FormValidation doCheckUserName(
+                @QueryParameter
+                        String value) {
             return FormValidation.validateRequired(value);
         }
 
-        public FormValidation doCheckViewerPortNumber(@QueryParameter String value) {
+        public FormValidation doCheckViewerPortNumber(
+                @QueryParameter
+                        String value) {
             return checkValidPort(value);
         }
 
-        public FormValidation doCheckExternalUrl(@QueryParameter String value) {
-            if (StringUtils.isEmpty(value)){
+        public FormValidation doCheckExternalUrl(
+                @QueryParameter
+                        String value) {
+            if (StringUtils.isEmpty(value)) {
                 return FormValidation.ok();
             }
             try {
@@ -262,7 +274,9 @@ public class QAVerifyServerConfiguration
             return FormValidation.ok();
         }
 
-        private FormValidation checkValidPort(@QueryParameter String value) {
+        private FormValidation checkValidPort(
+                @QueryParameter
+                        String value) {
             Integer valueOf;
             try {
                 valueOf = Integer.valueOf(value);

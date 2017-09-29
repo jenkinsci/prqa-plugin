@@ -39,11 +39,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *
  * @author Praqma
  */
 @Extension
-public class PRQAGlobalConfig extends GlobalConfiguration {
+public class PRQAGlobalConfig
+        extends GlobalConfiguration {
 
 
     private List<QAVerifyServerConfiguration> servers = new ArrayList<>();
@@ -58,14 +58,20 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
     }
 
     @Override
-    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+    public boolean configure(StaplerRequest req,
+                             JSONObject json)
+            throws
+            FormException {
         boolean clean_servers = json.get("servers") == null && servers.size() > 0;
         if (clean_servers) {
-            json.put("servers", new JSONObject());
+            json.put("servers",
+                     new JSONObject());
         }
-        req.bindJSON(this, json);
+        req.bindJSON(this,
+                     json);
         save();
-        boolean result = super.configure(req, json);
+        boolean result = super.configure(req,
+                                         json);
         if (clean_servers) {
             servers.clear();
         }
@@ -73,9 +79,9 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
     }
 
 
-    
     public static PRQAGlobalConfig get() {
-        return GlobalConfiguration.all().get(PRQAGlobalConfig.class);
+        return GlobalConfiguration.all()
+                                  .get(PRQAGlobalConfig.class);
     }
 
     /**
@@ -92,10 +98,11 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
     public void setServers(List<QAVerifyServerConfiguration> servers) {
         this.servers = servers;
     }
-    
+
     public QAVerifyServerConfiguration getConfigurationByName(String name) {
-        for(QAVerifyServerConfiguration conf : getServers()) {
-            if(conf.getConfigurationName().equals(name)) {
+        for (QAVerifyServerConfiguration conf : getServers()) {
+            if (conf.getConfigurationName()
+                    .equals(name)) {
                 return conf;
             }
         }
@@ -110,8 +117,8 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
 
         Collection<QAVerifyServerConfiguration> configurations = new ArrayList<>(names.size());
 
-        for(QAVerifyServerConfiguration conf : getServers()) {
-            if (names.contains(conf.getConfigurationName())){
+        for (QAVerifyServerConfiguration conf : getServers()) {
+            if (names.contains(conf.getConfigurationName())) {
                 configurations.add(conf);
             }
         }
@@ -124,6 +131,6 @@ public class PRQAGlobalConfig extends GlobalConfiguration {
         Jenkins instance = Jenkins.getInstance();
         assert instance != null;
         return Collections.singletonList(instance
-                                                .getDescriptor(QAVerifyServerConfiguration.class));
+                                                 .getDescriptor(QAVerifyServerConfiguration.class));
     }
 }

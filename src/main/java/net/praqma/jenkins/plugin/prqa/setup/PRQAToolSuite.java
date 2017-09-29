@@ -26,7 +26,6 @@ package net.praqma.jenkins.plugin.prqa.setup;
 import java.util.HashMap;
 
 /**
- *
  * @author Praqma
  */
 public interface PRQAToolSuite {

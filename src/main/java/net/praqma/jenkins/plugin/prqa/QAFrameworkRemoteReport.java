@@ -27,7 +27,6 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
-import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
@@ -46,14 +45,16 @@ import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
 
-public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
+public class QAFrameworkRemoteReport
+        extends MasterToSlaveFileCallable<PRQAComplianceStatus> {
 
     private static final long serialVersionUID = 1L;
     private QAFrameworkReport report;
     private BuildListener listener;
     private QaFrameworkReportSettings reportSetting;
 
-    public QAFrameworkRemoteReport(QAFrameworkReport report, BuildListener listener) {
+    public QAFrameworkRemoteReport(QAFrameworkReport report,
+                                   BuildListener listener) {
         this.report = report;
         this.listener = listener;
     }
@@ -65,15 +66,21 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             return Collections.emptyMap();
         }
         environment.put(QACli.QAF_BIN_PATH,
-                PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), File.separator) + "common"
-                + File.separator + "bin");
+                        PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                         File.separator) + "common"
+                                + File.separator + "bin");
         return environment;
     }
 
     @Override
-    public PRQAComplianceStatus invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public PRQAComplianceStatus invoke(File f,
+                                       VirtualChannel channel)
+            throws
+            IOException,
+            InterruptedException {
 
-        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getSettings());
+        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(),
+                                                                    report.getSettings());
 
         report.setEnvironment(expandedEnvironment);
         report.setWorkspace(f);
@@ -92,7 +99,8 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
 
             customServerWasApplied = report.applyCustomLicenseServer(out);
 
-            if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
+            if (StringUtils.isBlank(report.getSettings()
+                                          .getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration of QA framework installation!");
             }
 
@@ -105,7 +113,8 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
 
             try {
-                report.analyzeQacli("-cf", out);
+                report.analyzeQacli("-cf",
+                                    out);
             } catch (PrqaException e) {
                 if (!reportSetting.isGenerateReportOnAnalysisError()) {
                     out.println("Failed to perform analysis. Will not continue with report generation");
@@ -125,25 +134,32 @@ public class QAFrameworkRemoteReport extends MasterToSlaveFileCallable<PRQACompl
             }
 
             if (reportSetting.isGenCrReport()) {
-                report.reportQacli(CRR.name(), out);
+                report.reportQacli(CRR.name(),
+                                   out);
             }
             if (reportSetting.isGenMdReport()) {
-                report.reportQacli(MDR.name(), out);
+                report.reportQacli(MDR.name(),
+                                   out);
             }
             if (reportSetting.isGenSupReport()) {
-                report.reportQacli(SUR.name(), out);
+                report.reportQacli(SUR.name(),
+                                   out);
             }
 
-            report.reportQacli(RCR.name(), out);
+            report.reportQacli(RCR.name(),
+                               out);
 
             return report.getComplianceStatus(out);
         } catch (Exception ex) {
-            throw new IOException(ex.getMessage(), ex);
+            throw new IOException(ex.getMessage(),
+                                  ex);
         } finally {
             try {
-                report.unsetCustomLicenseServer(customServerWasApplied, out);
+                report.unsetCustomLicenseServer(customServerWasApplied,
+                                                out);
             } catch (PrqaException e) {
-                throw new IOException(e.getMessage(), e);
+                throw new IOException(e.getMessage(),
+                                      e);
             }
         }
     }

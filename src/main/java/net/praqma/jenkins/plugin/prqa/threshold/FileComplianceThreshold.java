@@ -32,52 +32,57 @@ import org.kohsuke.stapler.DataBoundConstructor;
 /**
  * @author mads
  */
-public class FileComplianceThreshold extends AbstractThreshold {
+public class FileComplianceThreshold
+        extends AbstractThreshold {
 
-	public final Double value;
+    public final Double value;
 
-	@DataBoundConstructor
-	public FileComplianceThreshold(final Double value, final Boolean improvement) {
-		super(improvement);
-		this.value = value;
-	}
+    @DataBoundConstructor
+    public FileComplianceThreshold(final Double value,
+                                   final Boolean improvement) {
+        super(improvement);
+        this.value = value;
+    }
 
-	@Override
-	public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
-		boolean isValidImprovement = true;
-		if (previousComplianceStatus != null) {
-			isValidImprovement = currentComplianceStatus.getFileCompliance() >= previousComplianceStatus.getFileCompliance();
-			if (!isValidImprovement) {
-				currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentComplianceStatus.getFileCompliance(),
-						previousComplianceStatus.getFileCompliance()));
-			}
-		}
-		return isValidImprovement;
-	}
+    @Override
+    public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus,
+                                       PRQAComplianceStatus currentComplianceStatus) {
+        boolean isValidImprovement = true;
+        if (previousComplianceStatus != null) {
+            isValidImprovement = currentComplianceStatus.getFileCompliance() >= previousComplianceStatus.getFileCompliance();
+            if (!isValidImprovement) {
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentComplianceStatus.getFileCompliance(),
+                                                                                                              previousComplianceStatus.getFileCompliance()));
+            }
+        }
+        return isValidImprovement;
+    }
 
-	@Override
-	public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
-		boolean isValidTreshold = true;
-		if (value != null) {
-			isValidTreshold = currentComplianceStatus.getFileCompliance() >= value;
-			if (!isValidTreshold) {
-				currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentComplianceStatus.getFileCompliance(), value));
-			}
-		}
-		return isValidTreshold;
-	}
+    @Override
+    public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
+        boolean isValidTreshold = true;
+        if (value != null) {
+            isValidTreshold = currentComplianceStatus.getFileCompliance() >= value;
+            if (!isValidTreshold) {
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentComplianceStatus.getFileCompliance(),
+                                                                                                              value));
+            }
+        }
+        return isValidTreshold;
+    }
 
-	@Extension
-	public static final class DescriptorImpl extends ThresholdSelectionDescriptor<FileComplianceThreshold> {
+    @Extension
+    public static final class DescriptorImpl
+            extends ThresholdSelectionDescriptor<FileComplianceThreshold> {
 
-		@Override
-		public String getDisplayName() {
-			return "File Compliance Threshold";
-		}
+        @Override
+        public String getDisplayName() {
+            return "File Compliance Threshold";
+        }
 
-		@Override
-		public String getHelpFile() {
-			return "/plugin/prqa-plugin/config/help-thresholds-file.html";
-		}
-	}
+        @Override
+        public String getHelpFile() {
+            return "/plugin/prqa-plugin/config/help-thresholds-file.html";
+        }
+    }
 }

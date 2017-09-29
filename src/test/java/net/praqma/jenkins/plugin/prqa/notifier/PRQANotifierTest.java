@@ -27,11 +27,12 @@ import org.junit.Test;
 import org.jvnet.hudson.test.HudsonTestCase;
 
 /**
- *
  * @author Praqma
  */
-public class PRQANotifierTest extends HudsonTestCase {
-    @Test public void testInitializationNotifier() {
-        assertTrue(true);                
+public class PRQANotifierTest
+        extends HudsonTestCase {
+    @Test
+    public void testInitializationNotifier() {
+        assertTrue(true);
     }
 }

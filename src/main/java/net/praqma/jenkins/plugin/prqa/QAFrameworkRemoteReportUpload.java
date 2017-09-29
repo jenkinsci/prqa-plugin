@@ -27,7 +27,6 @@ import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
-import net.praqma.prqa.QaFrameworkVersion;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
@@ -41,7 +40,9 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Void> implements Serializable {
+public class QAFrameworkRemoteReportUpload
+        extends MasterToSlaveFileCallable<Void>
+        implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -49,7 +50,8 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
     private BuildListener listener;
     private QaFrameworkReportSettings reportSetting;
 
-    public QAFrameworkRemoteReportUpload(QAFrameworkReport report, BuildListener listener) {
+    public QAFrameworkRemoteReportUpload(QAFrameworkReport report,
+                                         BuildListener listener) {
         this.report = report;
         this.listener = listener;
     }
@@ -61,15 +63,21 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
             return Collections.emptyMap();
         }
         environment.put(QACli.QAF_BIN_PATH,
-                PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH), File.separator) + "common"
-                + File.separator + "bin");
+                        PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                         File.separator) + "common"
+                                + File.separator + "bin");
         return environment;
     }
 
     @Override
-    public Void invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public Void invoke(File f,
+                       VirtualChannel channel)
+            throws
+            IOException,
+            InterruptedException {
 
-        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getSettings());
+        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(),
+                                                                    report.getSettings());
 
         report.setEnvironment(expandedEnvironment);
         report.setWorkspace(f);
@@ -83,7 +91,8 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
 
          */
         try {
-            if (StringUtils.isBlank(report.getSettings().getQaInstallation())) {
+            if (StringUtils.isBlank(report.getSettings()
+                                          .getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration of QA framework installation!");
             }
             if (reportSetting.isLoginToQAV() && reportSetting.isPublishToQAV()) {
@@ -91,7 +100,8 @@ public class QAFrameworkRemoteReportUpload extends MasterToSlaveFileCallable<Voi
             }
             return null;
         } catch (PrqaException exception) {
-            throw new IOException(exception.getMessage(), exception);
+            throw new IOException(exception.getMessage(),
+                                  exception);
         }
     }
 }

@@ -27,64 +27,70 @@ import hudson.DescriptorExtensionList;
 import hudson.ExtensionPoint;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import jenkins.model.Jenkins;
 import net.praqma.jenkins.plugin.prqa.notifier.ThresholdSelectionDescriptor;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 
  * @author mads
  */
-public abstract class AbstractThreshold implements Describable<AbstractThreshold>, ExtensionPoint, Serializable {
+public abstract class AbstractThreshold
+        implements Describable<AbstractThreshold>,
+                   ExtensionPoint,
+                   Serializable {
 
-	public final Boolean improvement;
+    public final Boolean improvement;
 
-	AbstractThreshold(final Boolean improvement) {
-		this.improvement = improvement;
-	}
+    AbstractThreshold(final Boolean improvement) {
+        this.improvement = improvement;
+    }
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     @Override
-	public Descriptor<AbstractThreshold> getDescriptor() {
-		Jenkins instance = Jenkins.getInstance();
-		if (instance == null) {
-		    return null;
+    public Descriptor<AbstractThreshold> getDescriptor() {
+        Jenkins instance = Jenkins.getInstance();
+        if (instance == null) {
+            return null;
         }
 
         return (Descriptor<AbstractThreshold>) instance.getDescriptorOrDie(getClass());
-	}
+    }
 
-	public static DescriptorExtensionList<AbstractThreshold, ThresholdSelectionDescriptor<AbstractThreshold>> all() {
+    public static DescriptorExtensionList<AbstractThreshold, ThresholdSelectionDescriptor<AbstractThreshold>> all() {
         Jenkins instance = Jenkins.getInstance();
         if (instance == null) {
             return null;
         }
 
         return instance.getDescriptorList(AbstractThreshold.class);
-	}
+    }
 
-	public static List<ThresholdSelectionDescriptor<?>> getDescriptors() {
-		List<ThresholdSelectionDescriptor<?>> list = new ArrayList<>();
+    public static List<ThresholdSelectionDescriptor<?>> getDescriptors() {
+        List<ThresholdSelectionDescriptor<?>> list = new ArrayList<>();
         DescriptorExtensionList<AbstractThreshold, ThresholdSelectionDescriptor<AbstractThreshold>> all = all();
         if (all != null) {
             list.addAll(all);
         }
 
-		return list;
-	}
+        return list;
+    }
 
-	public abstract boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus);
-	public abstract boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus);
+    public abstract boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus,
+                                                PRQAComplianceStatus currentComplianceStatus);
 
-	public boolean validate(PRQAComplianceStatus previousComplianceStatus, PRQAComplianceStatus currentComplianceStatus) {
-		if (improvement) {
-			return validateImprovement(previousComplianceStatus, currentComplianceStatus);
-		} else {
-			return validateThreshold(currentComplianceStatus);
-		}
-	}
+    public abstract boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus);
+
+    public boolean validate(PRQAComplianceStatus previousComplianceStatus,
+                            PRQAComplianceStatus currentComplianceStatus) {
+        if (improvement) {
+            return validateImprovement(previousComplianceStatus,
+                                       currentComplianceStatus);
+        } else {
+            return validateThreshold(currentComplianceStatus);
+        }
+    }
 }

@@ -40,7 +40,8 @@ import org.kohsuke.stapler.StaplerRequest;
 import java.util.Arrays;
 import java.util.List;
 
-public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
+public class QAFrameworkPostBuildActionSetup
+        extends PostBuildActionSetup {
 
     public String qaInstallation;
     public String qaProject;
@@ -372,12 +373,17 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
     }
 
     @Extension
-    public final static class DescriptorImpl extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
+    public final static class DescriptorImpl
+            extends PRQAReportSourceDescriptor<QAFrameworkPostBuildActionSetup> {
 
         @Override
-        public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+        public boolean configure(StaplerRequest req,
+                                 JSONObject json)
+                throws
+                FormException {
             save();
-            return super.configure(req, json);
+            return super.configure(req,
+                                   json);
         }
 
         public DescriptorImpl() {
@@ -390,7 +396,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return "PRQA·Framework";
         }
 
-        public FormValidation doCheckCustomLicenseServerAddress(@QueryParameter String customLicenseServerAddress) {
+        public FormValidation doCheckCustomLicenseServerAddress(
+                @QueryParameter
+                        String customLicenseServerAddress) {
             final String serverRegex = "^(\\d{1,5})@(.+)$";
 
             if (StringUtils.isBlank(customLicenseServerAddress)) {
@@ -402,7 +410,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
         }
 
-        public FormValidation doCheckQAInstallation(@QueryParameter String value) {
+        public FormValidation doCheckQAInstallation(
+                @QueryParameter
+                        String value) {
             if (StringUtils.isBlank(value)) {
                 return FormValidation.error("Error");
             } else {
@@ -412,13 +422,18 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
 
         public ListBoxModel doFillUploadSourceCodeItems() {
             ListBoxModel SourceOption = new ListBoxModel();
-            SourceOption.add("None", "NONE");
-            SourceOption.add("All", "ALL");
-            SourceOption.add("Only not in VCS", "NOT_IN_VCS");
+            SourceOption.add("None",
+                             "NONE");
+            SourceOption.add("All",
+                             "ALL");
+            SourceOption.add("Only not in VCS",
+                             "NOT_IN_VCS");
             return SourceOption;
         }
 
-        public FormValidation doCheckCmaProjectName(@QueryParameter String cmaProjectName) {
+        public FormValidation doCheckCmaProjectName(
+                @QueryParameter
+                        String cmaProjectName) {
             if (StringUtils.isBlank(cmaProjectName)) {
                 return FormValidation.errorWithMarkup("CMA project name should not be empty!");
             }
@@ -428,7 +443,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckUnifiedProjectName(@QueryParameter String unifiedProjectName) {
+        public FormValidation doCheckUnifiedProjectName(
+                @QueryParameter
+                        String unifiedProjectName) {
             if (StringUtils.isBlank(unifiedProjectName)) {
                 return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
             }
@@ -438,7 +455,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckUploadSnapshotName(@QueryParameter String uploadSnapshotName) {
+        public FormValidation doCheckUploadSnapshotName(
+                @QueryParameter
+                        String uploadSnapshotName) {
             if (StringUtils.isBlank(uploadSnapshotName)) {
                 return FormValidation.ok();
             }
@@ -448,7 +467,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckQaVerifyProjectName(@QueryParameter String qaVerifyProjectName) {
+        public FormValidation doCheckQaVerifyProjectName(
+                @QueryParameter
+                        String qaVerifyProjectName) {
             if (StringUtils.isBlank(qaVerifyProjectName)) {
                 return FormValidation.errorWithMarkup("Project name should not be empty!");
             }
@@ -458,7 +479,9 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             return FormValidation.ok();
         }
 
-        public FormValidation doCheckMaxNumThreads(@QueryParameter String maxNumThreads) {
+        public FormValidation doCheckMaxNumThreads(
+                @QueryParameter
+                        String maxNumThreads) {
             final Integer minValue = 0;
             if (StringUtils.isBlank(maxNumThreads)) {
                 return FormValidation.errorWithMarkup(Messages.PRQANotifier_NotEmptyValue("Max. Number of Threads for Analysis"));
@@ -492,7 +515,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
             }
 
             QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins
-                    .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class).getInstallations();
+                    .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class)
+                    .getInstallations();
             return Arrays.asList(prqaInstallations);
         }
 
@@ -501,7 +525,8 @@ public class QAFrameworkPostBuildActionSetup extends PostBuildActionSetup {
         }
 
         public List<QAVerifyServerConfiguration> getServers() {
-            return PRQAGlobalConfig.get().getServers();
+            return PRQAGlobalConfig.get()
+                                   .getServers();
         }
 
         public List<PRQAFileProjectSourceDescriptor<?>> getFileProjectSources() {

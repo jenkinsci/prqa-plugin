@@ -15,7 +15,9 @@ import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
 
-public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> implements Serializable {
+public class CopyReportsToWorkspace
+        extends MasterToSlaveFileCallable<Boolean>
+        implements Serializable {
 
     private final String qaProject;
     private final String projectConfiguration;
@@ -27,7 +29,11 @@ public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> i
     }
 
     @Override
-    public Boolean invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
+    public Boolean invoke(File f,
+                          VirtualChannel channel)
+            throws
+            IOException,
+            InterruptedException {
 
         final String reportsPath;
         try {
@@ -43,7 +49,8 @@ public class CopyReportsToWorkspace extends MasterToSlaveFileCallable<Boolean> i
 
         for (File reportFile : files) {
             if (containsReportName(reportFile.getName())) {
-                FileUtils.copyFileToDirectory(reportFile, f);
+                FileUtils.copyFileToDirectory(reportFile,
+                                              f);
             }
         }
 

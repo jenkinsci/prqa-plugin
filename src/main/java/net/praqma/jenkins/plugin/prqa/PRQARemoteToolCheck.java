@@ -23,7 +23,6 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
-import com.google.common.base.Strings;
 import hudson.model.BuildListener;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
@@ -32,7 +31,6 @@ import net.praqma.prqa.ReportSettings;
 import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.products.Product;
 import net.praqma.prqa.products.QACli;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,53 +38,67 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PRQARemoteToolCheck extends MasterToSlaveFileCallable<String> {
+public class PRQARemoteToolCheck
+        extends MasterToSlaveFileCallable<String> {
 
-	public final BuildListener listener;
-	public final boolean isUnix;
-	public HashMap<String, String> environment;
-	public final PRQAApplicationSettings appSettings;
-	public final ReportSettings reportSettings;
-	public final Product product;
-	public static final String PATH = "Path";
+    public final BuildListener listener;
+    public final boolean isUnix;
+    public HashMap<String, String> environment;
+    public final PRQAApplicationSettings appSettings;
+    public final ReportSettings reportSettings;
+    public final Product product;
+    public static final String PATH = "Path";
 
-	public PRQARemoteToolCheck(Product product, HashMap<String, String> environment, PRQAApplicationSettings appSettings, ReportSettings reportSettings,
-			BuildListener listener, boolean isUnix) {
-		this.listener = listener;
-		this.isUnix = isUnix;
-		this.environment = environment;
-		this.appSettings = appSettings;
-		this.reportSettings = reportSettings;
-		this.product = product;
-	}
+    public PRQARemoteToolCheck(Product product,
+                               HashMap<String, String> environment,
+                               PRQAApplicationSettings appSettings,
+                               ReportSettings reportSettings,
+                               BuildListener listener,
+                               boolean isUnix) {
+        this.listener = listener;
+        this.isUnix = isUnix;
+        this.environment = environment;
+        this.appSettings = appSettings;
+        this.reportSettings = reportSettings;
+        this.product = product;
+    }
 
-	/**
-	 * Expands the environment if the environment field for this object is set.
-	 * This is only done when the user uses a product configuration.
-	 */
-	private static Map<String, String> expandEnvironment(Map<String, String> environment) throws PrqaSetupException {
+    /**
+     * Expands the environment if the environment field for this object is set.
+     * This is only done when the user uses a product configuration.
+     */
+    private static Map<String, String> expandEnvironment(Map<String, String> environment)
+            throws
+            PrqaSetupException {
 
-		if (environment == null) {
-			return Collections.emptyMap();
-		}
-		String delimiter = System.getProperty("file.separator");
+        if (environment == null) {
+            return Collections.emptyMap();
+        }
+        String delimiter = System.getProperty("file.separator");
 
-		environment.put(QACli.QAF_BIN_PATH,
-						PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
-														 delimiter) + "common" + delimiter
-								+ "bin");
-		return environment;
+        environment.put(QACli.QAF_BIN_PATH,
+                        PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                         delimiter) + "common" + delimiter
+                                + "bin");
+        return environment;
 
-	}
+    }
 
-	@Override
-	public String invoke(File f, VirtualChannel channel) throws IOException, InterruptedException {
-		try {
+    @Override
+    public String invoke(File f,
+                         VirtualChannel channel)
+            throws
+            IOException,
+            InterruptedException {
+        try {
 
-			Map<String, String> envExpanded = expandEnvironment(environment);
-			return product.getProductVersion(envExpanded, f, isUnix);
-		} catch (PrqaSetupException setupException) {
-			throw new IOException("Tool misconfiguration detected", setupException);
-		}
-	}
+            Map<String, String> envExpanded = expandEnvironment(environment);
+            return product.getProductVersion(envExpanded,
+                                             f,
+                                             isUnix);
+        } catch (PrqaSetupException setupException) {
+            throw new IOException("Tool misconfiguration detected",
+                                  setupException);
+        }
+    }
 }
