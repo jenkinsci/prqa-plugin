@@ -35,10 +35,8 @@ public abstract class PRQAReportSourceDescriptor<T extends PostBuildActionSetup>
     public PostBuildActionSetup newInstance(StaplerRequest req,
                                             JSONObject formData,
                                             PostBuildActionSetup instance)
-            throws
-            FormException {
-        return super.newInstance(req,
-                                 formData);
+            throws FormException {
+        return super.newInstance(req, formData);
     }
 }    
 

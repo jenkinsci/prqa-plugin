@@ -68,18 +68,15 @@ public class PRQARemoteToolCheck
      * This is only done when the user uses a product configuration.
      */
     private static Map<String, String> expandEnvironment(Map<String, String> environment)
-            throws
-            PrqaSetupException {
+            throws PrqaSetupException {
 
         if (environment == null) {
             return Collections.emptyMap();
         }
         String delimiter = System.getProperty("file.separator");
 
-        environment.put(QACli.QAF_BIN_PATH,
-                        PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
-                                                         delimiter) + "common" + delimiter
-                                + "bin");
+        environment.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                                             delimiter) + "common" + delimiter + "bin");
         return environment;
 
     }
@@ -87,18 +84,13 @@ public class PRQARemoteToolCheck
     @Override
     public String invoke(File f,
                          VirtualChannel channel)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
         try {
 
             Map<String, String> envExpanded = expandEnvironment(environment);
-            return product.getProductVersion(envExpanded,
-                                             f,
-                                             isUnix);
+            return product.getProductVersion(envExpanded, f, isUnix);
         } catch (PrqaSetupException setupException) {
-            throw new IOException("Tool misconfiguration detected",
-                                  setupException);
+            throw new IOException("Tool misconfiguration detected", setupException);
         }
     }
 }

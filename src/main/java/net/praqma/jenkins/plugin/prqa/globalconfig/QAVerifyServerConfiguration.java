@@ -147,8 +147,7 @@ public class QAVerifyServerConfiguration
             return false;
         }
         QAVerifyServerConfiguration that = (QAVerifyServerConfiguration) o;
-        return Objects.equals(getConfigurationName(),
-                              that.getConfigurationName());
+        return Objects.equals(getConfigurationName(), that.getConfigurationName());
     }
 
     @Override

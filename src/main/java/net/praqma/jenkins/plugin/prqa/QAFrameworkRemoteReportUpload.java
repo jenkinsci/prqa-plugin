@@ -62,22 +62,17 @@ public class QAFrameworkRemoteReportUpload
         if (environment == null) {
             return Collections.emptyMap();
         }
-        environment.put(QACli.QAF_BIN_PATH,
-                        PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
-                                                         File.separator) + "common"
-                                + File.separator + "bin");
+        environment.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                                             File.separator) + "common" + File.separator + "bin");
         return environment;
     }
 
     @Override
     public Void invoke(File f,
                        VirtualChannel channel)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
 
-        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(),
-                                                                    report.getSettings());
+        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getSettings());
 
         report.setEnvironment(expandedEnvironment);
         report.setWorkspace(f);
@@ -100,8 +95,7 @@ public class QAFrameworkRemoteReportUpload
             }
             return null;
         } catch (PrqaException exception) {
-            throw new IOException(exception.getMessage(),
-                                  exception);
+            throw new IOException(exception.getMessage(), exception);
         }
     }
 }

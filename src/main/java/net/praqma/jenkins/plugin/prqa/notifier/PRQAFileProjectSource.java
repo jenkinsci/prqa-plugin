@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PRQAFileProjectSource
-        implements Describable<PRQAFileProjectSource>,
-                   ExtensionPoint,
-                   Serializable {
+        implements Describable<PRQAFileProjectSource>, ExtensionPoint, Serializable {
 
     @SuppressWarnings("unchecked")
     @Override

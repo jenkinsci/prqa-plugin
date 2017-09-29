@@ -66,8 +66,7 @@ public class ProjectComplianceThreshold
             isValidTreshold = currentComplianceStatus.getProjectCompliance() >= value;
             if (!isValidTreshold) {
                 currentComplianceStatus.addNotification(Messages.PRQANotifier_ProjectComplianceIndexRequirementNotMet(
-                        currentComplianceStatus.getProjectCompliance(),
-                        value));
+                        currentComplianceStatus.getProjectCompliance(), value));
             }
         }
         return isValidTreshold;

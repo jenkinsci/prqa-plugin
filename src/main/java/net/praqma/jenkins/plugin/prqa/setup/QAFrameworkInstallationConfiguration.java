@@ -29,8 +29,7 @@ import java.util.Map;
 
 public class QAFrameworkInstallationConfiguration
         extends ToolInstallation
-        implements PRQAToolSuite,
-                   NodeSpecific<QAFrameworkInstallationConfiguration> {
+        implements PRQAToolSuite, NodeSpecific<QAFrameworkInstallationConfiguration> {
 
     private static final long serialVersionUID = 1L;
     public final String qafHome;
@@ -43,9 +42,7 @@ public class QAFrameworkInstallationConfiguration
                                                 final String qafHome,
                                                 final String tool,
                                                 final String toolType) {
-        super(qafName,
-              qafHome,
-              null);
+        super(qafName, qafHome, null);
 
         this.qafHome = qafHome;
         this.qafName = qafName;
@@ -56,18 +53,15 @@ public class QAFrameworkInstallationConfiguration
     @Override
     public HashMap<String, String> createEnvironmentVariables(String workspaceRoot) {
         HashMap<String, String> environment = new HashMap<>();
-        environment.put(QACli.QAF_INSTALL_PATH,
-                        getHome());
-        environment.put(QACli.WORKSPACE_PATH,
-                        workspaceRoot);
+        environment.put(QACli.QAF_INSTALL_PATH, getHome());
+        environment.put(QACli.WORKSPACE_PATH, workspaceRoot);
         return environment;
     }
 
     public HashMap<String, String> convert(EnvVars vars) {
         HashMap<String, String> varsMap = new HashMap<>();
         for (Map.Entry<String, String> s : vars.entrySet()) {
-            varsMap.put(s.getKey(),
-                        s.getValue());
+            varsMap.put(s.getKey(), s.getValue());
         }
         return varsMap;
     }
@@ -82,9 +76,9 @@ public class QAFrameworkInstallationConfiguration
                 return null;
             }
 
-            QAFrameworkInstallationConfiguration[] installations = instance
-                    .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class)
-                    .getInstallations();
+            QAFrameworkInstallationConfiguration[] installations = instance.getDescriptorByType(
+                    QAFrameworkInstallationConfiguration.DescriptorImpl.class)
+                                                                           .getInstallations();
             for (QAFrameworkInstallationConfiguration install : installations) {
                 if (install.getName()
                            .equals(qafName)) {
@@ -98,17 +92,9 @@ public class QAFrameworkInstallationConfiguration
     @Override
     public QAFrameworkInstallationConfiguration forNode(Node node,
                                                         TaskListener log)
-            throws
-            IOException,
-            InterruptedException {
-        String translatedHome = translateFor(node,
-                                             log);
-        return new QAFrameworkInstallationConfiguration(
-                qafName,
-                translatedHome,
-                toolType,
-                tool
-        );
+            throws IOException, InterruptedException {
+        String translatedHome = translateFor(node, log);
+        return new QAFrameworkInstallationConfiguration(qafName, translatedHome, toolType, tool);
     }
 
     @Extension
@@ -129,12 +115,10 @@ public class QAFrameworkInstallationConfiguration
         public QAFrameworkInstallationConfiguration newInstance(StaplerRequest req,
                                                                 @Nonnull
                                                                         JSONObject formData)
-                throws
-                FormException {
+                throws FormException {
 
             if (req == null) {
-                throw new FormException(new Exception("Bad request"),
-                                        "Bad request");
+                throw new FormException(new Exception("Bad request"), "Bad request");
             }
 
             QAFrameworkInstallationConfiguration suite = req.bindJSON(QAFrameworkInstallationConfiguration.class,
@@ -147,8 +131,7 @@ public class QAFrameworkInstallationConfiguration
         @Override
         public boolean configure(StaplerRequest req,
                                  JSONObject json)
-                throws
-                FormException {
+                throws FormException {
             String qafHome = "qafHome";
             String qafName = "qafName";
             String tool = "tool";
@@ -162,8 +145,9 @@ public class QAFrameworkInstallationConfiguration
                         JSONObject jsonObject = (JSONObject) it.next();
                         String qaName = jsonObject.getString(qafName);
                         String qaHome = jsonObject.getString(qafHome);
-                        if (Strings.isNullOrEmpty(qaName) || Strings.isNullOrEmpty(qaHome) || qaInstallationNames.contains(qaName) || !isValidString(qaName)
-                                || !isValidString(qaHome)) {
+                        if (Strings.isNullOrEmpty(qaName) || Strings.isNullOrEmpty(
+                                qaHome) || qaInstallationNames.contains(qaName) || !isValidString(
+                                qaName) || !isValidString(qaHome)) {
                             it.remove();
                         } else {
                             qaInstallationNames.add(qaName);
@@ -176,14 +160,14 @@ public class QAFrameworkInstallationConfiguration
                     JSONObject jsonObject = json.getJSONObject(tool);
                     String qaName = jsonObject.getString(qafName);
                     String qaHome = jsonObject.getString(qafHome);
-                    if (Strings.isNullOrEmpty(qaName) || Strings.isNullOrEmpty(qaHome) || !isValidString(qaName) || !isValidString(qaHome)) {
+                    if (Strings.isNullOrEmpty(qaName) || Strings.isNullOrEmpty(qaHome) || !isValidString(
+                            qaName) || !isValidString(qaHome)) {
                         json = new JSONObject();
                     }
                 }
             }
 
-            boolean configure = super.configure(req,
-                                                json);
+            boolean configure = super.configure(req, json);
             if (configure) {
                 save();
             }
@@ -225,7 +209,8 @@ public class QAFrameworkInstallationConfiguration
                 return FormValidation.errorWithMarkup("PRQA·Framework Installation path should not be empty!");
             }
             if (qafHome.startsWith(" ")) {
-                return FormValidation.errorWithMarkup("PRQA·Framework Installation path should not be begin with an empty space!");
+                return FormValidation.errorWithMarkup(
+                        "PRQA·Framework Installation path should not be begin with an empty space!");
             }
             return FormValidation.ok();
         }
@@ -234,10 +219,12 @@ public class QAFrameworkInstallationConfiguration
                 @QueryParameter
                         String qafName) {
             if (StringUtils.isBlank(qafName)) {
-                return FormValidation.errorWithMarkup("The name shall not be empty and shall be unique in the set of PRQA·Framework installations!");
+                return FormValidation.errorWithMarkup(
+                        "The name shall not be empty and shall be unique in the set of PRQA·Framework installations!");
             }
             if (qafName.startsWith(" ")) {
-                return FormValidation.errorWithMarkup("PRQA·Framework Installation name should not be begin with an empty space!");
+                return FormValidation.errorWithMarkup(
+                        "PRQA·Framework Installation name should not be begin with an empty space!");
             }
             return FormValidation.ok();
         }

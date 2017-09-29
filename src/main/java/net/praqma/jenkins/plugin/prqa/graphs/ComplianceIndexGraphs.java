@@ -19,23 +19,17 @@ import java.io.IOException;
 public class ComplianceIndexGraphs
         extends PRQAGraph {
     public ComplianceIndexGraphs() {
-        super("Compliance Levels",
-              PRQAContext.QARReportType.Compliance,
-              StatusCategory.FileCompliance,
+        super("Compliance Levels", PRQAContext.QARReportType.Compliance, StatusCategory.FileCompliance,
               StatusCategory.ProjectCompliance);
     }
 
     @Override
     public void setData(PRQAStatusCollection data) {
         this.data = data;
-        this.data.overrideMax(StatusCategory.FileCompliance,
-                              100);
-        this.data.overrideMin(StatusCategory.FileCompliance,
-                              0);
-        this.data.overrideMax(StatusCategory.ProjectCompliance,
-                              100);
-        this.data.overrideMin(StatusCategory.ProjectCompliance,
-                              0);
+        this.data.overrideMax(StatusCategory.FileCompliance, 100);
+        this.data.overrideMin(StatusCategory.FileCompliance, 0);
+        this.data.overrideMax(StatusCategory.ProjectCompliance, 100);
+        this.data.overrideMin(StatusCategory.ProjectCompliance, 0);
     }
 
     @Override
@@ -43,8 +37,7 @@ public class ComplianceIndexGraphs
                           StaplerResponse rsp,
                           DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb,
                           Double tMax)
-            throws
-            IOException {
+            throws IOException {
         Number max = null;
         Number min = null;
         int width = Integer.parseInt(req.getParameter("width"));
@@ -59,20 +52,13 @@ public class ComplianceIndexGraphs
             }
         }
         if (max != null && min != null) {
-            final JFreeChart chart = createChart(dsb.build(),
-                                                 getTitle(),
-                                                 null,
-                                                 max.intValue(),
-                                                 min.intValue());
+            final JFreeChart chart = createChart(dsb.build(), getTitle(), null, max.intValue(), min.intValue());
 
-            new Graph(-1,
-                      width,
-                      height) {
+            new Graph(-1, width, height) {
                 protected JFreeChart createGraph() {
                     return chart;
                 }
-            }.doPng(req,
-                    rsp);
+            }.doPng(req, rsp);
         }
     }
 }

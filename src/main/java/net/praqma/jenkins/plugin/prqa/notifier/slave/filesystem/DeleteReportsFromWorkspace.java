@@ -18,9 +18,7 @@ public class DeleteReportsFromWorkspace
     @Override
     public Boolean invoke(File f,
                           VirtualChannel channel)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
 
         File[] files = f.listFiles(new ReportFileFilter());
 

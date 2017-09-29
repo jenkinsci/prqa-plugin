@@ -105,13 +105,12 @@ public class PRQANotifier
     public EnumSet<QARReportType> chosenReportTypes;
 
     @DataBoundConstructor
-    public PRQANotifier(
-            final String product,
-            final boolean runWhenSuccess,
-            final String settingProjectCompliance,
-            final String snapshotName,
-            final QAFrameworkPostBuildActionSetup sourceQAFramework,
-            final List<AbstractThreshold> thresholdsDesc) {
+    public PRQANotifier(final String product,
+                        final boolean runWhenSuccess,
+                        final String settingProjectCompliance,
+                        final String snapshotName,
+                        final QAFrameworkPostBuildActionSetup sourceQAFramework,
+                        final List<AbstractThreshold> thresholdsDesc) {
 
         this.product = product;
         this.runWhenSuccess = runWhenSuccess;
@@ -136,9 +135,7 @@ public class PRQANotifier
     private void copyResourcesToArtifactsDir(String pattern,
                                              AbstractBuild<?, ?> build,
                                              BuildListener listener)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
         FilePath buildWorkspace = build.getWorkspace();
 
         if (buildWorkspace == null) {
@@ -150,10 +147,7 @@ public class PRQANotifier
         Map<String, String> artifacts = new HashMap<>();
 
         for (FilePath file : files) {
-            artifacts.put(file.getName(),
-                          StringUtils.replace(file.getRemote(),
-                                              buildWorkspace.getRemote(),
-                                              ""));
+            artifacts.put(file.getName(), StringUtils.replace(file.getRemote(), buildWorkspace.getRemote(), ""));
         }
 
         if (artifacts.isEmpty()) {
@@ -164,10 +158,7 @@ public class PRQANotifier
         ArtifactManager artifactManager = build.pickArtifactManager();
         Launcher launcher = buildWorkspace.createLauncher(adapter);
 
-        artifactManager.archive(buildWorkspace,
-                                launcher,
-                                adapter,
-                                artifacts);
+        artifactManager.archive(buildWorkspace, launcher, adapter, artifacts);
     }
 
     /**
@@ -183,17 +174,14 @@ public class PRQANotifier
         }
         for (AbstractThreshold threshold : thresholds) {
             if (threshold.improvement) {
-                if (!isBuildStableForContinuousImprovement(threshold,
-                                                           currentComplianceStatus,
+                if (!isBuildStableForContinuousImprovement(threshold, currentComplianceStatus,
                                                            previousComplianceStatus)) {
                     return false;
                 }
             } else {
-                addThreshold(threshold,
-                             tholds);
+                addThreshold(threshold, tholds);
                 currentComplianceStatus.setThresholds(tholds);
-                if (!threshold.validate(previousComplianceStatus,
-                                        currentComplianceStatus)) {
+                if (!threshold.validate(previousComplianceStatus, currentComplianceStatus)) {
                     return false;
                 }
             }
@@ -206,28 +194,25 @@ public class PRQANotifier
                                                           PRQAComplianceStatus previousComplianceStatus) {
         if (threshold instanceof MessageComplianceThreshold) {
             if (currentComplianceStatus.getMessages() > previousComplianceStatus.getMessages()) {
-                currentComplianceStatus.addNotification(Messages
-                                                                .PRQANotifier_MaxMessagesContinuousImprovementRequirementNotMet(
-                                                                        previousComplianceStatus.getMessages(),
-                                                                        currentComplianceStatus.getMessages()));
+                currentComplianceStatus.addNotification(
+                        Messages.PRQANotifier_MaxMessagesContinuousImprovementRequirementNotMet(
+                                previousComplianceStatus.getMessages(), currentComplianceStatus.getMessages()));
                 return false;
             }
         } else if (threshold instanceof FileComplianceThreshold) {
             if (currentComplianceStatus.getFileCompliance() < previousComplianceStatus.getFileCompliance()) {
-                currentComplianceStatus.addNotification(Messages
-                                                                .PRQANotifier_FileComplianceContinuousImprovementRequirementNotMet(
-                                                                        previousComplianceStatus.getFileCompliance() + "%",
-                                                                        currentComplianceStatus.getFileCompliance())
-                                                                + "%");
+                currentComplianceStatus.addNotification(
+                        Messages.PRQANotifier_FileComplianceContinuousImprovementRequirementNotMet(
+                                previousComplianceStatus.getFileCompliance() + "%",
+                                currentComplianceStatus.getFileCompliance()) + "%");
                 return false;
             }
         } else if (threshold instanceof ProjectComplianceThreshold) {
             if (currentComplianceStatus.getProjectCompliance() < previousComplianceStatus.getProjectCompliance()) {
-                currentComplianceStatus.addNotification(Messages
-                                                                .PRQANotifier_ProjectComplianceContinuousImprovementRequirementNotMet(
-                                                                        previousComplianceStatus.getProjectCompliance() + "%",
-                                                                        currentComplianceStatus.getProjectCompliance())
-                                                                + "%");
+                currentComplianceStatus.addNotification(
+                        Messages.PRQANotifier_ProjectComplianceContinuousImprovementRequirementNotMet(
+                                previousComplianceStatus.getProjectCompliance() + "%",
+                                currentComplianceStatus.getProjectCompliance()) + "%");
                 return false;
             }
         }
@@ -242,23 +227,18 @@ public class PRQANotifier
     private void addThreshold(AbstractThreshold threshold,
                               HashMap<StatusCategory, Number> tholds) {
         if (threshold instanceof ProjectComplianceThreshold) {
-            tholds.put(StatusCategory.ProjectCompliance,
-                       ((ProjectComplianceThreshold) threshold).value);
+            tholds.put(StatusCategory.ProjectCompliance, ((ProjectComplianceThreshold) threshold).value);
         } else if (threshold instanceof FileComplianceThreshold) {
-            tholds.put(StatusCategory.FileCompliance,
-                       ((FileComplianceThreshold) threshold).value);
+            tholds.put(StatusCategory.FileCompliance, ((FileComplianceThreshold) threshold).value);
         } else {
-            tholds.put(StatusCategory.Messages,
-                       ((MessageComplianceThreshold) threshold).value);
+            tholds.put(StatusCategory.Messages, ((MessageComplianceThreshold) threshold).value);
         }
     }
 
     private void copyReportsToArtifactsDir(ReportSettings settings,
                                            AbstractBuild<?, ?> build,
                                            BuildListener listener)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
         FilePath buildWorkspace = build.getWorkspace();
 
         if (buildWorkspace == null) {
@@ -269,20 +249,16 @@ public class PRQANotifier
 
             QaFrameworkReportSettings qaFrameworkSettings = (QaFrameworkReportSettings) settings;
 
-            copyGeneratedReportsToJobWorkspace(build,
-                                               qaFrameworkSettings.getQaProject(),
+            copyGeneratedReportsToJobWorkspace(build, qaFrameworkSettings.getQaProject(),
                                                qaFrameworkSettings.getProjectConfiguration());
-            copyReportsFromWorkspaceToArtifactsDir(build,
-                                                   listener);
+            copyReportsFromWorkspaceToArtifactsDir(build, listener);
         }
     }
 
     private void copyGeneratedReportsToJobWorkspace(AbstractBuild<?, ?> build,
                                                     final String qaProject,
                                                     String projectConfiguration)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
 
         FilePath buildWorkspace = build.getWorkspace();
 
@@ -290,22 +266,17 @@ public class PRQANotifier
             throw new IOException("Invalid workspace");
         }
 
-        buildWorkspace.act(new CopyReportsToWorkspace(qaProject,
-                                                      projectConfiguration));
+        buildWorkspace.act(new CopyReportsToWorkspace(qaProject, projectConfiguration));
     }
 
     private boolean containsReportName(String fileName) {
-        return fileName.contains(CRR.name()) ||
-                fileName.contains(SUR.name()) ||
-                fileName.contains(RCR.name()) ||
-                fileName.contains(MDR.name());
+        return fileName.contains(CRR.name()) || fileName.contains(SUR.name()) || fileName.contains(
+                RCR.name()) || fileName.contains(MDR.name());
     }
 
     private void copyReportsFromWorkspaceToArtifactsDir(AbstractBuild<?, ?> build,
                                                         BuildListener listener)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
 
         // COPY only last generated reports
         FilePath buildWorkspace = build.getWorkspace();
@@ -318,19 +289,17 @@ public class PRQANotifier
             return;
         }
 
-        Collections.sort(workspaceFiles,
-                         new Comparator<FilePath>() {
-                             @Override
-                             public int compare(FilePath o1,
-                                                FilePath o2) {
-                                 try {
-                                     return Long.compare(o2.lastModified(),
-                                                         o1.lastModified());
-                                 } catch (IOException | InterruptedException e) {
-                                     return 0;
-                                 }
-                             }
-                         });
+        Collections.sort(workspaceFiles, new Comparator<FilePath>() {
+            @Override
+            public int compare(FilePath o1,
+                               FilePath o2) {
+                try {
+                    return Long.compare(o2.lastModified(), o1.lastModified());
+                } catch (IOException | InterruptedException e) {
+                    return 0;
+                }
+            }
+        });
 
         Map<String, String> artifacts = new HashMap<>();
 
@@ -340,8 +309,7 @@ public class PRQANotifier
             }
 
             if (containsReportName(file.getName())) {
-                artifacts.put(file.getName(),
-                              file.getName());
+                artifacts.put(file.getName(), file.getName());
             }
         }
 
@@ -353,10 +321,7 @@ public class PRQANotifier
         Launcher launcher = buildWorkspace.createLauncher(adapter);
         ArtifactManager artifactManager = build.pickArtifactManager();
 
-        artifactManager.archive(buildWorkspace,
-                                launcher,
-                                adapter,
-                                artifacts);
+        artifactManager.archive(buildWorkspace, launcher, adapter, artifacts);
 
     }
 
@@ -402,9 +367,7 @@ public class PRQANotifier
         try {
             success = workspace.act(deleter);
         } catch (IOException | InterruptedException ex) {
-            log.log(SEVERE,
-                    "Cleanup crew missing!",
-                    ex);
+            log.log(SEVERE, "Cleanup crew missing!", ex);
             listener.getLogger()
                     .println(ex.getMessage());
         }
@@ -421,22 +384,18 @@ public class PRQANotifier
     public boolean perform(AbstractBuild<?, ?> build,
                            Launcher launcher,
                            BuildListener listener)
-            throws
-            InterruptedException,
-            IOException {
+            throws InterruptedException, IOException {
 
         outStream = listener.getLogger();
 
         Result buildResult = build.getResult();
 
         if (buildResult == null) {
-            log.log(WARNING,
-                    "Build result is unavailable at this point.");
+            log.log(WARNING, "Build result is unavailable at this point.");
             outStream.println("Build result is unavailable at this point. Will not proceed.");
             return false;
         } else if (buildResult.isWorseOrEqualTo(FAILURE)) {
-            log.log(WARNING,
-                    "Build is marked as failure.");
+            log.log(WARNING, "Build is marked as failure.");
             if (runWhenSuccess) {
                 outStream.println("Build is marked as failure and PRQA Analysis will not proceed.");
                 return false;
@@ -444,9 +403,7 @@ public class PRQANotifier
             outStream.println("Build is marked as failure but PRQA Analysis will proceed.");
         }
 
-        return performQaFrameworkBuild(build,
-                                       launcher,
-                                       listener);
+        return performQaFrameworkBuild(build, launcher, listener);
     }
 
     public EnumSet<QARReportType> getChosenReportTypes() {
@@ -470,9 +427,8 @@ public class PRQANotifier
         AbstractBuild<?, ?> iterate = currentBuild;
         do {
             iterate = iterate.getPreviousNotFailedBuild();
-            if (iterate != null && iterate.getAction(PRQABuildAction.class) != null
-                    && Objects.equals(iterate.getResult(),
-                                      expectedResult)) {
+            if (iterate != null && iterate.getAction(PRQABuildAction.class) != null && Objects.equals(
+                    iterate.getResult(), expectedResult)) {
                 Tuple<PRQAReading, AbstractBuild<?, ?>> result = new Tuple<>();
                 result.setSecond(iterate);
                 result.setFirst(iterate.getAction(PRQABuildAction.class)
@@ -520,19 +476,16 @@ public class PRQANotifier
         public Publisher newInstance(StaplerRequest req,
                                      @Nonnull
                                              JSONObject formData)
-                throws
-                Descriptor.FormException {
+                throws Descriptor.FormException {
 
             if (req == null) {
-                throw new FormException(new Exception("Bad request"),
-                                        "Bad request");
+                throw new FormException(new Exception("Bad request"), "Bad request");
             }
 
             final String SOURCE_QA_FRAMEWORK = "sourceQAFramework";
             final String CODE_REVIEW_REPORT = "generateCrr";
             final String SUPPRESSION_REPORT = "generateSup";
-            PRQANotifier instance = req.bindJSON(PRQANotifier.class,
-                                                 formData);
+            PRQANotifier instance = req.bindJSON(PRQANotifier.class, formData);
             instance.setChosenReportTypes(QARReportType.REQUIRED_TYPES.clone());
 
             if (formData.containsKey(SOURCE_QA_FRAMEWORK)) {
@@ -559,11 +512,9 @@ public class PRQANotifier
         @Override
         public boolean configure(StaplerRequest req,
                                  JSONObject json)
-                throws
-                Descriptor.FormException {
+                throws Descriptor.FormException {
             save();
-            return super.configure(req,
-                                   json);
+            return super.configure(req, json);
         }
 
         public DescriptorImpl() {
@@ -579,9 +530,9 @@ public class PRQANotifier
                 throw new RuntimeException("Unable to get Jenkins instance");
             }
 
-            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins
-                    .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class)
-                    .getInstallations();
+            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins.getDescriptorByType(
+                    QAFrameworkInstallationConfiguration.DescriptorImpl.class)
+                                                                              .getInstallations();
             return Arrays.asList(prqaInstallations);
         }
 
@@ -598,9 +549,7 @@ public class PRQANotifier
     private boolean performQaFrameworkBuild(AbstractBuild<?, ?> build,
                                             Launcher launcher,
                                             BuildListener listener)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
 
         FilePath workspace = build.getWorkspace();
 
@@ -620,22 +569,20 @@ public class PRQANotifier
         }
 
         QAFrameworkPostBuildActionSetup qaFrameworkPostBuildActionSetup = sourceQAFramework;
-        QAFrameworkInstallationConfiguration qaFrameworkInstallationConfiguration = QAFrameworkInstallationConfiguration
-                .getInstallationByName(qaFrameworkPostBuildActionSetup.qaInstallation);
+        QAFrameworkInstallationConfiguration qaFrameworkInstallationConfiguration = QAFrameworkInstallationConfiguration.getInstallationByName(
+                qaFrameworkPostBuildActionSetup.qaInstallation);
 
         if (qaFrameworkInstallationConfiguration == null) {
             String msg = String.format(
                     "The job uses a QA Framework installation (%s) that is misconfigured or no longer exists, please reconfigure.",
                     qaFrameworkPostBuildActionSetup.qaInstallation);
-            log.log(SEVERE,
-                    msg);
+            log.log(SEVERE, msg);
             outStream.println(msg);
             build.setResult(FAILURE);
             return false;
         }
 
-        qaFrameworkInstallationConfiguration = qaFrameworkInstallationConfiguration.forNode(node,
-                                                                                            listener);
+        qaFrameworkInstallationConfiguration = qaFrameworkInstallationConfiguration.forNode(node, listener);
 
         outStream.println(String.format("Programming Research Quality Assurance Plugin version %s",
                                         VersionInfo.getPluginVersion()));
@@ -653,13 +600,9 @@ public class PRQANotifier
                 qaFrameworkInstallationConfiguration.getHome());
         QaFrameworkReportSettings qaReportSettings;
         try {
-            qaReportSettings = setQaFrameworkReportSettings(qaFrameworkPostBuildActionSetup,
-                                                            build,
-                                                            listener);
+            qaReportSettings = setQaFrameworkReportSettings(qaFrameworkPostBuildActionSetup, build, listener);
         } catch (PrqaSetupException ex) {
-            log.log(SEVERE,
-                    ex.getMessage(),
-                    ex);
+            log.log(SEVERE, ex.getMessage(), ex);
             outStream.println(ex.getMessage());
             build.setResult(FAILURE);
             return false;
@@ -669,74 +612,53 @@ public class PRQANotifier
 
         Collection<QAFrameworkRemoteReportUpload> remoteReportUploads = new ArrayList<>();
 
-        if (qaFrameworkPostBuildActionSetup.chosenServers != null &&
-                !qaFrameworkPostBuildActionSetup.chosenServers.isEmpty()) {
+        if (qaFrameworkPostBuildActionSetup.chosenServers != null && !qaFrameworkPostBuildActionSetup.chosenServers.isEmpty()) {
             for (String chosenServer : qaFrameworkPostBuildActionSetup.chosenServers) {
                 QAVerifyServerSettings qaVerifySettings = setQaVerifyServerSettings(chosenServer);
-                QAFrameworkReport report = new QAFrameworkReport(qaReportSettings,
-                                                                 qaVerifySettings,
+                QAFrameworkReport report = new QAFrameworkReport(qaReportSettings, qaVerifySettings,
                                                                  environmentVariables);
 
-                remoteReports.add(new QAFrameworkRemoteReport(report,
-                                                              listener));
-                remoteReportUploads.add(new QAFrameworkRemoteReportUpload(report,
-                                                                          listener));
+                remoteReports.add(new QAFrameworkRemoteReport(report, listener));
+                remoteReportUploads.add(new QAFrameworkRemoteReportUpload(report, listener));
             }
         } else {
-            QAFrameworkReport report = new QAFrameworkReport(qaReportSettings,
-                                                             setQaVerifyServerSettings(null),
+            QAFrameworkReport report = new QAFrameworkReport(qaReportSettings, setQaVerifyServerSettings(null),
                                                              environmentVariables);
-            remoteReports.add(new QAFrameworkRemoteReport(report,
-                                                          listener));
+            remoteReports.add(new QAFrameworkRemoteReport(report, listener));
         }
 
-        PRQARemoteToolCheck remoteToolCheck = new PRQARemoteToolCheck(new QACli(),
-                                                                      environmentVariables,
-                                                                      appSettings,
-                                                                      qaReportSettings,
-                                                                      listener,
-                                                                      launcher.isUnix());
+        PRQARemoteToolCheck remoteToolCheck = new PRQARemoteToolCheck(new QACli(), environmentVariables, appSettings,
+                                                                      qaReportSettings, listener, launcher.isUnix());
         PRQAComplianceStatus currentBuild;
         try {
             QAFrameworkRemoteReport remoteReport = remoteReports.iterator()
                                                                 .next();
 
-            currentBuild = performBuild(build,
-                                        remoteToolCheck,
-                                        remoteReport,
-                                        qaReportSettings,
-                                        listener);
+            currentBuild = performBuild(build, remoteToolCheck, remoteReport, qaReportSettings, listener);
         } catch (PrqaException ex) {
-            log.log(SEVERE,
-                    ex.getMessage(),
-                    ex);
+            log.log(SEVERE, ex.getMessage(), ex);
             outStream.println(ex.getMessage());
             build.setResult(FAILURE);
             return false;
         }
 
-        Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build,
-                                                                                              SUCCESS);
+        Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, SUCCESS);
 
-        PRQAReading previousStableBuildResult = previousBuildResultTuple != null
-                                                ? previousBuildResultTuple.getFirst()
-                                                : null;
+        PRQAReading previousStableBuildResult =
+                previousBuildResultTuple != null ? previousBuildResultTuple.getFirst() : null;
 
         log.fine("thresholdsDesc is null: " + (thresholdsDesc == null));
         if (thresholdsDesc != null) {
             log.fine("thresholdsDescSize: " + thresholdsDesc.size());
         }
 
-        boolean thresholdEvalResult = evaluate(previousStableBuildResult,
-                                               thresholdsDesc,
-                                               currentBuild);
+        boolean thresholdEvalResult = evaluate(previousStableBuildResult, thresholdsDesc, currentBuild);
         log.fine("Evaluated to: " + thresholdEvalResult);
 
         Result buildResult = build.getResult();
 
         if (buildResult == null) {
-            log.log(WARNING,
-                    "Build result is unavailable at this point.");
+            log.log(WARNING, "Build result is unavailable at this point.");
             outStream.println("Build result is unavailable at this point. Will not proceed.");
             return false;
         }
@@ -747,8 +669,7 @@ public class PRQANotifier
         if (qaReportSettings.isLoginToQAV() && qaReportSettings.isPublishToQAV()) {
             if (qaReportSettings.isQaUploadWhenStable() && buildResult.isWorseOrEqualTo(UNSTABLE)) {
                 outStream.println("Upload warning: QAV Upload cant be perform because build is Unstable");
-                log.log(WARNING,
-                        "UPLOAD WARNING - QAV Upload cant be perform because build is Unstable");
+                log.log(WARNING, "UPLOAD WARNING - QAV Upload cant be perform because build is Unstable");
             } else {
                 if (buildResult.isWorseOrEqualTo(UNSTABLE)) {
                     outStream.println("Upload warning: Build is Unstable but upload will continue...");
@@ -756,13 +677,9 @@ public class PRQANotifier
                 outStream.println("Upload info: QAV Upload...");
                 for (QAFrameworkRemoteReportUpload remoteReportUpload : remoteReportUploads) {
                     try {
-                        performUpload(build,
-                                      remoteToolCheck,
-                                      remoteReportUpload);
+                        performUpload(build, remoteToolCheck, remoteReportUpload);
                     } catch (PrqaException ex) {
-                        log.log(SEVERE,
-                                ex.getMessage(),
-                                ex);
+                        log.log(SEVERE, ex.getMessage(), ex);
                         outStream.println(ex.getMessage());
                         build.setResult(FAILURE);
                         return false;
@@ -773,7 +690,8 @@ public class PRQANotifier
 
         outStream.println("\n----------------------BUILD Results-----------------------\n");
         if (previousBuildResultTuple != null) {
-            outStream.println(Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getSecond().number));
+            outStream.println(
+                    Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getSecond().number));
             outStream.println(previousBuildResultTuple.getFirst());
 
         } else {
@@ -789,61 +707,54 @@ public class PRQANotifier
         return true;
     }
 
-    private QaFrameworkReportSettings setQaFrameworkReportSettings(
-            QAFrameworkPostBuildActionSetup qaFrameworkPostBuildActionSetup,
-            AbstractBuild<?, ?> build,
-            BuildListener listener)
-            throws
-            PrqaSetupException {
+    private QaFrameworkReportSettings setQaFrameworkReportSettings(QAFrameworkPostBuildActionSetup qaFrameworkPostBuildActionSetup,
+                                                                   AbstractBuild<?, ?> build,
+                                                                   BuildListener listener)
+            throws PrqaSetupException {
 
         if (qaFrameworkPostBuildActionSetup.qaProject == null) {
-            throw new PrqaSetupException("Project configuration is missing. Please set a project in Qa Framework configuration section!");
+            throw new PrqaSetupException(
+                    "Project configuration is missing. Please set a project in Qa Framework configuration section!");
         }
 
-        return new QaFrameworkReportSettings(
-                qaFrameworkPostBuildActionSetup.qaInstallation,
-                qaFrameworkPostBuildActionSetup.useCustomLicenseServer,
-                PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.customLicenseServerAddress,
-                                                build,
-                                                listener),
-                PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.qaProject,
-                                                build,
-                                                listener),
-                qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
-                PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.unifiedProjectName,
-                                                build,
-                                                listener),
-                qaFrameworkPostBuildActionSetup.enableDependencyMode,
-                qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
-                PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.cmaProjectName,
-                                                build,
-                                                listener),
-                qaFrameworkPostBuildActionSetup.reuseCmaDb,
-                qaFrameworkPostBuildActionSetup.useDiskStorage,
-                qaFrameworkPostBuildActionSetup.generateReport,
-                qaFrameworkPostBuildActionSetup.publishToQAV,
-                qaFrameworkPostBuildActionSetup.loginToQAV,
-                qaFrameworkPostBuildActionSetup.uploadWhenStable,
-                PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.qaVerifyProjectName,
-                                                build,
-                                                listener),
-                PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.uploadSnapshotName,
-                                                build,
-                                                listener),
-                Integer.toString(build.getNumber()),
-                qaFrameworkPostBuildActionSetup.uploadSourceCode,
-                qaFrameworkPostBuildActionSetup.generateCrr,
-                qaFrameworkPostBuildActionSetup.generateMdr,
-                qaFrameworkPostBuildActionSetup.generateSup,
-                qaFrameworkPostBuildActionSetup.analysisSettings,
-                qaFrameworkPostBuildActionSetup.stopWhenFail,
-                qaFrameworkPostBuildActionSetup.customCpuThreads,
-                qaFrameworkPostBuildActionSetup.maxNumThreads,
-                qaFrameworkPostBuildActionSetup.generatePreprocess,
-                qaFrameworkPostBuildActionSetup.assembleSupportAnalytics,
-                qaFrameworkPostBuildActionSetup.generateReportOnAnalysisError,
-                qaFrameworkPostBuildActionSetup.addBuildNumber,
-                qaFrameworkPostBuildActionSetup.projectConfiguration);
+        return new QaFrameworkReportSettings(qaFrameworkPostBuildActionSetup.qaInstallation,
+                                             qaFrameworkPostBuildActionSetup.useCustomLicenseServer,
+                                             PRQABuildUtils.normalizeWithEnv(
+                                                     qaFrameworkPostBuildActionSetup.customLicenseServerAddress, build,
+                                                     listener),
+                                             PRQABuildUtils.normalizeWithEnv(qaFrameworkPostBuildActionSetup.qaProject,
+                                                                             build, listener),
+                                             qaFrameworkPostBuildActionSetup.downloadUnifiedProjectDefinition,
+                                             PRQABuildUtils.normalizeWithEnv(
+                                                     qaFrameworkPostBuildActionSetup.unifiedProjectName, build,
+                                                     listener), qaFrameworkPostBuildActionSetup.enableDependencyMode,
+                                             qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
+                                             PRQABuildUtils.normalizeWithEnv(
+                                                     qaFrameworkPostBuildActionSetup.cmaProjectName, build, listener),
+                                             qaFrameworkPostBuildActionSetup.reuseCmaDb,
+                                             qaFrameworkPostBuildActionSetup.useDiskStorage,
+                                             qaFrameworkPostBuildActionSetup.generateReport,
+                                             qaFrameworkPostBuildActionSetup.publishToQAV,
+                                             qaFrameworkPostBuildActionSetup.loginToQAV,
+                                             qaFrameworkPostBuildActionSetup.uploadWhenStable,
+                                             PRQABuildUtils.normalizeWithEnv(
+                                                     qaFrameworkPostBuildActionSetup.qaVerifyProjectName, build,
+                                                     listener), PRQABuildUtils.normalizeWithEnv(
+                qaFrameworkPostBuildActionSetup.uploadSnapshotName, build, listener),
+                                             Integer.toString(build.getNumber()),
+                                             qaFrameworkPostBuildActionSetup.uploadSourceCode,
+                                             qaFrameworkPostBuildActionSetup.generateCrr,
+                                             qaFrameworkPostBuildActionSetup.generateMdr,
+                                             qaFrameworkPostBuildActionSetup.generateSup,
+                                             qaFrameworkPostBuildActionSetup.analysisSettings,
+                                             qaFrameworkPostBuildActionSetup.stopWhenFail,
+                                             qaFrameworkPostBuildActionSetup.customCpuThreads,
+                                             qaFrameworkPostBuildActionSetup.maxNumThreads,
+                                             qaFrameworkPostBuildActionSetup.generatePreprocess,
+                                             qaFrameworkPostBuildActionSetup.assembleSupportAnalytics,
+                                             qaFrameworkPostBuildActionSetup.generateReportOnAnalysisError,
+                                             qaFrameworkPostBuildActionSetup.addBuildNumber,
+                                             qaFrameworkPostBuildActionSetup.projectConfiguration);
     }
 
     // Function to pull details from QAV Configuration.
@@ -870,9 +781,7 @@ public class PRQANotifier
                                               QAFrameworkRemoteReport remoteReport,
                                               QaFrameworkReportSettings qaReportSettings,
                                               BuildListener listener)
-            throws
-            PrqaException,
-            IOException {
+            throws PrqaException, IOException {
 
         PRQAComplianceStatus currentBuild;
         FilePath workspace = build.getWorkspace();
@@ -889,9 +798,7 @@ public class PRQANotifier
             currentBuild = workspace.act(remoteReport);
 
             currentBuild.setMessagesWithinThresholdForEachMessageGroup(getThresholdLevel());
-            copyArtifacts(build,
-                          qaReportSettings,
-                          listener);
+            copyArtifacts(build, qaReportSettings, listener);
         } catch (IOException | InterruptedException ex) {
             outStream.println(Messages.PRQANotifier_FailedGettingResults());
             throw new PrqaException(ex);
@@ -914,9 +821,7 @@ public class PRQANotifier
     private void performUpload(AbstractBuild<?, ?> build,
                                PRQARemoteToolCheck remoteToolCheck,
                                QAFrameworkRemoteReportUpload remoteReportUpload)
-            throws
-            PrqaException,
-            IOException {
+            throws PrqaException, IOException {
 
 
         FilePath workspace = build.getWorkspace();
@@ -958,18 +863,12 @@ public class PRQANotifier
                                BuildListener listener) {
 
         try {
-            copyReportsToArtifactsDir(qaReportSettings,
-                                      build,
-                                      listener);
+            copyReportsToArtifactsDir(qaReportSettings, build, listener);
             if (qaReportSettings.isPublishToQAV() && qaReportSettings.isLoginToQAV()) {
-                copyResourcesToArtifactsDir("*.log",
-                                            build,
-                                            listener);
+                copyResourcesToArtifactsDir("*.log", build, listener);
             }
         } catch (IOException | InterruptedException ex) {
-            log.log(SEVERE,
-                    "Failed copying build artifacts from slave to server - Use Copy Artifact Plugin",
-                    ex);
+            log.log(SEVERE, "Failed copying build artifacts from slave to server - Use Copy Artifact Plugin", ex);
             outStream.println("Auto Copy of Build Artifacts to artifact dir on Master Failed");
             outStream.println("Manually add Build Artifacts to artifact dir or use Copy Artifact Plugin ");
             outStream.println(ex.getMessage());

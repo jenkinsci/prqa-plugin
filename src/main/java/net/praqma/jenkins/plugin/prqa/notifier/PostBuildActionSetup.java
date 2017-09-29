@@ -37,9 +37,7 @@ import java.util.List;
  * @author Praqma
  */
 public class PostBuildActionSetup
-        implements Describable<PostBuildActionSetup>,
-                   ExtensionPoint,
-                   Serializable {
+        implements Describable<PostBuildActionSetup>, ExtensionPoint, Serializable {
 
     @Override
     public Descriptor<PostBuildActionSetup> getDescriptor() {
@@ -49,8 +47,7 @@ public class PostBuildActionSetup
         }
 
         //noinspection unchecked
-        return (Descriptor<PostBuildActionSetup>) instance
-                .getDescriptorOrDie(getClass());
+        return (Descriptor<PostBuildActionSetup>) instance.getDescriptorOrDie(getClass());
     }
 
     /**

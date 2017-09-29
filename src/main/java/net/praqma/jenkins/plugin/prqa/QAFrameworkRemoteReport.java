@@ -65,22 +65,17 @@ public class QAFrameworkRemoteReport
         if (environment == null) {
             return Collections.emptyMap();
         }
-        environment.put(QACli.QAF_BIN_PATH,
-                        PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
-                                                         File.separator) + "common"
-                                + File.separator + "bin");
+        environment.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
+                                                                             File.separator) + "common" + File.separator + "bin");
         return environment;
     }
 
     @Override
     public PRQAComplianceStatus invoke(File f,
                                        VirtualChannel channel)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
 
-        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(),
-                                                                    report.getSettings());
+        Map<String, String> expandedEnvironment = expandEnvironment(report.getEnvironment(), report.getSettings());
 
         report.setEnvironment(expandedEnvironment);
         report.setWorkspace(f);
@@ -113,8 +108,7 @@ public class QAFrameworkRemoteReport
             }
 
             try {
-                report.analyzeQacli("-cf",
-                                    out);
+                report.analyzeQacli("-cf", out);
             } catch (PrqaException e) {
                 if (!reportSetting.isGenerateReportOnAnalysisError()) {
                     out.println("Failed to perform analysis. Will not continue with report generation");
@@ -134,32 +128,25 @@ public class QAFrameworkRemoteReport
             }
 
             if (reportSetting.isGenCrReport()) {
-                report.reportQacli(CRR.name(),
-                                   out);
+                report.reportQacli(CRR.name(), out);
             }
             if (reportSetting.isGenMdReport()) {
-                report.reportQacli(MDR.name(),
-                                   out);
+                report.reportQacli(MDR.name(), out);
             }
             if (reportSetting.isGenSupReport()) {
-                report.reportQacli(SUR.name(),
-                                   out);
+                report.reportQacli(SUR.name(), out);
             }
 
-            report.reportQacli(RCR.name(),
-                               out);
+            report.reportQacli(RCR.name(), out);
 
             return report.getComplianceStatus(out);
         } catch (Exception ex) {
-            throw new IOException(ex.getMessage(),
-                                  ex);
+            throw new IOException(ex.getMessage(), ex);
         } finally {
             try {
-                report.unsetCustomLicenseServer(customServerWasApplied,
-                                                out);
+                report.unsetCustomLicenseServer(customServerWasApplied, out);
             } catch (PrqaException e) {
-                throw new IOException(e.getMessage(),
-                                      e);
+                throw new IOException(e.getMessage(), e);
             }
         }
     }

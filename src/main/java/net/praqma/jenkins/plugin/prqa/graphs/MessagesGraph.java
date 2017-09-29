@@ -39,9 +39,7 @@ import java.io.IOException;
 public class MessagesGraph
         extends PRQAGraph {
     public MessagesGraph() {
-        super("Number of messages",
-              PRQAContext.QARReportType.Compliance,
-              StatusCategory.Messages);
+        super("Number of messages", PRQAContext.QARReportType.Compliance, StatusCategory.Messages);
     }
 
     @Override
@@ -49,18 +47,13 @@ public class MessagesGraph
                           StaplerResponse rsp,
                           DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb,
                           Double tMax)
-            throws
-            IOException {
-        super.drawGraph(req,
-                        rsp,
-                        dsb,
-                        tMax);
+            throws IOException {
+        super.drawGraph(req, rsp, dsb, tMax);
     }
 
     @Override
     public void setData(PRQAStatusCollection data) {
         super.setData(data);
-        data.overrideMin(StatusCategory.Messages,
-                         0);
+        data.overrideMin(StatusCategory.Messages, 0);
     }
 }

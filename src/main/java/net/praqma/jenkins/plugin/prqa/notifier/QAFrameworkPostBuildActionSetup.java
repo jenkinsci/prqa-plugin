@@ -379,11 +379,9 @@ public class QAFrameworkPostBuildActionSetup
         @Override
         public boolean configure(StaplerRequest req,
                                  JSONObject json)
-                throws
-                FormException {
+                throws FormException {
             save();
-            return super.configure(req,
-                                   json);
+            return super.configure(req, json);
         }
 
         public DescriptorImpl() {
@@ -422,12 +420,9 @@ public class QAFrameworkPostBuildActionSetup
 
         public ListBoxModel doFillUploadSourceCodeItems() {
             ListBoxModel SourceOption = new ListBoxModel();
-            SourceOption.add("None",
-                             "NONE");
-            SourceOption.add("All",
-                             "ALL");
-            SourceOption.add("Only not in VCS",
-                             "NOT_IN_VCS");
+            SourceOption.add("None", "NONE");
+            SourceOption.add("All", "ALL");
+            SourceOption.add("Only not in VCS", "NOT_IN_VCS");
             return SourceOption;
         }
 
@@ -438,7 +433,8 @@ public class QAFrameworkPostBuildActionSetup
                 return FormValidation.errorWithMarkup("CMA project name should not be empty!");
             }
             if (!cmaProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("CMA project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "CMA project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
@@ -450,7 +446,8 @@ public class QAFrameworkPostBuildActionSetup
                 return FormValidation.errorWithMarkup("Unified Project name should not be empty!");
             }
             if (!unifiedProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("Unified project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "Unified project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
@@ -462,7 +459,8 @@ public class QAFrameworkPostBuildActionSetup
                 return FormValidation.ok();
             }
             if (!uploadSnapshotName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("Snapshot name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "Snapshot name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
@@ -474,7 +472,8 @@ public class QAFrameworkPostBuildActionSetup
                 return FormValidation.errorWithMarkup("Project name should not be empty!");
             }
             if (!qaVerifyProjectName.matches("^[a-zA-Z0-9_-{}()$%]+$")) {
-                return FormValidation.errorWithMarkup("Project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
+                return FormValidation.errorWithMarkup(
+                        "Project name is not valid [characters allowed: a-zA-Z0-9-_{}()$%]");
             }
             return FormValidation.ok();
         }
@@ -484,7 +483,8 @@ public class QAFrameworkPostBuildActionSetup
                         String maxNumThreads) {
             final Integer minValue = 0;
             if (StringUtils.isBlank(maxNumThreads)) {
-                return FormValidation.errorWithMarkup(Messages.PRQANotifier_NotEmptyValue("Max. Number of Threads for Analysis"));
+                return FormValidation.errorWithMarkup(
+                        Messages.PRQANotifier_NotEmptyValue("Max. Number of Threads for Analysis"));
             }
             try {
                 final Integer parsedValue = Integer.parseInt(maxNumThreads);
@@ -514,9 +514,9 @@ public class QAFrameworkPostBuildActionSetup
                 throw new RuntimeException("Unable to aquire Jenkins instance");
             }
 
-            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins
-                    .getDescriptorByType(QAFrameworkInstallationConfiguration.DescriptorImpl.class)
-                    .getInstallations();
+            QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins.getDescriptorByType(
+                    QAFrameworkInstallationConfiguration.DescriptorImpl.class)
+                                                                              .getInstallations();
             return Arrays.asList(prqaInstallations);
         }
 

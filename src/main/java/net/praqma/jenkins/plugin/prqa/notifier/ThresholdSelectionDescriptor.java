@@ -40,8 +40,7 @@ public abstract class ThresholdSelectionDescriptor<T extends AbstractThreshold>
     public AbstractThreshold newInstance(StaplerRequest req,
                                          JSONObject formData)
             throws FormException {
-        return super.newInstance(req,
-                                 formData); //To change body of generated methods, choose Tools | Templates.
+        return super.newInstance(req, formData); //To change body of generated methods, choose Tools | Templates.
     }
 
     public FormValidation doCheckValue(

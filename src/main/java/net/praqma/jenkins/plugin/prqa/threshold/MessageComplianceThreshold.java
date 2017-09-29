@@ -59,8 +59,7 @@ public class MessageComplianceThreshold
     @Override
     public boolean validateImprovement(PRQAComplianceStatus previousComplianceStatus,
                                        PRQAComplianceStatus currentComplianceStatus) {
-        return value == null || isImprovementForMessageGroups(previousComplianceStatus,
-                                                              currentComplianceStatus,
+        return value == null || isImprovementForMessageGroups(previousComplianceStatus, currentComplianceStatus,
                                                               thresholdLevel);
     }
 
@@ -71,29 +70,29 @@ public class MessageComplianceThreshold
         List<MessageGroup> currentComplianceStatusMessageGroups = currentComplianceStatus.getMessagesGroups();
 
         if (currentComplianceStatusMessageGroups == null || currentComplianceStatusMessageGroups.isEmpty()) {
-            areAllMessagesValid = currentComplianceStatus.getMessageCount(thresholdLevel) <= previousComplianceStatus.getMessageCount(thresholdLevel);
+            areAllMessagesValid = currentComplianceStatus.getMessageCount(
+                    thresholdLevel) <= previousComplianceStatus.getMessageCount(thresholdLevel);
             if (!areAllMessagesValid) {
-                currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(currentComplianceStatus.getMessageCount(thresholdLevel),
-                                                                                                                       previousComplianceStatus.getMessageCount(thresholdLevel)));
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(
+                        currentComplianceStatus.getMessageCount(thresholdLevel),
+                        previousComplianceStatus.getMessageCount(thresholdLevel)));
             }
         } else {
             List<MessageGroup> previousComplianceStatusMessageGroups = previousComplianceStatus.getMessagesGroups();
-            for (int i = 0;
-                 i < currentComplianceStatusMessageGroups.size();
-                 i++) {
+            for (int i = 0; i < currentComplianceStatusMessageGroups.size(); i++) {
                 MessageGroup currentMessageGroup = currentComplianceStatusMessageGroups.get(i);
-                for (int j = 0;
-                     j < previousComplianceStatusMessageGroups.size();
-                     j++) {
+                for (int j = 0; j < previousComplianceStatusMessageGroups.size(); j++) {
                     if (currentMessageGroup.getMessageGroupName()
                                            .equals(previousComplianceStatusMessageGroups.get(j)
                                                                                         .getMessageGroupName())) {
-                        if (currentMessageGroup.getMessagesWithinThreshold() <= previousComplianceStatusMessageGroups.get(j)
+                        if (currentMessageGroup.getMessagesWithinThreshold() <= previousComplianceStatusMessageGroups.get(
+                                j)
                                                                                                                      .getMessagesWithinThreshold()) {
-                            currentComplianceStatus.addNotification(onUnstableMessage(currentMessageGroup.getMessageGroupName(),
-                                                                                      currentMessageGroup.getMessagesWithinThreshold(),
-                                                                                      previousComplianceStatusMessageGroups.get(j)
-                                                                                                                           .getMessagesWithinThreshold()));
+                            currentComplianceStatus.addNotification(
+                                    onUnstableMessage(currentMessageGroup.getMessageGroupName(),
+                                                      currentMessageGroup.getMessagesWithinThreshold(),
+                                                      previousComplianceStatusMessageGroups.get(j)
+                                                                                           .getMessagesWithinThreshold()));
                             areAllMessagesValid = false;
                         }
                     }
@@ -106,15 +105,12 @@ public class MessageComplianceThreshold
     private String onUnstableMessage(String messageGroupName,
                                      int actualValue,
                                      int comparisonValue) {
-        return Messages.PRQANotifier_MaxMessagesRequirementNotMet(messageGroupName,
-                                                                  actualValue,
-                                                                  comparisonValue);
+        return Messages.PRQANotifier_MaxMessagesRequirementNotMet(messageGroupName, actualValue, comparisonValue);
     }
 
     @Override
     public boolean validateThreshold(PRQAComplianceStatus currentComplianceStatus) {
-        return value == null || isTresholdValidForMessageGroups(currentComplianceStatus,
-                                                                thresholdLevel);
+        return value == null || isTresholdValidForMessageGroups(currentComplianceStatus, thresholdLevel);
     }
 
     private boolean isTresholdValidForMessageGroups(PRQAComplianceStatus currentComplianceStatus,
@@ -126,8 +122,7 @@ public class MessageComplianceThreshold
             isValidTreshold = currentComplianceStatus.getMessageCount(thresholdLevel) <= value;
             if (!isValidTreshold) {
                 currentComplianceStatus.addNotification(Messages.PRQANotifier_MaxMessagesRequirementNotMetExistingPrqa(
-                        currentComplianceStatus.getMessageCount(thresholdLevel),
-                        value));
+                        currentComplianceStatus.getMessageCount(thresholdLevel), value));
             }
         } else {
             for (MessageGroup messageGroup : currentComplianceStatus.getMessagesGroups()) {
@@ -138,12 +133,9 @@ public class MessageComplianceThreshold
                                                                               value));
                     isStableBuild = false;
                 }
-                log.fine(String.format("For %s are %s mesages, comparing to: %s",
-                                       messageGroup.getMessageGroupName(),
-                                       messageGroup.getMessagesWithinThreshold(),
-                                       value));
-                log.fine(String.format("ValidateThreshold returned %s",
-                                       isValidTreshold));
+                log.fine(String.format("For %s are %s mesages, comparing to: %s", messageGroup.getMessageGroupName(),
+                                       messageGroup.getMessagesWithinThreshold(), value));
+                log.fine(String.format("ValidateThreshold returned %s", isValidTreshold));
             }
         }
         return isStableBuild;
@@ -161,9 +153,7 @@ public class MessageComplianceThreshold
         @SuppressWarnings("unused")
         public ListBoxModel doFillThresholdLevelItems() {
             ListBoxModel model = new ListBoxModel();
-            for (int i = 0;
-                 i < 10;
-                 i++) {
+            for (int i = 0; i < 10; i++) {
                 model.add(String.valueOf(i));
             }
             return model;

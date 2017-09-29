@@ -31,15 +31,11 @@ public class CopyReportsToWorkspace
     @Override
     public Boolean invoke(File f,
                           VirtualChannel channel)
-            throws
-            IOException,
-            InterruptedException {
+            throws IOException, InterruptedException {
 
         final String reportsPath;
         try {
-            reportsPath = QAFrameworkReport.extractReportsPath(f.getAbsolutePath(),
-                                                               qaProject,
-                                                               projectConfiguration);
+            reportsPath = QAFrameworkReport.extractReportsPath(f.getAbsolutePath(), qaProject, projectConfiguration);
         } catch (PrqaException e) {
             throw new IOException(e);
         }
@@ -49,8 +45,7 @@ public class CopyReportsToWorkspace
 
         for (File reportFile : files) {
             if (containsReportName(reportFile.getName())) {
-                FileUtils.copyFileToDirectory(reportFile,
-                                              f);
+                FileUtils.copyFileToDirectory(reportFile, f);
             }
         }
 
@@ -58,9 +53,7 @@ public class CopyReportsToWorkspace
     }
 
     private boolean containsReportName(String fileName) {
-        return fileName.contains(CRR.name()) ||
-                fileName.contains(SUR.name()) ||
-                fileName.contains(RCR.name()) ||
-                fileName.contains(MDR.name());
+        return fileName.contains(CRR.name()) || fileName.contains(SUR.name()) || fileName.contains(
+                RCR.name()) || fileName.contains(MDR.name());
     }
 }

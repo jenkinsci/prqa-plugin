@@ -51,8 +51,8 @@ public class FileComplianceThreshold
         if (previousComplianceStatus != null) {
             isValidImprovement = currentComplianceStatus.getFileCompliance() >= previousComplianceStatus.getFileCompliance();
             if (!isValidImprovement) {
-                currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentComplianceStatus.getFileCompliance(),
-                                                                                                              previousComplianceStatus.getFileCompliance()));
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(
+                        currentComplianceStatus.getFileCompliance(), previousComplianceStatus.getFileCompliance()));
             }
         }
         return isValidImprovement;
@@ -64,8 +64,8 @@ public class FileComplianceThreshold
         if (value != null) {
             isValidTreshold = currentComplianceStatus.getFileCompliance() >= value;
             if (!isValidTreshold) {
-                currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(currentComplianceStatus.getFileCompliance(),
-                                                                                                              value));
+                currentComplianceStatus.addNotification(Messages.PRQANotifier_FileComplianceRequirementNotMet(
+                        currentComplianceStatus.getFileCompliance(), value));
             }
         }
         return isValidTreshold;

@@ -81,8 +81,7 @@ public abstract class PRQAGraph
                           StaplerResponse rsp,
                           DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb,
                           Double thresholdMax)
-            throws
-            IOException {
+            throws IOException {
         try {
             Number max = null;
             Number min = null;
@@ -105,42 +104,29 @@ public abstract class PRQAGraph
                     } else if (tsetting == 9) {
                         setTitle("Level 9 Messages per Build");
                     } else {
-                        setTitle(String.format("Level %s-9 Messages per Build",
-                                               tsetting));
+                        setTitle(String.format("Level %s-9 Messages per Build", tsetting));
                     }
                 }
                 log.fine("Iterating using category: " + category);
                 if (max != null && min != null) {
 
                     final JFreeChart chart = createChart(dsb.build(),
-                                                         getTitle() == null
-                                                         ? category.toString()
-                                                         : getTitle(),
-                                                         null,
-                                                         thresholdMax != null
-                                                         ? thresholdMax.intValue()
-                                                         : max.intValue(),
-                                                         min.intValue());
+                                                         getTitle() == null ? category.toString() : getTitle(), null,
+                                                         thresholdMax != null ? thresholdMax.intValue()
+                                                                              : max.intValue(), min.intValue());
 
-                    new Graph(-1,
-                              width,
-                              height) {
+                    new Graph(-1, width, height) {
                         protected JFreeChart createGraph() {
                             return chart;
                         }
-                    }.doPng(req,
-                            rsp);
+                    }.doPng(req, rsp);
                 }
 
             }
 
         } catch (RuntimeException ex) {
-            log.logp(Level.SEVERE,
-                     this.getClass()
-                         .getName(),
-                     "drawGraph",
-                     "Failed to draw a graph",
-                     ex);
+            log.logp(Level.SEVERE, this.getClass()
+                                       .getName(), "drawGraph", "Failed to draw a graph", ex);
             throw ex;
         }
     }
@@ -196,10 +182,7 @@ public abstract class PRQAGraph
         final LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
         renderer.setBaseStroke(new BasicStroke(2.0f));
         ColorPalette.apply(renderer);
-        plot.setInsets(new RectangleInsets(5.0,
-                                           0,
-                                           0,
-                                           5.0));
+        plot.setInsets(new RectangleInsets(5.0, 0, 0, 5.0));
         return chart;
     }
 

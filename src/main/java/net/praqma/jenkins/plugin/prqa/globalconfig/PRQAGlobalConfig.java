@@ -60,18 +60,14 @@ public class PRQAGlobalConfig
     @Override
     public boolean configure(StaplerRequest req,
                              JSONObject json)
-            throws
-            FormException {
+            throws FormException {
         boolean clean_servers = json.get("servers") == null && servers.size() > 0;
         if (clean_servers) {
-            json.put("servers",
-                     new JSONObject());
+            json.put("servers", new JSONObject());
         }
-        req.bindJSON(this,
-                     json);
+        req.bindJSON(this, json);
         save();
-        boolean result = super.configure(req,
-                                         json);
+        boolean result = super.configure(req, json);
         if (clean_servers) {
             servers.clear();
         }
@@ -130,7 +126,6 @@ public class PRQAGlobalConfig
     public List<Descriptor> descriptors() {
         Jenkins instance = Jenkins.getInstance();
         assert instance != null;
-        return Collections.singletonList(instance
-                                                 .getDescriptor(QAVerifyServerConfiguration.class));
+        return Collections.singletonList(instance.getDescriptor(QAVerifyServerConfiguration.class));
     }
 }

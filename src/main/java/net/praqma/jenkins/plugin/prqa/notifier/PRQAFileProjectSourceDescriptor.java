@@ -9,9 +9,7 @@ public abstract class PRQAFileProjectSourceDescriptor<T extends PRQAFileProjectS
     public PRQAFileProjectSource newInstance(StaplerRequest req,
                                              JSONObject formData,
                                              PRQAFileProjectSource instance)
-            throws
-            FormException {
-        return super.newInstance(req,
-                                 formData);
+            throws FormException {
+        return super.newInstance(req, formData);
     }
 }

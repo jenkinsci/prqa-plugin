@@ -80,8 +80,7 @@ public class PRQAProjectAction
         PRQABuildAction action = getLatestActionInProject();
         if (action != null) {
             try {
-                action.doReportGraphs(req,
-                                      rsp);
+                action.doReportGraphs(req, rsp);
             } catch (IOException exception) {
 
             }
@@ -94,9 +93,7 @@ public class PRQAProjectAction
         if (notifier != null) {
             QAVerifyServerConfiguration qavconfig;
             List<String> servers = notifier.sourceQAFramework.chosenServers;
-            String chosenServer = servers != null && !servers.isEmpty()
-                                  ? servers.get(0)
-                                  : null;
+            String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
             qavconfig = PRQAGlobalConfig.get()
                                         .getConfigurationByName(chosenServer);
             return qavconfig;

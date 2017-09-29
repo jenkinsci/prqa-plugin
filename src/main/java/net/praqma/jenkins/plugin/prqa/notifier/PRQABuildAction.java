@@ -173,18 +173,14 @@ public class PRQABuildAction
         if (notifier != null) {
             String className = req.getParameter("graph");
             PRQAGraph graph = notifier.getGraph(className);
-            for (PRQABuildAction prqabuild = this;
-                 prqabuild != null;
-                 prqabuild = prqabuild.getPreviousAction()) {
+            for (PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                 if (prqabuild.getResult() != null) {
                     for (StatusCategory cat : graph.getCategories()) {
                         Number threshold = prqabuild.getThreshold(cat);
                         if (threshold != null) {
-                            stats.put(cat,
-                                      Boolean.TRUE);
+                            stats.put(cat, Boolean.TRUE);
                         } else {
-                            stats.put(cat,
-                                      Boolean.FALSE);
+                            stats.put(cat, Boolean.FALSE);
                         }
                     }
                     return stats;
@@ -212,11 +208,9 @@ public class PRQABuildAction
      */
     public void doReportGraphs(StaplerRequest req,
                                StaplerResponse rsp)
-            throws
-            IOException {
+            throws IOException {
         PRQANotifier notifier = (PRQANotifier) getPublisher();
-        HashMap<StatusCategory, Boolean> drawMatrix = _doDrawThresholds(req,
-                                                                        rsp);
+        HashMap<StatusCategory, Boolean> drawMatrix = _doDrawThresholds(req, rsp);
 
         if (notifier != null) {
             Integer tSetting = Integer.parseInt(req.getParameter("tsetting"));
@@ -228,9 +222,7 @@ public class PRQABuildAction
 
             Double tMax = null;
 
-            for (PRQABuildAction prqabuild = this;
-                 prqabuild != null;
-                 prqabuild = prqabuild.getPreviousAction()) {
+            for (PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                 if (prqabuild.getResult() != null) {
                     label = new ChartUtil.NumberOnlyBuildLabel((Run<?, ?>) prqabuild.build);
                     PRQAReading stat = prqabuild.getResult();
@@ -257,25 +249,17 @@ public class PRQABuildAction
                                     tMax = threshold.doubleValue();
                                 }
 
-                                dsb.add(threshold,
-                                        String.format("%s Threshold",
-                                                      cat.toString()),
-                                        label);
+                                dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);
                             }
                         }
-                        dsb.add(res,
-                                cat.toString(),
-                                label);
+                        dsb.add(res, cat.toString(), label);
                         collection.add(stat);
                     }
                 }
             }
 
             graph.setData(collection);
-            graph.drawGraph(req,
-                            rsp,
-                            dsb,
-                            tMax);
+            graph.drawGraph(req, rsp, dsb, tMax);
         }
     }
 }

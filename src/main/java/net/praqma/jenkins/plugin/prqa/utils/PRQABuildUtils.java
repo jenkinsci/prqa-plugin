@@ -30,8 +30,7 @@ public class PRQABuildUtils {
             isOsWindows = buildWorkspace.act(new MasterToSlaveCallable<Boolean, RuntimeException>() {
                 @Override
                 public Boolean call()
-                        throws
-                        RuntimeException {
+                        throws RuntimeException {
                     return SystemUtils.IS_OS_WINDOWS;
                 }
             });
@@ -67,9 +66,7 @@ public class PRQABuildUtils {
 
         for (Map.Entry<String, String> entry : envVars.entrySet()) {
             for (String regex : regexTemplate) {
-                out = out.replaceAll(String.format(regex,
-                                                   entry.getKey()),
-                                     entry.getValue());
+                out = out.replaceAll(String.format(regex, entry.getKey()), entry.getValue());
             }
         }
 

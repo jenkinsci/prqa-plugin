@@ -40,18 +40,14 @@ public class GraphTest
         cGraphs.setData(new PRQAStatusCollection());
 
         assertEquals(cGraphs.getData()
-                            .getOverriddenMax(StatusCategory.FileCompliance),
-                     Integer.valueOf(100));
+                            .getOverriddenMax(StatusCategory.FileCompliance), Integer.valueOf(100));
         assertEquals(cGraphs.getData()
-                            .getOverriddenMax(StatusCategory.ProjectCompliance),
-                     Integer.valueOf(100));
+                            .getOverriddenMax(StatusCategory.ProjectCompliance), Integer.valueOf(100));
         System.out.println("Test min values");
         assertEquals(cGraphs.getData()
-                            .getOverriddenMin(StatusCategory.FileCompliance),
-                     Integer.valueOf(0));
+                            .getOverriddenMin(StatusCategory.FileCompliance), Integer.valueOf(0));
         assertEquals(cGraphs.getData()
-                            .getOverriddenMin(StatusCategory.ProjectCompliance),
-                     Integer.valueOf(0));
+                            .getOverriddenMin(StatusCategory.ProjectCompliance), Integer.valueOf(0));
         assertNotNull(cGraphs.getTitle());
         assertNotNull(cGraphs.getType());
 

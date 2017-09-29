@@ -32,8 +32,7 @@ import java.util.regex.Pattern;
  * @author Praqma
  */
 public class ReportFileFilter
-        implements FileFilter,
-                   Serializable {
+        implements FileFilter, Serializable {
 
     /**
      *
@@ -50,9 +49,8 @@ public class ReportFileFilter
     public boolean accept(File pathname) {
         return compliance.matcher(pathname.getName())
                          .matches() || suppression.matcher(pathname.getName())
-                                                  .matches()
-                || codereview.matcher(pathname.getName())
-                             .matches();
+                                                  .matches() || codereview.matcher(pathname.getName())
+                                                                          .matches();
     }
 
 }

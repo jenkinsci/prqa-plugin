@@ -18,36 +18,28 @@ public class PRQABuildActionTest
     @Test
     public void testGetDisplayName() {
         PRQABuildAction action = new PRQABuildAction();
-        assertEquals(action.getDisplayName(),
-                     PRQABuildAction.DISPLAY_NAME);
+        assertEquals(action.getDisplayName(), PRQABuildAction.DISPLAY_NAME);
     }
 
     @Test
     public void testGetUrlName() {
         PRQABuildAction action = new PRQABuildAction();
-        assertEquals(action.getUrlName(),
-                     PRQABuildAction.URL_NAME);
+        assertEquals(action.getUrlName(), PRQABuildAction.URL_NAME);
     }
 
     @Test
     public void testCreatePRQAFreestyleProject()
-            throws
-            IOException,
-            Exception {
+            throws IOException, Exception {
         FreeStyleProject fsp = createFreeStyleProject("PRQA Test");
 
-        System.out.println(String.format("About to schedule job on port %s",
-                                         localPort));
+        System.out.println(String.format("About to schedule job on port %s", localPort));
 
         FreeStyleBuild fsb = fsp.scheduleBuild2(0)
-                                .get(60,
-                                     TimeUnit.SECONDS);
+                                .get(60, TimeUnit.SECONDS);
         Result res = fsp.getLastBuild()
                         .getResult();
-        System.out.println(String.format("Result : %s",
-                                         res));
-        assertBuildStatus(Result.SUCCESS,
-                          fsp.getLastBuild());
+        System.out.println(String.format("Result : %s", res));
+        assertBuildStatus(Result.SUCCESS, fsp.getLastBuild());
 
         assertNotNull(fsp);
         assertNotNull(fsb);

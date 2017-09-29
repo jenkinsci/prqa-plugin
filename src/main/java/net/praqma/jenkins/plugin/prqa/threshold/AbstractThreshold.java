@@ -39,9 +39,7 @@ import java.util.List;
  * @author mads
  */
 public abstract class AbstractThreshold
-        implements Describable<AbstractThreshold>,
-                   ExtensionPoint,
-                   Serializable {
+        implements Describable<AbstractThreshold>, ExtensionPoint, Serializable {
 
     public final Boolean improvement;
 
@@ -87,8 +85,7 @@ public abstract class AbstractThreshold
     public boolean validate(PRQAComplianceStatus previousComplianceStatus,
                             PRQAComplianceStatus currentComplianceStatus) {
         if (improvement) {
-            return validateImprovement(previousComplianceStatus,
-                                       currentComplianceStatus);
+            return validateImprovement(previousComplianceStatus, currentComplianceStatus);
         } else {
             return validateThreshold(currentComplianceStatus);
         }
