@@ -79,7 +79,7 @@
         <dependency>
             <groupId>com.programmingresearch</groupId>
             <artifactId>prqa-plugin-api</artifactId>
-            <version>3.0.0-iteration.4</version>
+            <version>3.0.0</version>
         </dependency>
         <dependency>
             <groupId>net.praqma</groupId>
