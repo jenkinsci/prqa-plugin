@@ -13,7 +13,7 @@
     </f:entry>
 
     <f:entry field="servers.hostName"
-             title="${%Host name}">
+             title="${%Host Address}">
         <f:textbox name="servers.hostName"
                    field="hostName"
                    value="${servers.hostName}"
