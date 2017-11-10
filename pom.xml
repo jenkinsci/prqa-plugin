@@ -73,6 +73,16 @@
             </roles>
             <timezone>0</timezone>
         </developer>
+        <developer>
+            <id>marcosbento</id>
+            <name>Marcos Bento</name>
+            <email>marcos_bento@prqa.com</email>
+            <organization>Programming Research</organization>
+            <roles>
+                <role>maintainer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
     </developers>
 
     <dependencies>
