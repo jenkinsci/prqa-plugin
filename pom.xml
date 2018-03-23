@@ -16,7 +16,7 @@
     <url>https://wiki.jenkins-ci.org/display/JENKINS/PRQA+Plugin</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jenkins.version>2.0</jenkins.version>
+        <jenkins.version>2.107.1</jenkins.version>
     </properties>
 
     <build>
