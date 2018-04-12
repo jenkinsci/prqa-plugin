@@ -9,7 +9,7 @@
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
@@ -92,7 +92,7 @@
         <dependency>
             <groupId>com.programmingresearch</groupId>
             <artifactId>prqa-plugin-api</artifactId>
-            <version>3.0.1-SNAPSHOT</version>
+            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>net.praqma</groupId>
