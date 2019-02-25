@@ -847,7 +847,7 @@ public class PRQANotifier
 
         if (!qaFrameworkVersion.isVersionSupported()) {
             outStream.println(String.format(
-                    "ERROR: In order to use the PRQA plugin please install a version of PRQA·Framework greater or equal to %s!",
+                    "ERROR: In order to use the PRQA plugin please install a version of PRQA Framework greater or equal to %s!",
                     MINIMUM_SUPPORTED_VERSION));
             return false;
         }
