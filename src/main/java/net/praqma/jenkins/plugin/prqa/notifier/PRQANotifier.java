@@ -15,6 +15,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+import org.apache.commons.lang3.tuple.Pair;
 import jenkins.model.ArtifactManager;
 import jenkins.model.Jenkins;
 import jenkins.util.BuildListenerAdapter;
@@ -48,7 +49,6 @@ import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.StatusCategory;
-import net.praqma.util.structure.Tuple;
 import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
@@ -83,6 +83,7 @@ import static net.praqma.prqa.reports.ReportType.CRR;
 import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
+import static org.apache.commons.lang3.tuple.Pair.of;
 
 public class PRQANotifier
         extends Recorder
@@ -422,17 +423,16 @@ public class PRQANotifier
      * Fetches the most 'previous' result. The current build is baseline. So any
      * prior build to the passed current build is considered.
      */
-    private Tuple<PRQAReading, AbstractBuild<?, ?>> getPreviousReading(AbstractBuild<?, ?> currentBuild,
-                                                                       Result expectedResult) {
+    private Pair<PRQAReading, AbstractBuild<?, ?>> getPreviousReading(AbstractBuild<?, ?> currentBuild,
+                                                                      Result expectedResult) {
         AbstractBuild<?, ?> iterate = currentBuild;
         do {
             iterate = iterate.getPreviousNotFailedBuild();
             if (iterate != null && iterate.getAction(PRQABuildAction.class) != null && Objects.equals(
                     iterate.getResult(), expectedResult)) {
-                Tuple<PRQAReading, AbstractBuild<?, ?>> result = new Tuple<>();
-                result.setSecond(iterate);
-                result.setFirst(iterate.getAction(PRQABuildAction.class)
-                                       .getResult());
+                AbstractBuild<?, ?> second = iterate;
+                Pair<PRQAReading, AbstractBuild<?, ?>> result =
+                    Pair.of(iterate.getAction(PRQABuildAction.class).getResult(), second);
                 return result;
             }
         } while (iterate != null);
@@ -524,11 +524,7 @@ public class PRQANotifier
 
         public List<QAFrameworkInstallationConfiguration> getQaFrameworkTools() {
 
-            Jenkins jenkins = Jenkins.getInstance();
-
-            if (jenkins == null) {
-                throw new RuntimeException("Unable to get Jenkins instance");
-            }
+            Jenkins jenkins = Jenkins.get();
 
             QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins.getDescriptorByType(
                     QAFrameworkInstallationConfiguration.DescriptorImpl.class)
@@ -642,10 +638,10 @@ public class PRQANotifier
             return false;
         }
 
-        Tuple<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, SUCCESS);
+        Pair<PRQAReading, AbstractBuild<?, ?>> previousBuildResultTuple = getPreviousReading(build, SUCCESS);
 
         PRQAReading previousStableBuildResult =
-                previousBuildResultTuple != null ? previousBuildResultTuple.getFirst() : null;
+                previousBuildResultTuple != null ? previousBuildResultTuple.getKey() : null;
 
         log.fine("thresholdsDesc is null: " + (thresholdsDesc == null));
         if (thresholdsDesc != null) {
@@ -691,8 +687,8 @@ public class PRQANotifier
         outStream.println("\n----------------------BUILD Results-----------------------\n");
         if (previousBuildResultTuple != null) {
             outStream.println(
-                    Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getSecond().number));
-            outStream.println(previousBuildResultTuple.getFirst());
+                    Messages.PRQANotifier_PreviousResultBuildNumber(previousBuildResultTuple.getValue().number));
+            outStream.println(previousBuildResultTuple.getKey());
 
         } else {
             outStream.println(Messages.PRQANotifier_NoPreviousResults());

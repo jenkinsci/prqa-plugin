@@ -1,5 +1,6 @@
 package net.praqma.jenkins.plugin.prqa;
 
+import hudson.PluginWrapper;
 import jenkins.model.Jenkins;
 
 import java.io.Serializable;
@@ -16,14 +17,6 @@ public class VersionInfo
     private static final String ARTIFACT_ID = "prqa-plugin";
 
     public static String getPluginVersion() {
-        Jenkins jenkins = Jenkins.getInstance();
-
-        if (jenkins == null) {
-            throw new RuntimeException("Unable to get Jenkins instance");
-        }
-
-        return jenkins.getPlugin(ARTIFACT_ID)
-                      .getWrapper()
-                      .getVersion();
+        return Jenkins.get().getPlugin(ARTIFACT_ID).getWrapper().getVersion();
     }
 }

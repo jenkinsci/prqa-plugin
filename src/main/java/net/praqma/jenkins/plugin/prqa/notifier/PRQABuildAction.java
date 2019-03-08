@@ -61,6 +61,11 @@ public class PRQABuildAction
         return publisher;
     }
 
+    /**
+     * @param clazz class
+     * @param <T> type
+     * @return publisher for class
+     */
     @SuppressWarnings("unchecked")
     public <T extends Publisher> T getPublisher(Class<T> clazz) {
         try {
@@ -87,11 +92,11 @@ public class PRQABuildAction
      * Converts the result of the interface to a concrete implementation. Returns null in cases where it is not possible.
      * <p>
      * This check is needed if you for some reason decide to switch report type on the same job, since each report has it's own implementation
-     * of a status. We need to do a check on all the collecte results to get those that fits the current job profile.
+     * of a status. We need to do a check on all the collected results to get those that fits the current job profile.
      *
-     * @param <T>
-     * @param clazz
-     * @return
+     * @param <T> type
+     * @param clazz class
+     * @return result
      */
     @SuppressWarnings("unchecked")
     public <T extends PRQAStatus> T getResult(Class<T> clazz) {
@@ -116,7 +121,7 @@ public class PRQABuildAction
     /**
      * Used to cycle through all previous builds.
      *
-     * @return
+     * @return previous build
      */
     public PRQABuildAction getPreviousAction() {
         return getPreviousAction(build);
@@ -126,6 +131,8 @@ public class PRQABuildAction
      * Fetches the previous PRQA build. Skips builds that were not configured as a PRQA Build.
      * <p>
      * Goes to the end of list.
+     * @param base the base
+     * @return previous build
      */
     public PRQABuildAction getPreviousAction(AbstractBuild<?, ?> base) {
         PRQABuildAction action;
@@ -202,9 +209,9 @@ public class PRQABuildAction
      * <p>
      * This method catches the PrqaReadingException, when that exception is thrown it means that the we skip the reading and continue.
      *
-     * @param req
-     * @param rsp
-     * @throws IOException
+     * @param req request
+     * @param rsp response
+     * @throws IOException when exception
      */
     public void doReportGraphs(StaplerRequest req,
                                StaplerResponse rsp)

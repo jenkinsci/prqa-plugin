@@ -8,6 +8,7 @@ import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.FormValidation;
+import hudson.util.Secret;
 import net.praqma.jenkins.plugin.prqa.notifier.Messages;
 import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -34,7 +35,7 @@ public class QAVerifyServerConfiguration
     private String hostName;
     private Integer portNumber;
     private String userName;
-    private String password;
+    private Secret password;
     private String protocol;
     private Integer viewerPortNumber = 8080;
     private String externalUrl;
@@ -44,7 +45,7 @@ public class QAVerifyServerConfiguration
                                        String hostName,
                                        Integer portNumber,
                                        String userName,
-                                       String password,
+                                       Secret password,
                                        String protocol,
                                        Integer viewerPortNumber,
                                        String externalUrl) {
@@ -121,15 +122,13 @@ public class QAVerifyServerConfiguration
     /**
      * @return the password
      */
-    public String getPassword() {
-        return password;
-    }
+    public Secret getPassword() { return password; }
 
     /**
      * @param password the password to set
      */
     @DataBoundSetter
-    public void setPassword(String password) {
+    public void setPassword(Secret password) {
         this.password = password;
     }
 

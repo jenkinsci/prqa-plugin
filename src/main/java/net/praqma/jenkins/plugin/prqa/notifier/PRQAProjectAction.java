@@ -72,8 +72,8 @@ public class PRQAProjectAction
     /**
      * New one.
      *
-     * @param req
-     * @param rsp
+     * @param req request
+     * @param rsp response
      */
     public void doReportGraphs(StaplerRequest req,
                                StaplerResponse rsp) {

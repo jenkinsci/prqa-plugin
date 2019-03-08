@@ -50,7 +50,7 @@ public abstract class AbstractThreshold
     @SuppressWarnings("unchecked")
     @Override
     public Descriptor<AbstractThreshold> getDescriptor() {
-        Jenkins instance = Jenkins.getInstance();
+        Jenkins instance = Jenkins.getInstanceOrNull();
         if (instance == null) {
             return null;
         }
@@ -59,7 +59,7 @@ public abstract class AbstractThreshold
     }
 
     public static DescriptorExtensionList<AbstractThreshold, ThresholdSelectionDescriptor<AbstractThreshold>> all() {
-        Jenkins instance = Jenkins.getInstance();
+        Jenkins instance = Jenkins.getInstanceOrNull();
         if (instance == null) {
             return null;
         }

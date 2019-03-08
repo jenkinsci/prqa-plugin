@@ -508,11 +508,7 @@ public class QAFrameworkPostBuildActionSetup
         }
 
         public List<QAFrameworkInstallationConfiguration> getQAFrameworkTools() {
-            Jenkins jenkins = Jenkins.getInstance();
-
-            if (jenkins == null) {
-                throw new RuntimeException("Unable to aquire Jenkins instance");
-            }
+            Jenkins jenkins = Jenkins.get();
 
             QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins.getDescriptorByType(
                     QAFrameworkInstallationConfiguration.DescriptorImpl.class)

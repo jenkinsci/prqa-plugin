@@ -124,8 +124,6 @@ public class PRQAGlobalConfig
 
     @SuppressWarnings("unused")
     public List<Descriptor> descriptors() {
-        Jenkins instance = Jenkins.getInstance();
-        assert instance != null;
-        return Collections.singletonList(instance.getDescriptor(QAVerifyServerConfiguration.class));
+        return Collections.singletonList(Jenkins.get().getDescriptor(QAVerifyServerConfiguration.class));
     }
 }

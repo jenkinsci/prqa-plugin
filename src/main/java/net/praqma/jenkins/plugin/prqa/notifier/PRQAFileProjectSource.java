@@ -16,7 +16,7 @@ public class PRQAFileProjectSource
     @SuppressWarnings("unchecked")
     @Override
     public Descriptor<PRQAFileProjectSource> getDescriptor() {
-        Jenkins jenkins = Jenkins.getInstance();
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
         if (jenkins == null) {
             return null;
         }
@@ -26,11 +26,10 @@ public class PRQAFileProjectSource
     }
 
     /**
-     * PRQAReportSource
-     * All registered {@link PostBuildActionSetup}s.
+     * @return all registered {@link PostBuildActionSetup}s.
      */
     public static DescriptorExtensionList<PRQAFileProjectSource, PRQAFileProjectSourceDescriptor<PRQAFileProjectSource>> all() {
-        Jenkins jenkins = Jenkins.getInstance();
+        Jenkins jenkins = Jenkins.getInstanceOrNull();
         if (jenkins == null) {
             return null;
         }

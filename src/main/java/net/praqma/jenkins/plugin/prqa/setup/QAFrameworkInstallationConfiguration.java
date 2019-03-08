@@ -70,7 +70,7 @@ public class QAFrameworkInstallationConfiguration
         if (StringUtils.isBlank(qafName)) {
             return null;
         } else {
-            Jenkins instance = Jenkins.getInstance();
+            Jenkins instance = Jenkins.getInstanceOrNull();
 
             if (instance == null) {
                 return null;
@@ -192,7 +192,7 @@ public class QAFrameworkInstallationConfiguration
         }
 
         public QAFrameworkInstallationConfiguration[] getQaInstallations() {
-            Jenkins instance = Jenkins.getInstance();
+            Jenkins instance = Jenkins.getInstanceOrNull();
 
             if (instance == null) {
                 return new QAFrameworkInstallationConfiguration[0];
