@@ -9,7 +9,7 @@
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>3.0.2</version>
+    <version>3.1.0</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
@@ -72,14 +72,24 @@
 
     <developers>
         <developer>
-            <id>isanych</id>
-            <name>Igor Kostenko</name>
-            <email>igor_kostenko@programmingresearch.com</email>
+            <id>jhurn</id>
+            <name>Jason Hurn</name>
+            <email>jhurn@perforce.com</email>
             <organization>Perforce</organization>
             <roles>
                 <role>maintainer</role>
             </roles>
-            <timezone>0</timezone>
+            <timezone>Europe/London</timezone>
+        </developer>
+        <developer>
+            <id>isanych</id>
+            <name>Igor Kostenko</name>
+            <email>ikostenko@perforce.com</email>
+            <organization>Perforce</organization>
+            <roles>
+                <role>maintainer</role>
+            </roles>
+            <timezone>Europe/London</timezone>
         </developer>
     </developers>
 

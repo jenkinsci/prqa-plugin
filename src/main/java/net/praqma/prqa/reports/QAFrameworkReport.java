@@ -123,12 +123,11 @@ public class QAFrameworkReport
             out.println(
                     "Configuration Error: Download Unified Project is Selected but QAV Server Connection Configuration is not Selected");
         } else {
-            String command = createPullUnifyProjectCommand();
             out.println("Perform DOWNLOAD UNIFIED PROJECT DEFINITION command:");
-            out.println(command);
+            out.println(createPullUnifyProjectCommand(true));
             try {
                 PrqaCommandLine.getInstance()
-                               .run(command, workspace, true, false, out);
+                               .run(createPullUnifyProjectCommand(false), workspace, true, false, out);
             } catch (AbnormalProcessTerminationException abnex) {
                 throw new PrqaException(
                         "ERROR: Failed to Download Unified Project, please check the download command message above for more details",
@@ -137,7 +136,7 @@ public class QAFrameworkReport
         }
     }
 
-    private String createPullUnifyProjectCommand()
+    private String createPullUnifyProjectCommand(boolean isHidePassword)
             throws PrqaException {
 
         if (StringUtils.isBlank(settings.getUniProjectName())) {
@@ -154,7 +153,7 @@ public class QAFrameworkReport
         builder.appendArgument("--username");
         builder.appendArgument(qaVerifySettings.user);
         builder.appendArgument("--password");
-        String password = Secret.toString(qaVerifySettings.password);
+        String password = isHidePassword ? "***" : Secret.toString(qaVerifySettings.password);
         builder.appendArgument(password.isEmpty() ? "\"\"" : password);
         builder.appendArgument("--url");
         builder.appendArgument(qaVerifySettings.host + ":" + qaVerifySettings.port);
@@ -385,7 +384,7 @@ public class QAFrameworkReport
         }
     }
 
-    private String createUploadCommandQacli()
+    private String createUploadCommandQacli(boolean isHidePassword)
             throws PrqaException {
         String projectLocation;
         if (!StringUtils.isBlank(settings.getQaVerifyProjectName())) {
@@ -400,7 +399,7 @@ public class QAFrameworkReport
         builder.appendArgument("--username");
         builder.appendArgument(qaVerifySettings.user);
         builder.appendArgument("--password");
-        String password = Secret.toString(qaVerifySettings.password);
+        String password = isHidePassword ? "***" : Secret.toString(qaVerifySettings.password);
         builder.appendArgument(password.isEmpty() ? "\"\"" : password);
         builder.appendArgument("--url");
         builder.appendArgument(qaVerifySettings.host + ":" + qaVerifySettings.port);
@@ -432,16 +431,15 @@ public class QAFrameworkReport
                     "Configuration Error: Upload Results to QAV is Selected but QAV Server Connection Configuration is not Selected");
             return;
         }
-        String finalCommand = createUploadCommandQacli();
-        out.println("Perform UPLOAD command: " + finalCommand);
+        out.println("Perform UPLOAD command: " + createUploadCommandQacli(true));
         try {
             Map<String, String> getEnv = getEnvironment();
             if (getEnv == null) {
                 PrqaCommandLine.getInstance()
-                               .run(finalCommand, workspace, true, false, out);
+                               .run(createUploadCommandQacli(false), workspace, true, false, out);
             } else {
                 PrqaCommandLine.getInstance()
-                               .run(finalCommand, workspace, true, false, getEnv, out);
+                               .run(createUploadCommandQacli(false), workspace, true, false, getEnv, out);
             }
         } catch (AbnormalProcessTerminationException abnex) {
             log.logp(Level.SEVERE, this.getClass()
