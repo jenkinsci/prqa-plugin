@@ -31,7 +31,7 @@ import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
-import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;

@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
@@ -9,7 +8,7 @@
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>3.1.0</version>
+    <version>3.1.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
@@ -34,7 +33,7 @@
                     <showDeprecation>true</showDeprecation>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
@@ -44,6 +43,20 @@
                         <artifactId>java18</artifactId>
                         <version>1.0</version>
                     </signature>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jenkins-ci.tools</groupId>
+                <artifactId>maven-hpi-plugin</artifactId>
+                <configuration>
+                    <disabledTestInjection>true</disabledTestInjection>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                     <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
@@ -119,13 +132,13 @@
     <distributionManagement>
         <repository>
             <id>maven.jenkins-ci.org</id>
-            <url>https://repo.jenkins-ci.org/releases</url>
+            <url>file://D:/repo</url>
         </repository>
     </distributionManagement>
     <scm>
-        <connection>scm:git:ssh://github.com/jenkinsci/prqa-plugin.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/jenkinsci/prqa-plugin.git</developerConnection>
-        <url>https://github.com/jenkinsci/prqa-plugin</url>
+        <connection>scm:git:file://D:/prqa-plugin</connection>
+        <developerConnection>scm:git:file://D:/prqa-plugin</developerConnection>
+        <url>file://D:/prqa-plugin</url>
         <tag>HEAD</tag>
     </scm>
 </project>
