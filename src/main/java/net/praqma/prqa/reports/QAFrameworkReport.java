@@ -14,7 +14,7 @@ import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.util.execute.AbnormalProcessTerminationException;
 import net.praqma.util.execute.CmdResult;
-import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

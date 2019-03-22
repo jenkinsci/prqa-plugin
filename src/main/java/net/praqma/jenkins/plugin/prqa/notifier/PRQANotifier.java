@@ -49,7 +49,7 @@ import net.praqma.prqa.products.QACli;
 import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.StatusCategory;
-import net.prqma.prqa.qaframework.QaFrameworkReportSettings;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -83,7 +83,6 @@ import static net.praqma.prqa.reports.ReportType.CRR;
 import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
-import static org.apache.commons.lang3.tuple.Pair.of;
 
 public class PRQANotifier
         extends Recorder

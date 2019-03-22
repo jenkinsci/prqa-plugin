@@ -1,4 +1,4 @@
-package net.prqma.prqa.qaframework;
+package net.praqma.prqa.qaframework;
 
 import net.praqma.prqa.ReportSettings;
 
