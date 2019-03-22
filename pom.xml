@@ -8,7 +8,7 @@
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>3.1.2-SNAPSHOT</version>
+    <version>3.1.2</version>
     <packaging>hpi</packaging>
     <name>PRQA plugin</name>
     <description>Integrates PRQA static analysis with Jenkins</description>
@@ -139,6 +139,6 @@
         <connection>scm:git:ssh://github.com/jenkinsci/prqa-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/prqa-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/prqa-plugin</url>
-        <tag>HEAD</tag>
+        <tag>prqa-plugin-3.1.2</tag>
     </scm>
 </project>
