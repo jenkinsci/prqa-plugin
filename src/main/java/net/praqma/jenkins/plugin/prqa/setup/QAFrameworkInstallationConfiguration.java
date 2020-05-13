@@ -78,10 +78,10 @@ public class QAFrameworkInstallationConfiguration
 
             QAFrameworkInstallationConfiguration[] installations = instance.getDescriptorByType(
                     QAFrameworkInstallationConfiguration.DescriptorImpl.class)
-                                                                           .getInstallations();
+                    .getInstallations();
             for (QAFrameworkInstallationConfiguration install : installations) {
                 if (install.getName()
-                           .equals(qafName)) {
+                        .equals(qafName)) {
                     return install;
                 }
             }
@@ -108,7 +108,7 @@ public class QAFrameworkInstallationConfiguration
 
         @Override
         public String getDisplayName() {
-            return "PRQA·Framework";
+            return "Helix QAC";
         }
 
         @Override
@@ -122,7 +122,7 @@ public class QAFrameworkInstallationConfiguration
             }
 
             QAFrameworkInstallationConfiguration suite = req.bindJSON(QAFrameworkInstallationConfiguration.class,
-                                                                      formData);
+                    formData);
 
             save();
             return suite;
@@ -199,18 +199,18 @@ public class QAFrameworkInstallationConfiguration
             }
 
             return instance.getDescriptorByType(DescriptorImpl.class)
-                           .getInstallations();
+                    .getInstallations();
         }
 
         public FormValidation doCheckQafHome(
                 @QueryParameter
                         String qafHome) {
             if (StringUtils.isBlank(qafHome)) {
-                return FormValidation.errorWithMarkup("PRQA·Framework Installation path should not be empty!");
+                return FormValidation.errorWithMarkup("Helix QAC Installation path should not be empty!");
             }
             if (qafHome.startsWith(" ")) {
                 return FormValidation.errorWithMarkup(
-                        "PRQA·Framework Installation path should not be begin with an empty space!");
+                        "Helix QAC Installation path should not be begin with an empty space!");
             }
             return FormValidation.ok();
         }
@@ -220,11 +220,11 @@ public class QAFrameworkInstallationConfiguration
                         String qafName) {
             if (StringUtils.isBlank(qafName)) {
                 return FormValidation.errorWithMarkup(
-                        "The name shall not be empty and shall be unique in the set of PRQA·Framework installations!");
+                        "The name shall not be empty and shall be unique in the set of Helix QAC installations!");
             }
             if (qafName.startsWith(" ")) {
                 return FormValidation.errorWithMarkup(
-                        "PRQA·Framework Installation name should not be begin with an empty space!");
+                        "Helix QAC Installation name should not be begin with an empty space!");
             }
             return FormValidation.ok();
         }

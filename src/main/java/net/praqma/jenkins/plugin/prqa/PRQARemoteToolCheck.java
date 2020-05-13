@@ -23,7 +23,7 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
@@ -41,7 +41,7 @@ import java.util.Map;
 public class PRQARemoteToolCheck
         extends MasterToSlaveFileCallable<String> {
 
-    public final BuildListener listener;
+    public final TaskListener listener;
     public final boolean isUnix;
     public HashMap<String, String> environment;
     public final PRQAApplicationSettings appSettings;
@@ -53,7 +53,7 @@ public class PRQARemoteToolCheck
                                HashMap<String, String> environment,
                                PRQAApplicationSettings appSettings,
                                ReportSettings reportSettings,
-                               BuildListener listener,
+                               TaskListener listener,
                                boolean isUnix) {
         this.listener = listener;
         this.isUnix = isUnix;
@@ -76,7 +76,7 @@ public class PRQARemoteToolCheck
         String delimiter = System.getProperty("file.separator");
 
         environment.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
-                                                                             delimiter) + "common" + delimiter + "bin");
+                delimiter) + "common" + delimiter + "bin");
         return environment;
 
     }

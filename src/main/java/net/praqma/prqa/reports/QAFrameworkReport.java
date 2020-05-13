@@ -43,6 +43,7 @@ import static net.praqma.prqa.reports.ReportType.CRR;
 import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
+import static net.praqma.prqa.reports.ReportType.HMR;
 
 /**
  * @author Alexandru Ion
@@ -78,7 +79,7 @@ public class QAFrameworkReport
                 final Document document = documentBuilder.parse(new File(path, "prqaproject.xml"));
                 final Element element = document.getDocumentElement();
                 final XPath xPath = XPathFactory.newInstance()
-                                                .newXPath();
+                        .newXPath();
                 final XPathExpression compile = xPath.compile("/prqaproject/configurations/default_config/@name");
                 final String name = compile.evaluate(element);
 
@@ -121,13 +122,13 @@ public class QAFrameworkReport
             throws PrqaException {
         if (!settings.isLoginToQAV()) {
             out.println(
-                    "Configuration Error: Download Unified Project is Selected but QAV Server Connection Configuration is not Selected");
+                    "Configuration Error: Download Unified Project is Selected but Dashboard Server Connection Configuration is not Selected");
         } else {
             out.println("Perform DOWNLOAD UNIFIED PROJECT DEFINITION command:");
             out.println(createPullUnifyProjectCommand(true));
             try {
                 PrqaCommandLine.getInstance()
-                               .run(createPullUnifyProjectCommand(false), workspace, true, false, out);
+                        .run(createPullUnifyProjectCommand(false), workspace, true, false, out);
             } catch (AbnormalProcessTerminationException abnex) {
                 throw new PrqaException(
                         "ERROR: Failed to Download Unified Project, please check the download command message above for more details",
@@ -143,7 +144,7 @@ public class QAFrameworkReport
             throw new PrqaException(
                     "Configuration Error: Download Unified Project Definition was selected but no Unified project was provided. The Download unified project was aborted.");
         } else if (StringUtils.isBlank(qaVerifySettings.host) || StringUtils.isBlank(qaVerifySettings.user)) {
-            throw new PrqaException("QAV Server Connection Settings are not selected");
+            throw new PrqaException("Dashboard Server Connection Settings are not selected");
         }
         PRQACommandBuilder builder = new PRQACommandBuilder(formatQacliPath());
         builder.appendArgument("admin");
@@ -174,12 +175,12 @@ public class QAFrameworkReport
             if (getEnvironment() == null) {
                 _logEnv("Current analysis execution environment", systemVars);
                 PrqaCommandLine.getInstance()
-                               .run(finalCommand, workspace, true, false, out);
+                        .run(finalCommand, workspace, true, false, out);
             } else {
                 systemVars.putAll(getEnvironment());
                 _logEnv("Current modified analysis execution environment", systemVars);
                 PrqaCommandLine.getInstance()
-                               .run(finalCommand, workspace, true, false, systemVars, out);
+                        .run(finalCommand, workspace, true, false, systemVars, out);
             }
         } catch (AbnormalProcessTerminationException abnex) {
             throw new PrqaException(
@@ -190,9 +191,9 @@ public class QAFrameworkReport
 
     private String createSetCpuThreadsCommand() {
         return new PRQACommandBuilder(formatQacliPath()).appendArgument("admin")
-                                                        .appendArgument("--set-cpus")
-                                                        .appendArgument(settings.getMaxNumThreads())
-                                                        .getCommand();
+                .appendArgument("--set-cpus")
+                .appendArgument(settings.getMaxNumThreads())
+                .getCommand();
     }
 
     public void applyCpuThreads(PrintStream out)
@@ -203,13 +204,13 @@ public class QAFrameworkReport
         try {
             if (getEnvironment() == null) {
                 PrqaCommandLine.getInstance()
-                               .run(setCpuThreadsCmd, workspace, true, false);
+                        .run(setCpuThreadsCmd, workspace, true, false);
             } else {
                 HashMap<String, String> systemVars = new HashMap<>();
                 systemVars.putAll(System.getenv());
                 systemVars.putAll(getEnvironment());
                 PrqaCommandLine.getInstance()
-                               .run(setCpuThreadsCmd, workspace, true, false, systemVars);
+                        .run(setCpuThreadsCmd, workspace, true, false, systemVars);
             }
         } catch (AbnormalProcessTerminationException abnex) {
             throw new PrqaException(
@@ -267,7 +268,7 @@ public class QAFrameworkReport
             out.println(command);
             try {
                 PrqaCommandLine.getInstance()
-                               .run(command, workspace, true, false, out);
+                        .run(command, workspace, true, false, out);
             } catch (AbnormalProcessTerminationException abnex) {
                 throw new PrqaException(
                         "ERROR: Failed to analyze, please check the Cross-Module-Analysis command message above for more details",
@@ -313,13 +314,13 @@ public class QAFrameworkReport
         try {
             _logEnv("Current report generation execution environment", systemVars);
             PrqaCommandLine.getInstance()
-                           .run(reportCommand, workspace, true, false, systemVars, out);
+                    .run(reportCommand, workspace, true, false, systemVars, out);
             return;
         } catch (AbnormalProcessTerminationException abnex) {
             log.severe(String.format("Failed to execute report generation command: %s%n%s", reportCommand,
-                                     abnex.getMessage()));
+                    abnex.getMessage()));
             log.logp(Level.SEVERE, this.getClass()
-                                       .getName(), "report()", "Failed to execute report generation command", abnex);
+                    .getName(), "report()", "Failed to execute report generation command", abnex);
             out.println(
                     "Failed to execute report generation command, please check the report command message above for more details");
         }
@@ -362,23 +363,17 @@ public class QAFrameworkReport
             File[] files = file.listFiles();
             if (files != null) {
                 for (File f : files) {
-                    if ((f.getName()
-                          .contains(RCR.name()) && reportType.equals(RCR.name())) || (f.getName()
-                                                                                       .contains(
-                                                                                               CRR.name()) && reportType.equals(
-                            CRR.name())) || (f.getName()
-                                              .contains(MDR.name()) && reportType.equals(MDR.name())) || (f.getName()
-                                                                                                           .contains(
-                                                                                                                   SUR.name()) && reportType.equals(
-                            SUR.name())) || f.getName()
-                                             .contains("results_data")) {
+                    if ((f.getName().contains(RCR.name()) && reportType.equals(RCR.name())) ||
+                            (f.getName().contains(CRR.name()) && reportType.equals(CRR.name())) ||
+                            (f.getName().contains(MDR.name()) && reportType.equals(MDR.name())) ||
+                            (f.getName().contains(SUR.name()) && reportType.equals(SUR.name())) ||
+                            (f.getName().contains(HMR.name()) && reportType.equals(HMR.name())) ||
+                            f.getName().contains("results_data")) {
 
                         if (f.delete()) {
                             log.finest("Deleted old report " + f.getAbsolutePath());
                         }
-
                     }
-
                 }
             }
         }
@@ -428,7 +423,7 @@ public class QAFrameworkReport
             throws PrqaException {
         if (!settings.isLoginToQAV()) {
             out.println(
-                    "Configuration Error: Upload Results to QAV is Selected but QAV Server Connection Configuration is not Selected");
+                    "Configuration Error: Upload Results to Dashboard is Selected but Dashboard Server Connection Configuration is not Selected");
             return;
         }
         out.println("Perform UPLOAD command: " + createUploadCommandQacli(true));
@@ -436,14 +431,14 @@ public class QAFrameworkReport
             Map<String, String> getEnv = getEnvironment();
             if (getEnv == null) {
                 PrqaCommandLine.getInstance()
-                               .run(createUploadCommandQacli(false), workspace, true, false, out);
+                        .run(createUploadCommandQacli(false), workspace, true, false, out);
             } else {
                 PrqaCommandLine.getInstance()
-                               .run(createUploadCommandQacli(false), workspace, true, false, getEnv, out);
+                        .run(createUploadCommandQacli(false), workspace, true, false, getEnv, out);
             }
         } catch (AbnormalProcessTerminationException abnex) {
             log.logp(Level.SEVERE, this.getClass()
-                                       .getName(), "upload()", "Logged error with upload", abnex);
+                    .getName(), "upload()", "Logged error with upload", abnex);
             throw new PrqaUploadException(
                     "ERROR: Failed to upload, please check the upload command message above for more details", abnex);
         }
@@ -476,7 +471,7 @@ public class QAFrameworkReport
 
         String report_structure;
         report_structure = new File(extractReportsPath(workspace.getAbsolutePath(), settings.getQaProject(),
-                                                       settings.getProjectConfiguration())).getPath();
+                settings.getProjectConfiguration())).getPath();
         File reportFolder = new File(report_structure);
         out.println("Report Folder Path: " + reportFolder);
 
@@ -498,7 +493,7 @@ public class QAFrameworkReport
         if (listOfReports != null) {
             for (File reportFile : listOfReports) {
                 if (reportFile.getName()
-                              .contains(RCR.name())) {
+                        .contains(RCR.name())) {
                     ComplianceReportHtmlParser parser = new ComplianceReportHtmlParser(reportFile.getAbsolutePath());
                     fileCompliance += Double.parseDouble(
                             parser.getParseFirstResult(ComplianceReportHtmlParser.QAFfileCompliancePattern));
@@ -534,7 +529,7 @@ public class QAFrameworkReport
                 public int compare(Rule o1,
                                    Rule o2) {
                     return o1.getRuleID()
-                             .compareTo(o2.getRuleID());
+                            .compareTo(o2.getRuleID());
                 }
             });
         }
@@ -578,13 +573,13 @@ public class QAFrameworkReport
         try {
             if (getEnvironment() == null) {
                 PrqaCommandLine.getInstance()
-                               .run(setLicenseServerCmd, workspace, true, false, out);
+                        .run(setLicenseServerCmd, workspace, true, false, out);
             } else {
                 HashMap<String, String> systemVars = new HashMap<>();
                 systemVars.putAll(System.getenv());
                 systemVars.putAll(getEnvironment());
                 PrqaCommandLine.getInstance()
-                               .run(setLicenseServerCmd, workspace, true, false, systemVars, out);
+                        .run(setLicenseServerCmd, workspace, true, false, systemVars, out);
             }
         } catch (AbnormalProcessTerminationException abnex) {
             throw new PrqaException(
@@ -609,13 +604,13 @@ public class QAFrameworkReport
         try {
             if (getEnvironment() == null) {
                 PrqaCommandLine.getInstance()
-                               .run(setLicenseServerCmd, workspace, true, false, out);
+                        .run(setLicenseServerCmd, workspace, true, false, out);
             } else {
                 HashMap<String, String> systemVars = new HashMap<>();
                 systemVars.putAll(System.getenv());
                 systemVars.putAll(getEnvironment());
                 PrqaCommandLine.getInstance()
-                               .run(setLicenseServerCmd, workspace, true, false, systemVars, out);
+                        .run(setLicenseServerCmd, workspace, true, false, systemVars, out);
             }
         } catch (AbnormalProcessTerminationException abnex) {
             throw new PrqaException(
@@ -634,13 +629,13 @@ public class QAFrameworkReport
         try {
             if (getEnvironment() == null) {
                 res = PrqaCommandLine.getInstance()
-                                     .run(listLicenseServersCmd, workspace, false, true, out);
+                        .run(listLicenseServersCmd, workspace, false, true, out);
             } else {
                 HashMap<String, String> systemVars = new HashMap<>();
                 systemVars.putAll(System.getenv());
                 systemVars.putAll(getEnvironment());
                 res = PrqaCommandLine.getInstance()
-                                     .run(listLicenseServersCmd, workspace, false, true, systemVars, out);
+                        .run(listLicenseServersCmd, workspace, false, true, systemVars, out);
             }
         } catch (AbnormalProcessTerminationException abnex) {
             throw new PrqaException(

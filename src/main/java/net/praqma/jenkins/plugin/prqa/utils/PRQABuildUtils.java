@@ -2,7 +2,7 @@ package net.praqma.jenkins.plugin.prqa.utils;
 
 import hudson.EnvVars;
 import hudson.FilePath;
-import hudson.model.AbstractBuild;
+import hudson.model.Run;
 import hudson.model.TaskListener;
 import jenkins.security.MasterToSlaveCallable;
 import org.apache.commons.lang.StringUtils;
@@ -17,17 +17,17 @@ import java.util.TreeMap;
 public class PRQABuildUtils {
 
     public static String normalizeWithEnv(final String in,
-                                          final AbstractBuild<?, ?> build,
+                                          final Run<?, ?> build,
+                                          final FilePath workspace,
                                           final TaskListener listener) {
 
-        FilePath buildWorkspace = build.getWorkspace();
-        if (buildWorkspace == null) {
+        if (workspace == null) {
             throw new RuntimeException("Invalid workspace");
         }
 
         Boolean isOsWindows;
         try {
-            isOsWindows = buildWorkspace.act(new MasterToSlaveCallable<Boolean, RuntimeException>() {
+            isOsWindows = workspace.act(new MasterToSlaveCallable<Boolean, RuntimeException>() {
                 @Override
                 public Boolean call()
                         throws RuntimeException {

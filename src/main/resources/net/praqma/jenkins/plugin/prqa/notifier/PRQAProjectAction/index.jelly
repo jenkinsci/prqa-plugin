@@ -1,7 +1,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
          xmlns:l="/lib/layout">
-    <l:layout title="PRQA Results">
+    <l:layout title="Helix QAC Results">
         <l:main-panel>
 
             <j:set var="latestAction"
@@ -13,8 +13,8 @@
             <j:set var="drawGraphs"
                    value="${it.isDrawGraphs()}"/>
             <div>
-                <h3>${%PRQA Results}</h3>
-                <p>${%Visit} <a href="http://www.programmingresearch.com/">Programming Research</a> ${%website for additional product information}
+                <h3>${%Helix QAC Results}</h3>
+                <p>${%Visit} <a href="http://www.perforce.com/">Perforce</a> ${%website for additional product information}
                 </p>
                 <j:if test="${drawGraphs == true}">
                     <j:forEach var="pgraph"
@@ -25,7 +25,7 @@
                 </j:if>
                 <j:if test="${drawGraphs == false}">
                     <p>
-                        ${%Currently there is not enough PRQA data to generate a result graph. You need to have at least 2 succesful builds in order for the graphs to be created}
+                        ${%Currently there is not enough Helix QAC data to generate a result graph. You need to have at least 2 succesful builds in order for the graphs to be created}
                     </p>
                 </j:if>
 

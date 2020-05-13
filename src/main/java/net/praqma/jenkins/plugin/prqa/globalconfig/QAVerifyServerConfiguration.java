@@ -225,7 +225,7 @@ public class QAVerifyServerConfiguration
         @Nonnull
         @Override
         public String getDisplayName() {
-            return "QA·Verify Server";
+            return "Dashboard Server";
         }
 
         public FormValidation doCheckConfigurationName(

@@ -28,6 +28,7 @@ public class QaFrameworkReportSettings
     private String uploadSourceCode;
     private boolean genCrReport;
     private boolean genMdReport;
+    private boolean genHisReport;
     private boolean genSupReport;
     private boolean analysisSettings;
     private boolean stopWhenFail;
@@ -60,6 +61,7 @@ public class QaFrameworkReportSettings
                                      String uploadSourceCode,
                                      boolean genCrReport,
                                      boolean genMdReport,
+                                     boolean genHisReport,
                                      boolean genSupReport,
                                      boolean analysisSettings,
                                      boolean stopWhenFail,
@@ -91,6 +93,7 @@ public class QaFrameworkReportSettings
         this.buildNumber = buildNumber;
         this.uploadSourceCode = uploadSourceCode;
         this.genMdReport = genMdReport;
+        this.genHisReport = genHisReport;
         this.genCrReport = genCrReport;
         this.genSupReport = genSupReport;
         this.analysisSettings = analysisSettings;
@@ -200,6 +203,8 @@ public class QaFrameworkReportSettings
         return genMdReport;
     }
 
+    public boolean isGenHisReport() { return genHisReport; }
+
     public boolean isGenSupReport() {
         return genSupReport;
     }
@@ -211,6 +216,8 @@ public class QaFrameworkReportSettings
     public void setGenMdReport(boolean genMdReport) {
         this.genMdReport = genMdReport;
     }
+
+    public void setGenHisReport(boolean genHisReport) { this.genHisReport = genHisReport; }
 
     public void setGenSupReport(boolean genSupReport) {
         this.genSupReport = genSupReport;

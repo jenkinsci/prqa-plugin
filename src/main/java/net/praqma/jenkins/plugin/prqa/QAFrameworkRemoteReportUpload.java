@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2015 Programming Research.
+ * Copyright 2015 Perforce.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,14 +23,14 @@
  */
 package net.praqma.jenkins.plugin.prqa;
 
-import hudson.model.BuildListener;
+import hudson.model.TaskListener;
 import hudson.remoting.VirtualChannel;
 import jenkins.MasterToSlaveFileCallable;
 import net.praqma.prqa.PRQAApplicationSettings;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.products.QACli;
-import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
+import net.praqma.prqa.reports.QAFrameworkReport;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -47,11 +47,11 @@ public class QAFrameworkRemoteReportUpload
     private static final long serialVersionUID = 1L;
 
     private QAFrameworkReport report;
-    private BuildListener listener;
+    private TaskListener listener;
     private QaFrameworkReportSettings reportSetting;
 
     public QAFrameworkRemoteReportUpload(QAFrameworkReport report,
-                                         BuildListener listener) {
+                                         TaskListener listener) {
         this.report = report;
         this.listener = listener;
     }
@@ -63,7 +63,7 @@ public class QAFrameworkRemoteReportUpload
             return Collections.emptyMap();
         }
         environment.put(QACli.QAF_BIN_PATH, PRQAApplicationSettings.addSlash(environment.get(QACli.QAF_INSTALL_PATH),
-                                                                             File.separator) + "common" + File.separator + "bin");
+                File.separator) + "common" + File.separator + "bin");
         return environment;
     }
 
@@ -87,7 +87,7 @@ public class QAFrameworkRemoteReportUpload
          */
         try {
             if (StringUtils.isBlank(report.getSettings()
-                                          .getQaInstallation())) {
+                    .getQaInstallation())) {
                 throw new PrqaException("Incorrect configuration of QA framework installation!");
             }
             if (reportSetting.isLoginToQAV() && reportSetting.isPublishToQAV()) {

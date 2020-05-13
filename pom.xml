@@ -3,19 +3,21 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>2.33</version>
+        <version>3.55</version>
     </parent>
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>3.2.0-SNAPSHOT</version>
+    <version>3.3.0-SNAPSHOT</version>
     <packaging>hpi</packaging>
-    <name>PRQA plugin</name>
-    <description>Integrates PRQA static analysis with Jenkins</description>
+    <name>Helix QAC Plugin</name>
+
+    <description>Integrates Helix QAC static analysis with Jenkins</description>
     <url>https://wiki.jenkins-ci.org/display/JENKINS/PRQA+Plugin</url>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jenkins.version>2.107.1</jenkins.version>
+        <jenkins.version>2.164.3</jenkins.version>
         <java.level>8</java.level>
         <compiler.target>1.8</compiler.target>
         <compiler.source>1.8</compiler.source>
@@ -48,15 +50,18 @@
             <plugin>
                 <groupId>org.jenkins-ci.tools</groupId>
                 <artifactId>maven-hpi-plugin</artifactId>
+                <version>3.11</version>
                 <configuration>
                     <disabledTestInjection>true</disabledTestInjection>
+                    <minimumJavaVersion>1.8</minimumJavaVersion>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
+                <version>3.0.5</version>
                 <configuration>
-                     <skip>true</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
@@ -118,6 +123,11 @@
             <version>2.6</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.9</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
             <version>3.5.0</version>
@@ -126,6 +136,19 @@
             <groupId>org.jdom</groupId>
             <artifactId>jdom2</artifactId>
             <version>2.0.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-basic-steps</artifactId>
+            <version>2.5</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.jenkins-ci.plugins.workflow</groupId>
+            <artifactId>workflow-job</artifactId>
+            <version>2.0</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 
