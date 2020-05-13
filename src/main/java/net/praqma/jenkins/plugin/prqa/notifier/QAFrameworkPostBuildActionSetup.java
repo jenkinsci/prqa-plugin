@@ -65,6 +65,7 @@ public class QAFrameworkPostBuildActionSetup
     public String uploadSourceCode;
     public boolean generateCrr;
     public boolean generateMdr;
+    public boolean generateHis;
     public boolean generateSup;
     public boolean analysisSettings;
     public boolean stopWhenFail;
@@ -99,6 +100,7 @@ public class QAFrameworkPostBuildActionSetup
                                            String uploadSourceCode,
                                            boolean generateCrr,
                                            boolean generateMdr,
+                                           boolean generateHis,
                                            boolean generateSup,
                                            boolean analysisSettings,
                                            boolean stopWhenFail,
@@ -131,6 +133,7 @@ public class QAFrameworkPostBuildActionSetup
         this.uploadSourceCode = uploadSourceCode;
         this.generateCrr = generateCrr;
         this.generateMdr = generateMdr;
+        this.generateHis = generateHis;
         this.generateSup = generateSup;
         this.analysisSettings = analysisSettings;
         this.stopWhenFail = stopWhenFail;
@@ -252,6 +255,8 @@ public class QAFrameworkPostBuildActionSetup
         return generateMdr;
     }
 
+    public boolean isGenerateHis() { return generateHis; }
+
     public boolean isGenerateSup() {
         return generateSup;
     }
@@ -263,6 +268,8 @@ public class QAFrameworkPostBuildActionSetup
     public void setGenerateMdr(boolean generateMdr) {
         this.generateMdr = generateMdr;
     }
+
+    public void setGenerateHis(boolean generateHis) { this.generateHis = generateHis; }
 
     public void setGenerateSup(boolean generateSup) {
         this.generateSup = generateSup;
@@ -391,7 +398,7 @@ public class QAFrameworkPostBuildActionSetup
 
         @Override
         public String getDisplayName() {
-            return "PRQA·Framework";
+            return "Helix QAC";
         }
 
         public FormValidation doCheckCustomLicenseServerAddress(
@@ -512,7 +519,7 @@ public class QAFrameworkPostBuildActionSetup
 
             QAFrameworkInstallationConfiguration[] prqaInstallations = jenkins.getDescriptorByType(
                     QAFrameworkInstallationConfiguration.DescriptorImpl.class)
-                                                                              .getInstallations();
+                    .getInstallations();
             return Arrays.asList(prqaInstallations);
         }
 
@@ -522,7 +529,7 @@ public class QAFrameworkPostBuildActionSetup
 
         public List<QAVerifyServerConfiguration> getServers() {
             return PRQAGlobalConfig.get()
-                                   .getServers();
+                    .getServers();
         }
 
         public List<PRQAFileProjectSourceDescriptor<?>> getFileProjectSources() {

@@ -1,3 +1,3 @@
-Programming research plugin. 
+Perforce Helix QAC plugin.
 
-This plugin is designed to be used together with Programming Research analysis tools. 
+This plugin is designed to be used together with Perforce Helix QAC analysis tools.

@@ -1,12 +1,10 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
 import com.google.common.collect.Iterables;
-import hudson.model.AbstractProject;
 import hudson.model.Actionable;
-import hudson.model.Descriptor;
+import hudson.model.Job;
 import hudson.model.ProminentProjectAction;
 import hudson.tasks.Publisher;
-import hudson.util.DescribableList;
 import hudson.util.RunList;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
@@ -24,40 +22,52 @@ public class PRQAProjectAction
         extends Actionable
         implements ProminentProjectAction {
 
-    private final AbstractProject<?, ?> project;
-    private static final String ICON_NAME = "/plugin/prqa-plugin/images/32x32/prqa.png";
+    private final Job<?, ?> job;
+    private static final String ICON_NAME = "/plugin/prqa-plugin/images/32x32/helix_qac.png";
 
-    public PRQAProjectAction(AbstractProject<?, ?> project) {
-        this.project = project;
+
+    public PRQAProjectAction(Job<?, ?> job) {
+        this.job = job;
     }
+
 
     @Override
     public String getDisplayName() {
-        return "PRQA Results";
+        return "Helix QAC Results";
     }
+
 
     @Override
     public String getSearchUrl() {
         return "PRQA";
     }
 
+
     @Override
     public String getIconFileName() {
         return ICON_NAME;
     }
+
 
     @Override
     public String getUrlName() {
         return "PRQA";
     }
 
+
+    public Job<?, ?> getJob() {
+        return job;
+    }
+
+
     public PRQABuildAction getLatestActionInProject() {
-        if (project.getLastSuccessfulBuild() != null) {
-            return project.getLastSuccessfulBuild()
-                          .getAction(PRQABuildAction.class);
+        if (job.getLastSuccessfulBuild() != null) {
+            return job.getLastSuccessfulBuild()
+                    .getAction(PRQABuildAction.class);
         }
         return null;
     }
+
 
     /**
      * Small method to determine whether to draw graphs or not.
@@ -65,9 +75,10 @@ public class PRQAProjectAction
      * @return true when there are more than 2 or more builds available.
      */
     public boolean isDrawGraphs() {
-        RunList<?> builds = project.getBuilds();
+        RunList<?> builds = job.getBuilds();
         return Iterables.size(builds) >= 2;
     }
+
 
     /**
      * New one.
@@ -87,38 +98,56 @@ public class PRQAProjectAction
         }
     }
 
+
     public QAVerifyServerConfiguration getConfiguration() {
-        DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
-        PRQANotifier notifier = publishersList.get(PRQANotifier.class);
-        if (notifier != null) {
-            QAVerifyServerConfiguration qavconfig;
-            List<String> servers = notifier.sourceQAFramework.chosenServers;
-            String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
-            qavconfig = PRQAGlobalConfig.get()
-                                        .getConfigurationByName(chosenServer);
-            return qavconfig;
+        PRQABuildAction action = this.getLatestActionInProject();
+        if(action != null) {
+            Publisher publisher = action.getPublisher();
+            if(publisher != null && publisher instanceof  PRQANotifier) {
+                PRQANotifier notifier = (PRQANotifier)publisher;
+
+                QAVerifyServerConfiguration qavconfig;
+                List<String> servers = notifier.sourceQAFramework.chosenServers;
+                String chosenServer = servers != null && !servers.isEmpty() ? servers.get(0) : null;
+                qavconfig = PRQAGlobalConfig.get()
+                        .getConfigurationByName(chosenServer);
+                return qavconfig;
+            }
         }
         return null;
     }
+
 
     public Collection<QAVerifyServerConfiguration> getConfigurations() {
-        DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
-        PRQANotifier notifier = publishersList.get(PRQANotifier.class);
-        if (notifier != null) {
-            Collection<QAVerifyServerConfiguration> qavconfig;
-            qavconfig = PRQAGlobalConfig.get()
-                                        .getConfigurationsByNames(notifier.sourceQAFramework.chosenServers);
-            return qavconfig;
+        PRQABuildAction action = this.getLatestActionInProject();
+        if(action != null) {
+            Publisher publisher = action.getPublisher();
+            if(publisher != null && publisher instanceof  PRQANotifier) {
+                PRQANotifier notifier = (PRQANotifier)publisher;
+
+                if (notifier != null) {
+                    Collection<QAVerifyServerConfiguration> qavconfig;
+                    qavconfig = PRQAGlobalConfig.get()
+                            .getConfigurationsByNames(notifier.sourceQAFramework.chosenServers);
+                    return qavconfig;
+                }
+            }
         }
         return null;
     }
 
+
     public boolean showLinksofInterest() {
-        DescribableList<Publisher, Descriptor<Publisher>> publishersList = project.getPublishersList();
-        PRQANotifier notifier = publishersList.get(PRQANotifier.class);
-        if (notifier != null) {
-            if (notifier.sourceQAFramework != null) {
-                return notifier.sourceQAFramework.loginToQAV;
+        PRQABuildAction action = this.getLatestActionInProject();
+        if(action != null) {
+            Publisher publisher = action.getPublisher();
+            if(publisher != null && publisher instanceof  PRQANotifier) {
+                PRQANotifier notifier = (PRQANotifier)publisher;
+                if (notifier != null) {
+                    if (notifier.sourceQAFramework != null) {
+                        return notifier.sourceQAFramework.loginToQAV;
+                    }
+                }
             }
         }
         return false;

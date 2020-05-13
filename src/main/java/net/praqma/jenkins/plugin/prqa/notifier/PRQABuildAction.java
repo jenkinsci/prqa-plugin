@@ -1,11 +1,12 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-import hudson.model.AbstractBuild;
+
 import hudson.model.Action;
 import hudson.model.Run;
 import hudson.tasks.Publisher;
 import hudson.util.ChartUtil;
 import hudson.util.DataSetBuilder;
+import jenkins.tasks.SimpleBuildStep;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAStatusCollection;
@@ -17,17 +18,21 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * @author Praqma
  */
 public class PRQABuildAction
-        implements Action {
+        implements Action, SimpleBuildStep.LastBuildAction {
 
-    private final AbstractBuild<?, ?> build;
+    private final Run<?, ?> build;
     private Publisher publisher;
     private PRQAReading result;
+    private List<PRQAProjectAction> projectActions;
     public static final String DISPLAY_NAME = "PRQA";
     public static final String URL_NAME = "PRQA";
 
@@ -35,8 +40,12 @@ public class PRQABuildAction
         this.build = null;
     }
 
-    public PRQABuildAction(AbstractBuild<?, ?> build) {
+    public PRQABuildAction(Run<?, ?> build) {
         this.build = build;
+
+        List<PRQAProjectAction> projectActions = new ArrayList<>();
+        projectActions.add( new PRQAProjectAction( build.getParent() ) );
+        this.projectActions = projectActions;
     }
 
     @Override
@@ -81,9 +90,9 @@ public class PRQABuildAction
 
     public Number getThreshold(StatusCategory cat) {
         if (this.result != null && this.result.getThresholds()
-                                              .containsKey(cat)) {
+                .containsKey(cat)) {
             return result.getThresholds()
-                         .get(cat);
+                    .get(cat);
         }
         return null;
     }
@@ -134,9 +143,9 @@ public class PRQABuildAction
      * @param base the base
      * @return previous build
      */
-    public PRQABuildAction getPreviousAction(AbstractBuild<?, ?> base) {
+    public PRQABuildAction getPreviousAction(Run<?, ?> base) {
         PRQABuildAction action;
-        AbstractBuild<?, ?> start = base;
+        Run<?, ?> start = base;
         while (true) {
             start = start.getPreviousNotFailedBuild();
             if (start == null) {
@@ -231,7 +240,7 @@ public class PRQABuildAction
 
             for (PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
                 if (prqabuild.getResult() != null) {
-                    label = new ChartUtil.NumberOnlyBuildLabel((Run<?, ?>) prqabuild.build);
+                    label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build);
                     PRQAReading stat = prqabuild.getResult();
                     for (StatusCategory cat : graph.getCategories()) {
                         Number res;
@@ -268,5 +277,10 @@ public class PRQABuildAction
             graph.setData(collection);
             graph.drawGraph(req, rsp, dsb, tMax);
         }
+    }
+
+    @Override
+    public Collection<? extends Action> getProjectActions() {
+        return this.projectActions;
     }
 }

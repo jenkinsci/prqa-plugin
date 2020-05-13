@@ -4,13 +4,13 @@
         xmlns:f="/lib/form"
 >
 
-    <f:section title="${%PRQA QA·Verify Configuration}">
-        <f:entry title="${%QA·Verify Servers}"
-                 description="${%List of available QA·Verify Servers}"
+    <f:section title="${%Helix·QAC Dashboard Configuration}">
+        <f:entry title="${%Dashboard Servers}"
+                 description="${%List of available Dashboard Servers}"
                  help="/plugin/prqa-plugin/config/help-PRQAPluginGlobalConfiguration.html">
 
             <f:hetero-list
-                    addCaption="${%Add QA·Verify Server}"
+                    addCaption="${%Add Dashboard Server}"
                     name="servers"
                     items="${instance.servers}"
                     descriptors="${descriptor.descriptors()}"/>

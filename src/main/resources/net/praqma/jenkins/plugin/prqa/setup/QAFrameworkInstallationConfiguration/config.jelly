@@ -11,11 +11,11 @@
     </style>
     <div class="selectorHelper"><!--please do not remove this empty div--></div>
 
-    <f:entry title="${%PRQA·Framework Installation name}"
+    <f:entry title="${%Helix·QAC·Framework Installation name}"
              field="qafName">
         <f:textbox/>
     </f:entry>
-    <f:entry title="${%PRQA·Framework Installation path}"
+    <f:entry title="${%Helix·QAC·Framework Installation path}"
              field="qafHome">
         <f:textbox/>
     </f:entry>

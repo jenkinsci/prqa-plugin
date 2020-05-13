@@ -11,13 +11,13 @@
 
         <f:block>
             <table class="outer">
-                <f:entry title="${%PRQA·Framework Installation}"
+                <f:entry title="${%Helix·QAC·Framework Installation}"
                          field="qaInstallation"
                          help="/plugin/prqa-plugin/config/help-qaInstallation.html">
                     <f:select/>
                 </f:entry>
 
-                <f:entry title="${%PRQA·Framework Project}"
+                <f:entry title="${%Helix·QAC·Framework Project}"
                          field="qaProject"
                          help="/plugin/prqa-plugin/config/help-qaProject.html">
                     <f:textbox/>
@@ -135,6 +135,10 @@
                                      title="${%Metrics Data Report}"
                                      checked="${instance.generateMdr}"
                                      inline="true"/>
+                    <f:optionalBlock name="generateHis"
+                                    title="${%HIS Metrics Report}"
+                                    checked="${instance.generateHis}"
+                                    inline="true"/>
                     <f:optionalBlock name="generateSup"
                                      title="${%Suppression Report}"
                                      checked="${instance.generateSup}"
@@ -142,7 +146,7 @@
                 </f:nested>
 
                 <f:block>
-                    <f:optionalBlock name="loginToQAV" title="${%QA&#xb7;Verify Server Connection}"
+                    <f:optionalBlock name="loginToQAV" title="${%Dashboard Server Connection}"
                                      help="/plugin/prqa-plugin/config/help-configQAVServerConnection.html"
                                      checked="${instance.loginToQAV}" inline="true">
                         <j:set var="zervers" value="${descriptor.getServers()}"/>
@@ -161,7 +165,7 @@
                                 </f:entry>
                             </j:when>
                             <j:otherwise>
-                                <f:entry title="${%No QA&#xb7;Verify servers defined}">
+                                <f:entry title="${%No Dashboard servers defined}">
                                     <p>
                                     click
                                     <a href="${rootURL}/configure">${%here}</a>
@@ -181,7 +185,7 @@
                             </f:entry>
                         </f:optionalBlock>
                         <f:optionalBlock name="publishToQAV"
-                                         title="${%Upload results to QA&#xb7;Verify}"
+                                         title="${%Upload results to Dashboard}"
                                          help="/plugin/prqa-plugin/config/help-configUploadQAV.html"
                                          checked="${instance.publishToQAV}"
                                          inline="true">
