@@ -14,6 +14,7 @@ import static net.praqma.prqa.reports.ReportType.CRR;
 import static net.praqma.prqa.reports.ReportType.MDR;
 import static net.praqma.prqa.reports.ReportType.RCR;
 import static net.praqma.prqa.reports.ReportType.SUR;
+import static net.praqma.prqa.reports.ReportType.HMR;
 
 public class CopyReportsToWorkspace
         extends MasterToSlaveFileCallable<Boolean>
@@ -54,6 +55,6 @@ public class CopyReportsToWorkspace
 
     private boolean containsReportName(String fileName) {
         return fileName.contains(CRR.name()) || fileName.contains(SUR.name()) || fileName.contains(
-                RCR.name()) || fileName.contains(MDR.name());
+                RCR.name()) || fileName.contains(MDR.name()) || fileName.contains(HMR.name());
     }
 }
