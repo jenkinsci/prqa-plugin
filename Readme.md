@@ -45,7 +45,7 @@ The plug-in allows the automation of the creation and analysis of Helix-QAC enab
 
 The plug-in displays a graphical history depicting the number of messages, and overall compliance levels in the project.
 
-#### Please refer to the old [PRQA Plugin Wiki]([https://wiki.jenkins.io/display/JENKINS/PRQA+Plugin](https://wiki.jenkins.io/display/JENKINS/PRQA+Plugin)) for configuration guidance, being mindful that references to PRQA in screenshots will have changed to Helix-QAC.
+#### Please refer to the old [PRQA Plugin Wiki](https://wiki.jenkins.io/display/JENKINS/PRQA+Plugin) for configuration guidance, being mindful that references to PRQA in screenshots will have changed to Helix-QAC.
 
 # Known Issues
 * Graphs on the Freestyle project summary page may display twice.
