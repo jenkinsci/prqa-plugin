@@ -6,7 +6,7 @@ Maintained by
 
 # Intellectual Property Update
 
-The PRQA product has become Helix QAC and Programming Research has become a Perforce company. As such, the PRQA plugin (now called Helix-QAC Plugin) has changed cosmetically to reflect this change. There may be a dedicated Helix-QAC plugin at a suitable GitHub location at a future time and this section will link to it should it occur.
+The PRQA product has become Helix QAC and Programming Research has become a Perforce company. As such, the PRQA plugin (now called Helix-QAC Plugin) has changed cosmetically to reflect this. There may be a dedicated Helix-QAC plugin at a suitable GitHub location in the future. If one is created, it will be linked to from here.
 
 # Introduction to Helix-QAC static analysis using the Helix QAC plugin
 
@@ -15,9 +15,9 @@ This plug-in enables the Helix-QAC static analysis tools to be integrated easily
 This plug-in is maintained by Perforce. It was originally developed and maintained by Praqma as far as release 1.2.2. Programming Research maintained it thereafter up to 3.2.
 Version 3.3.0 (this release) is maintained by Perforce. All service and feature requests should be sent directly to Perforce.
 
-Prior to version 3.3.0 it supported Freestyle projects only, but now additionally supports Pipeline projects. Prior to version 3.3.0 it supported Jenkins versions up to 2.107.2. This version (3.3.0) supports Jenkins version 2.164.3 onwards.
+Prior to version 3.3.0 it supported Freestyle projects only, but now supports Pipeline projects. Prior to version 3.3.0 it supported Jenkins versions up to 2.107.2. This version (3.3.0) supports Jenkins version 2.164.3 onward.
 
-Version 3.0.1 supported PRQA Framework version 2.2.0 onward and Jenkins version up to 2.107.2.
+Version 3.0.1 supported PRQA Framework version 2.2.0 onward and up to Jenkins version 2.107.2.
 Version 3.3.0 will support PRQA Framework version 2.2.0 onward and Helix-QAC Framework 2019.1 onward.
 
 #### Pipeline support requires Jenkins version v2.164.3 or later.
@@ -26,7 +26,6 @@ Version 3.3.0 will support PRQA Framework version 2.2.0 onward and Helix-QAC Fra
 * Install/use [latest stable](https://www.jenkins.io/download/) Jenkins version that is 2.164.3 or later
 * Install the [Pipeline](https://plugins.jenkins.io/workflow-aggregator/) plugin for Jenkins and restart Jenkins after installation
 * Download and install this plug-in
-* More detail is provide below under Installation & Use
 
 # Features
 
