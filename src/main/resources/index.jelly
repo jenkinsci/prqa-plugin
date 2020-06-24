@@ -1,0 +1,6 @@
+<?jelly escape-by-default='true'?>
+<div>
+  Integrates Helix QAC static analysis with Jenkins
+  <a href="http://https://www.perforce.com/products/helix-qac" target="_blank">Learn more</a> about Helix QAC.
+  Maintained by <a href="http://perforce.com" target="_blank">Perforce</a> for the community.
+</div>
