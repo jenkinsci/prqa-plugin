@@ -27,6 +27,8 @@ Version 3.3.0 will support PRQA Framework version 2.2.0 onward and Helix-QAC Fra
 * Install the [Pipeline](https://plugins.jenkins.io/workflow-aggregator/) plugin for Jenkins and restart Jenkins after installation
 * Download and install this plug-in
 
+Please download the [manual](https://www.perforce.com/manuals/qac-for-jenkins/Helix-QAC-Plug-in-for-Jenkins-Manual.pdf) for the Helix QAC Plugin for more detailed instructions.
+
 # Features
 
 This plug-in allows source code to be analyzed with Helix-QAC, Perforce's static analysis tools. The plug-in performs the following key tasks in the post-build stage, or as a pipeline step automatically:
