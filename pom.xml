@@ -8,7 +8,7 @@
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>3.3.1</version>
     <packaging>hpi</packaging>
     <name>Helix QAC Plugin</name>
 
@@ -164,6 +164,6 @@
         <connection>scm:git:ssh://github.com/jenkinsci/prqa-plugin.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/jenkinsci/prqa-plugin.git</developerConnection>
         <url>https://github.com/jenkinsci/prqa-plugin</url>
-        <tag>HEAD</tag>
+        <tag>prqa-plugin-3.3.1</tag>
     </scm>
 </project>
