@@ -21,6 +21,8 @@
         <java.level>8</java.level>
         <compiler.target>1.8</compiler.target>
         <compiler.source>1.8</compiler.source>
+        <spotbugs.skip>true</spotbugs.skip>
+        <release.skipTests>true</release.skipTests>
     </properties>
 
     <build>
