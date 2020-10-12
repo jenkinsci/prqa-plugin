@@ -8,7 +8,7 @@
 
     <groupId>com.programmingresearch</groupId>
     <artifactId>prqa-plugin</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.3.1-SNAPSHOT</version>
     <packaging>hpi</packaging>
     <name>Helix QAC Plugin</name>
 
