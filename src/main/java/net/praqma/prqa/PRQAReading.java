@@ -5,6 +5,7 @@
 package net.praqma.prqa;
 
 import net.praqma.prqa.exceptions.PrqaException;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.praqma.prqa.status.StatusCategory;
 
 import java.io.Serializable;
@@ -34,5 +35,9 @@ public interface PRQAReading
 
     HashMap<StatusCategory, Number> getReadouts(StatusCategory... categories)
             throws PrqaException;
+
+    void setSettings(QaFrameworkReportSettings settings);
+
+    QaFrameworkReportSettings getSettings();
 }
 

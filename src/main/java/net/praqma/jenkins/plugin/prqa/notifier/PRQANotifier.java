@@ -4,12 +4,21 @@ import hudson.AbortException;
 import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
-import hudson.model.*;
-import hudson.tasks.*;
-import jenkins.tasks.SimpleBuildStep;
-import org.apache.commons.lang3.tuple.Pair;
+import hudson.model.AbstractProject;
+import hudson.model.Action;
+import hudson.model.Descriptor;
+import hudson.model.FreeStyleBuild;
+import hudson.model.Node;
+import hudson.model.Result;
+import hudson.model.Run;
+import hudson.model.TaskListener;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Publisher;
+import hudson.tasks.Recorder;
 import jenkins.model.ArtifactManager;
 import jenkins.model.Jenkins;
+import jenkins.tasks.SimpleBuildStep;
 import jenkins.util.BuildListenerAdapter;
 import net.praqma.jenkins.plugin.prqa.PRQARemoteToolCheck;
 import net.praqma.jenkins.plugin.prqa.QAFrameworkRemoteReport;
@@ -38,13 +47,14 @@ import net.praqma.prqa.ReportSettings;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.exceptions.PrqaSetupException;
 import net.praqma.prqa.products.QACli;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.praqma.prqa.reports.QAFrameworkReport;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.StatusCategory;
-import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.sf.json.JSONObject;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -63,7 +73,6 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Logger;
 
 import static hudson.model.Result.FAILURE;
@@ -108,7 +117,7 @@ public class PRQANotifier
 
     @Override
     public Action getProjectAction(AbstractProject<?, ?> project) {
-        return new PRQAProjectAction(project);
+        return new PRQAProjectAction(project, this.sourceQAFramework.qaProject);
     }
 
     @Override
@@ -409,19 +418,15 @@ public class PRQANotifier
      * Fetches the most 'previous' result. The current build is baseline. So any
      * prior build to the passed current build is considered.
      */
-    private Pair<PRQAReading, Run<?, ?>> getPreviousReading(Run<?, ?> currentBuild,
-                                                            Result expectedResult) {
+    private Pair<PRQAReading, Run<?,?>> getPreviousReading(Run<?,?> currentBuild, Result expectedResult, final String qacProject) {
         Run<?, ?> iterate = currentBuild;
-        do {
-            iterate = iterate.getPreviousNotFailedBuild();
-            if (iterate != null && iterate.getAction(PRQABuildAction.class) != null && Objects.equals(
-                    iterate.getResult(), expectedResult)) {
-                Run<?, ?> second = iterate;
-                Pair<PRQAReading, Run<?, ?>> result =
-                        Pair.of(iterate.getAction(PRQABuildAction.class).getResult(), second);
-                return result;
+        while((iterate = iterate.getPreviousNotFailedBuild()) != null) {
+            for(PRQABuildAction buildAction : iterate.getActions(PRQABuildAction.class)) {
+                if (buildAction.getPublisher(PRQANotifier.class).sourceQAFramework.getQaProject().equalsIgnoreCase(qacProject)) {
+                    return Pair.of(buildAction.getResult(), iterate);
+                }
             }
-        } while (iterate != null);
+        }
         return null;
     }
 
@@ -621,7 +626,7 @@ public class PRQANotifier
         // if Pipeline and above exception not thrown, Helix QAC Analysis has succeeded, so set result for this run to success
         if(!(run instanceof FreeStyleBuild)) run.setResult(SUCCESS);
 
-        Pair<PRQAReading, Run<?, ?>> previousBuildResultTuple = getPreviousReading(run, SUCCESS);
+        Pair<PRQAReading, Run<?, ?>> previousBuildResultTuple = getPreviousReading(run, SUCCESS, this.sourceQAFramework.qaProject);
 
         PRQAReading previousStableBuildResult =
                 previousBuildResultTuple != null ? previousBuildResultTuple.getKey() : null;
@@ -681,7 +686,7 @@ public class PRQANotifier
         outStream.println(Messages.PRQANotifier_ScannedValues());
         outStream.println(currentBuild);
 
-        PRQABuildAction action = new PRQABuildAction(run);
+        PRQABuildAction action = new PRQABuildAction(run, this.sourceQAFramework.getQaProject());
         action.setResult(currentBuild);
         action.setPublisher(this);
         run.addAction(action);

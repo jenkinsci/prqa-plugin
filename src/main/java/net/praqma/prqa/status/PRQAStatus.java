@@ -7,6 +7,7 @@ package net.praqma.prqa.status;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.exceptions.PrqaReadingException;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ public abstract class PRQAStatus
     protected List<String> notifications = new ArrayList<>();
     protected HashMap<StatusCategory, Number> thresholds;
     protected static final Logger logger = Logger.getLogger(PRQAStatus.class.getName());
+    protected QaFrameworkReportSettings settings;
 
     @Override
     public void addNotification(String message) {
@@ -117,4 +119,12 @@ public abstract class PRQAStatus
      * @return html
      */
     public abstract String toHtml();
+
+    public void setSettings(QaFrameworkReportSettings settings) {
+        this.settings = settings;
+    }
+
+    public QaFrameworkReportSettings getSettings() {
+        return this.settings;
+    }
 }
