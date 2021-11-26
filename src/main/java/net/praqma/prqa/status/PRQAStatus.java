@@ -12,8 +12,10 @@ import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -126,5 +128,12 @@ public abstract class PRQAStatus
 
     public QaFrameworkReportSettings getSettings() {
         return this.settings;
+    }
+
+    public Set<StatusCategory> getCategories() {
+        if (this.thresholds == null) {
+            return new HashSet<StatusCategory>();
+        }
+        return new HashSet<StatusCategory>(this.thresholds.keySet());
     }
 }

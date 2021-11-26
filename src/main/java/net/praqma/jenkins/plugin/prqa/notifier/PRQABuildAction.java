@@ -1,16 +1,11 @@
 package net.praqma.jenkins.plugin.prqa.notifier;
 
-
 import hudson.model.Action;
 import hudson.model.Run;
 import hudson.tasks.Publisher;
-import hudson.util.ChartUtil;
-import hudson.util.DataSetBuilder;
 import jenkins.tasks.SimpleBuildStep;
 import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
-import net.praqma.prqa.PRQAStatusCollection;
-import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.PRQAStatus;
@@ -19,7 +14,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,10 +31,12 @@ public class PRQABuildAction
     private PRQAReading result;
     private List<PRQAProjectAction> projectActions;
     private String fullPrqaProjectName;
+    private boolean isPrimary;
 
     public PRQABuildAction() {
         this.build = null;
         getProjectName();
+        this.isPrimary = isPrimaryStep();
     }
 
     public PRQABuildAction(Run<?, ?> build, final String fullPrqaProjectName) {
@@ -58,6 +54,11 @@ public class PRQABuildAction
 
     @Override
     public String getDisplayName() {
+        if (this.isPrimary) return "PRQA";
+        return null;
+    }
+
+    public String getDisplayName2() {
         String pattern = Pattern.quote(File.separator);
         String[] parts = this.getProjectName().split(pattern);
         return parts.length >= 1 ? parts[parts.length - 1] : "";
@@ -76,7 +77,8 @@ public class PRQABuildAction
 
     @Override
     public String getUrlName() {
-        return "PRQA";
+        if (isPrimaryStep()) return "PRQA";
+        return null;
     }
 
     /**
@@ -202,10 +204,6 @@ public class PRQABuildAction
         }
     }
 
-    public StatusCategory[] getComplianceCategories() {
-        return StatusCategory.values();
-    }
-
     private QaFrameworkReportSettings getFrameworkReportSettings() {
         PRQANotifier notifier = this.getPublisher(PRQANotifier.class);
         if (notifier != null) {
@@ -249,14 +247,6 @@ public class PRQABuildAction
         return null;
     }
 
-    private PRQABuildAction getBuildActionByProject(String project) {
-        List<PRQABuildAction> buildActions = this.build.getActions(PRQABuildAction.class);
-        for (PRQABuildAction buildAction : buildActions) {
-            if (buildAction.getProjectName().equalsIgnoreCase(project)) return  buildAction;
-        }
-        return null;
-    }
-
     /**
      * Determines weather to draw threhshold graphs. Uses the most recent build as base.
      *
@@ -290,80 +280,6 @@ public class PRQABuildAction
         return stats;
     }
 
-    /**
-     * This function works in the following way:
-     * <p>
-     * After choosing your report type, as set of supported graphs are given, which it is up to the user to add. Currently this is done programatically, but given my design, it should be relatively simple to make
-     * this possible to edit in the GUI.
-     * <p>
-     * If a result is fetched and it does not contain the property to draw the graphs the report demands we simply skip it. This means you can switch report type in a job. You don't need
-     * to create a new job if you just want to change reporting mode.
-     * <p>
-     * This method catches the PrqaReadingException, when that exception is thrown it means that the we skip the reading and continue.
-     *
-     * @param req request
-     * @param rsp response
-     * @throws IOException when exception
-     */
-    public void doReportGraphs(StaplerRequest req,
-                               StaplerResponse rsp)
-            throws IOException {
-
-        List<PRQABuildAction> buildActions = this.build.getActions(PRQABuildAction.class);
-        Integer tSetting = Integer.parseInt(req.getParameter("tsetting"));
-        String className = req.getParameter("graph");
-        DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
-        Double tMax = null;
-        PRQAGraph graph = null;
-        PRQAStatusCollection collection = new PRQAStatusCollection();
-
-        for(PRQABuildAction buildAction : buildActions) {
-            PRQANotifier notifier = buildAction.getPublisher(PRQANotifier.class);
-            graph = notifier.getGraph(className);
-            ChartUtil.NumberOnlyBuildLabel label;
-
-            for (PRQABuildAction prqabuild = buildAction; prqabuild != null; prqabuild = prqabuild.getPreviousAction(prqabuild.getProjectName())) {
-                if (prqabuild.getResult() != null) {
-                    label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build);
-                    PRQAReading stat = prqabuild.getResult();
-                    for (StatusCategory cat : graph.getCategories()) {
-                        Number res;
-                        try {
-                            PRQAComplianceStatus cs = (PRQAComplianceStatus) stat;
-                            if (cat.equals(StatusCategory.Messages)) {
-                                res = cs.getMessagesWithinThresholdCount(tSetting);
-                            } else {
-                                res = stat.getReadout(cat);
-                            }
-                        } catch (PrqaException ex) {
-                            continue;
-                        }
-
-                        HashMap<StatusCategory, Boolean>  drawMatrix = _doDrawThresholds(req, rsp, prqabuild);
-                        if (drawMatrix.containsKey(cat) && drawMatrix.get(cat)) {
-                            Number threshold = buildAction.getThreshold(cat);
-                            if (threshold != null) {
-                                if (tMax == null) {
-                                    tMax = threshold.doubleValue();
-                                } else if (tMax < threshold.doubleValue()) {
-                                    tMax = threshold.doubleValue();
-                                }
-
-                                dsb.add(threshold, String.format("%s Threshold", cat.toString()), label);
-                            }
-                        }
-                        dsb.add(res, cat.toString(), label);
-                        collection.add(stat);
-                    }
-                }
-            }
-        }
-        if (graph != null) {
-            graph.setData(collection);
-            graph.drawGraph(req, rsp, dsb, tMax);
-        }
-    }
-
     @Override
     public Collection<? extends Action> getProjectActions() {
         if (this.fullPrqaProjectName == null) {
@@ -390,5 +306,18 @@ public class PRQABuildAction
             return notifier.getThresholdLevel();
         }
         return 0;
+    }
+
+    public Run<?,?> getBuild() {
+        return this.build;
+    }
+
+    private boolean isPrimaryStep() {
+        Run<?,?> lastBuild = build.getPreviousBuild();
+        if (lastBuild != null) {
+            PRQABuildAction buildAction = lastBuild.getAction(PRQABuildAction.class);
+            return buildAction.getProjectName().equals(this.fullPrqaProjectName);
+        }
+        return false;
     }
 }

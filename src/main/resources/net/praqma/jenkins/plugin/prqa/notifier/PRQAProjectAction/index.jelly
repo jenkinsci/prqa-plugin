@@ -1,33 +1,54 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core"
-         xmlns:l="/lib/layout">
+         xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
     <l:layout title="Helix QAC Results">
         <l:main-panel>
-            <j:set var="latestAction"
-                   value="${it.getLatestActionInProject()}"/>
-            <j:set var="publisher"
-                   value="${latestAction.getPublisher()}"/>
-            <j:set var="reportType"
-                   value="${publisher.getReportType()}"/>
-            <j:set var="drawGraphs"
-                   value="${it.isDrawGraphs()}"/>
-            <div>
-                <h3>${%Helix QAC Results}</h3>
-                <p>${%Visit} <a href="http://www.perforce.com/">Perforce</a> ${%website for additional product information}
-                </p>
-                <j:if test="${drawGraphs == true}">
-                    <j:forEach var="pgraph"
-                               items="${publisher.getSupportedGraphs()}">
-                        <img style="margin-left:20px;"
-                             src="reportGraphs?width=600&amp;height=340&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.getThresholdLevel()}"/>
-                    </j:forEach>
-                </j:if>
-                <j:if test="${drawGraphs == false}">
-                    <p>
-                        ${%Currently there is not enough Helix QAC data to generate a result graph. You need to have at least 2 successful builds in order for the graphs to be created}
+            <j:set var="buildActions" value="${it.getLatestActions()}"/>
+            <j:if test="${buildActions != null}">
+                <div>
+                    <h3>${%Helix QAC Results}</h3>
+                    <p>${%Visit} <a href="http://www.perforce.com/">Perforce</a> ${%website for additional product information}
                     </p>
-                </j:if>
-            </div>
+                <j:forEach var="buildAction" items="${buildActions}">
+                    <script type="text/javascript" src="${rootURL}/plugin/prqa-plugin/js/dist/Chart.min-2.7.2.js"></script>
+                    <j:set var="displayName" value="${buildAction.getDisplayName2()}"/>
+                    <j:set var="projectName" value="${buildAction.getProjectName()}"/>
+                    <j:set var="publisher"
+                           value="${buildAction.getPublisher()}"/>
+                    <j:set var="drawGraphs"
+                           value="${it.isDrawGraphs()}"/>
+                    <j:if test="${drawGraphs == true}">
+                        <h3>Helix QAC Results for: ${buildAction.getDisplayName2()}</h3>
+                        <p><b>Project path:</b> ${buildAction.getProjectName()}</p>
+                        <table width="600">
+                            <tr>
+                                <j:forEach var="pgraph"
+                                           items="${publisher.getSupportedGraphs()}">
+
+                                    <j:set var="chartData" value="${it.getChartData(projectName,600,350,pgraph.getClass().getSimpleName(),publisher.getThresholdLevel())}" />
+                                    <j:set var="canvasId" value="${chartData.title}"/>
+                                    <td width="600" height="350">
+                                        <canvas id="${canvasId}" width="600" height="350"></canvas>
+                                    </td>
+
+                                    <script type="text/javascript" src="${rootURL}/plugin/prqa-plugin/js/PrqaTrendChart.js"></script>
+                                    <script>
+                                        renderChart(${chartData},"${canvasId}");
+                                    </script>
+                                </j:forEach>
+                            </tr>
+                        </table>
+                        <br/>
+                        <hr/>
+                    </j:if>
+                    <j:if test="${drawGraphs == false}">
+                        <p>
+                            ${%Currently there is not enough Helix QAC data to generate a result graph. You need to have at least 2 successful builds in order for the graphs to be created}
+                        </p>
+                    </j:if>
+                </j:forEach>
+                </div>
+            </j:if>
         </l:main-panel>
     </l:layout>
 </j:jelly>

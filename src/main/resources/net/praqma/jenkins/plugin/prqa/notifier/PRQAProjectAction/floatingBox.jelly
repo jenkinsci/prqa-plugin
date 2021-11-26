@@ -1,25 +1,42 @@
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:i="jelly:fmt" xmlns:local="local">
     <j:set var="latestAction"
            value="${from.latestActionInProject}"/>
     <j:if test="${latestAction != null}">
-        <j:set var="displayName" value="${latestAction.getDisplayName()}"/>
+
+        <script type="text/javascript" src="${rootURL}/plugin/prqa-plugin/js/dist/Chart.min-2.7.2.js"></script>
+
+        <j:set var="displayName" value="${latestAction.getDisplayName2()}"/>
         <j:set var="projectName" value="${latestAction.getProjectName()}"/>
         <j:choose>
-            <h2>Project: ${displayName}</h2>
             <j:when test="${latestAction.getPreviousAction(projectName) != null}">
-                <div>
-                    <j:set var="publisher"
-                           value="${from.getLatestActionInProject().getPublisher()}"/>
-                    <j:set var="cnt"
-                           value="${publisher.getSupportedGraphs()}"/>
-                    <j:forEach var="pgraph"
-                               items="${publisher.getSupportedGraphs()}">
-                        <img style="margin-left:20px;"
-                             src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.getThresholdLevel()}"/>
-                    </j:forEach>
-                    <hr/>
-                </div>
+                <table width="400px">
+                    <tr>
+                        <div>
+                            <j:set var="publisher"
+                                   value="${from.getLatestActionInProject().getPublisher()}"/>
+                            <j:set var="cnt"
+                                   value="${publisher.getSupportedGraphs()}"/>
+                            <j:forEach var="pgraph"
+                                       items="${publisher.getSupportedGraphs()}">
+                                <j:set var="chartData" value="${from.getChartData(projectName,400,233,pgraph.getClass().getSimpleName(),publisher.getThresholdLevel())}" />
+                                <j:set var="canvasId" value="${chartData.title}"/>
+                                <!-- z-index makes sure the trend chart is on top of the stage view -->
+<!--                                <div style="z-index:1">-->
+                                    <td width="400" height="233">
+                                        <canvas id="${canvasId}" width="400" height="233"></canvas>
+                                    </td>
+<!--                                </div>-->
+
+                                <script type="text/javascript" src="${rootURL}/plugin/prqa-plugin/js/PrqaTrendChart.js"></script>
+                                <script>
+                                    renderChart(${chartData},"${canvasId}");
+                                </script>
+                            </j:forEach>
+                            <hr/>
+                        </div>
+                    </tr>
+                </table>
             </j:when>
             <j:otherwise>
                 <div id="marginme"

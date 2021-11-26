@@ -47,6 +47,6 @@ The plug-in allows the automation of the creation and analysis of Helix-QAC enab
 The plug-in displays a graphical history depicting the number of messages, and overall compliance levels in the project.
 
 # Known Issues
-* Graphs on the Freestyle project summary page may display twice.
+* Compliance Summary on the Freestyle project summary page may display twice.
 * The completion of a Pipeline build on the projects summary page will not refresh the entire page. The user should refresh the page on completion of the job run.
 * Reports may be missing colours on pie charts and legend keys. This is due to Jenkins default security settings regarding JavaScript and CSS where both are disallowed. To remedy, please follow the instructions in the top answer to this [Stack Overflow](https://stackoverflow.com/questions/35783964/jenkins-html-publisher-plugin-no-css-is-displayed-when-report-is-viewed-in-j) question.

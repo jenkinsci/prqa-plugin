@@ -10,6 +10,7 @@ import net.praqma.prqa.status.StatusCategory;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Set;
 
 /**
  * Abstracting readings. This means that we can now have a single object for each build.
@@ -39,5 +40,7 @@ public interface PRQAReading
     void setSettings(QaFrameworkReportSettings settings);
 
     QaFrameworkReportSettings getSettings();
+
+    Set<StatusCategory> getCategories();
 }
 
