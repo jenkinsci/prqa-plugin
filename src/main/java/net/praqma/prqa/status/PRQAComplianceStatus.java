@@ -4,12 +4,15 @@ import net.praqma.prqa.exceptions.PrqaException;
 import net.praqma.prqa.exceptions.PrqaReadingException;
 import net.praqma.prqa.parsers.MessageGroup;
 import net.praqma.prqa.parsers.Rule;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 /**
  * This class represent a compliance status readout. 3 values, file compliance,
@@ -29,6 +32,20 @@ public class PRQAComplianceStatus
     private List<MessageGroup> messagesGroups;
 
     public PRQAComplianceStatus() {
+    }
+
+    public PRQAComplianceStatus(final QaFrameworkReportSettings settings) {
+        this.settings = settings;
+    }
+
+    private String getDisplayName() {
+        if(this.settings != null) {
+            final String fullPrqaProjectName = settings.getQaProject();
+            String pattern = Pattern.quote(File.separator);
+            String[] parts = fullPrqaProjectName.split(pattern);
+            return parts.length >= 1 ? parts[parts.length - 1] : "";
+        }
+        return "";
     }
 
     public PRQAComplianceStatus(int messages,
@@ -272,9 +289,10 @@ public class PRQAComplianceStatus
     @Override
     public String toHtml() {
         StringBuilder sb = new StringBuilder();
+        sb.append(String.format("<h2>Project: %s</h2>", getDisplayName()));
         sb.append(
-                "<table cellpadding=\"0\" style=\"border-style:none;margin:10px;border-collapse:collapse;border-spacing:0px\">");
-        sb.append("<h2>Compliance Summary</h2>");
+                "<table cellpadding=\"0\" style=\"border-collapse:separate;border:solid black 1px;border-radius:6px;-moz-border-radius:6px;\">");
+        sb.append("<h3>Compliance Summary</h3>");
         sb.append("<thead>");
         sb.append("<tr>");
         sb.append("<th style=\"padding:10px 10px 0px;font-weight:700\">Messages within threshold</th>");
@@ -303,8 +321,8 @@ public class PRQAComplianceStatus
 
         if (getMessagesGroups() != null && getMessagesGroups().size() > 0) {
 
-            sb.append("<table cellpadding=\"0\" style=\"border-style:none;margin:10px;border-collapse:collapse\">");
-            sb.append("<h2>Messages Summary</h2>");
+            sb.append("<table cellpadding=\"0\" style=\"border-collapse:separate;border:solid black 1px;border-radius:6px;-moz-border-radius:6px;\">");
+            sb.append("<h3>Messages Summary</h3>");
             sb.append("<thead>");
             sb.append("<tr>");
 
@@ -338,8 +356,8 @@ public class PRQAComplianceStatus
             sb.append("</tbody>");
             sb.append("</table>");
         } else if (getMessagesByLevel() != null && getMessagesByLevel().size() > 0) {
-            sb.append("<table cellpadding=\"0\" style=\"border-style:none;margin:10px;border-collapse:collapse\">");
-            sb.append("<h2>Messages Summary</h2>");
+            sb.append("<table cellpadding=\"0\" style=\"border-collapse:separate;border:solid black 1px;border-radius:6px;-moz-border-radius:6px;\">");
+            sb.append("<h3>Messages Summary</h3>");
             sb.append("<thead>");
             sb.append("<tr>");
             sb.append("<th style=\"padding-right:5px;\">Level</th>");
@@ -362,7 +380,8 @@ public class PRQAComplianceStatus
             sb.append("</tbody>");
             sb.append("</table>");
         }
-
+        sb.append("<br/>");
+        sb.append("<hr/>");
         return sb.toString();
     }
 

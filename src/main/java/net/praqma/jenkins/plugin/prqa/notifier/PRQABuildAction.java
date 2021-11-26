@@ -11,40 +11,43 @@ import net.praqma.jenkins.plugin.prqa.graphs.PRQAGraph;
 import net.praqma.prqa.PRQAReading;
 import net.praqma.prqa.PRQAStatusCollection;
 import net.praqma.prqa.exceptions.PrqaException;
+import net.praqma.prqa.qaframework.QaFrameworkReportSettings;
 import net.praqma.prqa.status.PRQAComplianceStatus;
 import net.praqma.prqa.status.PRQAStatus;
 import net.praqma.prqa.status.StatusCategory;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Praqma
  */
 public class PRQABuildAction
-        implements Action, SimpleBuildStep.LastBuildAction {
+        implements Action, SimpleBuildStep.LastBuildAction, PrqaProjectName {
 
     private final Run<?, ?> build;
     private Publisher publisher;
     private PRQAReading result;
     private List<PRQAProjectAction> projectActions;
-    public static final String DISPLAY_NAME = "PRQA";
-    public static final String URL_NAME = "PRQA";
+    private String fullPrqaProjectName;
 
     public PRQABuildAction() {
         this.build = null;
+        getProjectName();
     }
 
-    public PRQABuildAction(Run<?, ?> build) {
+    public PRQABuildAction(Run<?, ?> build, final String fullPrqaProjectName) {
         this.build = build;
-
+        this.fullPrqaProjectName = fullPrqaProjectName == null ? getProjectName() : fullPrqaProjectName;
         List<PRQAProjectAction> projectActions = new ArrayList<>();
-        projectActions.add( new PRQAProjectAction( build.getParent() ) );
+        projectActions.add( new PRQAProjectAction( build.getParent(), fullPrqaProjectName ) );
         this.projectActions = projectActions;
     }
 
@@ -55,12 +58,25 @@ public class PRQABuildAction
 
     @Override
     public String getDisplayName() {
-        return DISPLAY_NAME;
+        String pattern = Pattern.quote(File.separator);
+        String[] parts = this.getProjectName().split(pattern);
+        return parts.length >= 1 ? parts[parts.length - 1] : "";
+    }
+
+    public String getProjectName() {
+        if (this.fullPrqaProjectName == null) {
+            PRQANotifier notifier = this.getPublisher(PRQANotifier.class);
+            if (notifier != null) {
+                this.fullPrqaProjectName = notifier.sourceQAFramework.qaProject;
+            }
+        }
+        return this.fullPrqaProjectName;
+
     }
 
     @Override
     public String getUrlName() {
-        return URL_NAME;
+        return "PRQA";
     }
 
     /**
@@ -132,30 +148,35 @@ public class PRQABuildAction
      *
      * @return previous build
      */
-    public PRQABuildAction getPreviousAction() {
-        return getPreviousAction(build);
+    public PRQABuildAction getPreviousAction(String fullPrqaProjectName) {
+        return getPreviousAction(build, fullPrqaProjectName);
     }
 
     /**
      * Fetches the previous PRQA build. Skips builds that were not configured as a PRQA Build.
      * <p>
      * Goes to the end of list.
-     * @param base the base
+     * @param run: the base
      * @return previous build
      */
-    public PRQABuildAction getPreviousAction(Run<?, ?> base) {
-        PRQABuildAction action;
-        Run<?, ?> start = base;
-        while (true) {
-            start = start.getPreviousNotFailedBuild();
-            if (start == null) {
-                return null;
-            }
-            action = start.getAction(PRQABuildAction.class);
-            if (action != null) {
-                return action;
+    public PRQABuildAction getPreviousAction(Run<?, ?> run, String projectName) {
+        Run<?,?> lastRun = run.getPreviousNotFailedBuild();
+        if (lastRun == null) {
+            return null;
+        }
+
+        List<PRQABuildAction> buildActions = lastRun.getActions(PRQABuildAction.class);
+        if (buildActions == null) return getPreviousAction(projectName);
+
+        for(PRQABuildAction buildAction : buildActions) {
+            PRQANotifier notifier = buildAction.getPublisher(PRQANotifier.class);
+            if (notifier != null) {
+                if (notifier.sourceQAFramework.qaProject == projectName) {
+                    return buildAction;
+                }
             }
         }
+        return null;
     }
 
     public PRQAReading getBuildActionStatus() {
@@ -164,6 +185,16 @@ public class PRQABuildAction
 
     @SuppressWarnings("unchecked")
     public <T extends PRQAStatus> T getBuildActionStatus(Class<T> clazz) {
+        if (this.result != null) {
+            if (this.result instanceof PRQAComplianceStatus) {
+                PRQAComplianceStatus status = (PRQAComplianceStatus) this.result;
+                if (status.getSettings() == null ) {
+                    QaFrameworkReportSettings settings = getFrameworkReportSettings();
+                    status.setSettings(settings);
+                }
+            }
+        }
+
         try {
             return clazz.cast(this.result);
         } catch (Exception e) {
@@ -175,6 +206,57 @@ public class PRQABuildAction
         return StatusCategory.values();
     }
 
+    private QaFrameworkReportSettings getFrameworkReportSettings() {
+        PRQANotifier notifier = this.getPublisher(PRQANotifier.class);
+        if (notifier != null) {
+            if (notifier.sourceQAFramework != null) {
+                return new QaFrameworkReportSettings(
+                        notifier.sourceQAFramework.qaInstallation,
+                        notifier.sourceQAFramework.useCustomLicenseServer,
+                        notifier.sourceQAFramework.customLicenseServerAddress,
+                        notifier.sourceQAFramework.qaProject,
+                        notifier.sourceQAFramework.downloadUnifiedProjectDefinition,
+                        notifier.sourceQAFramework.unifiedProjectName,
+                        notifier.sourceQAFramework.enableDependencyMode,
+                        notifier.sourceQAFramework.performCrossModuleAnalysis,
+                        notifier.sourceQAFramework.cmaProjectName,
+                        notifier.sourceQAFramework.reuseCmaDb,
+                        notifier.sourceQAFramework.useDiskStorage,
+                        notifier.sourceQAFramework.generateReport,
+                        notifier.sourceQAFramework.publishToQAV,
+                        notifier.sourceQAFramework.loginToQAV,
+                        notifier.sourceQAFramework.uploadWhenStable,
+                        notifier.sourceQAFramework.qaVerifyProjectName,
+                        notifier.sourceQAFramework.uploadSnapshotName,
+                        notifier.sourceQAFramework.buildNumber,
+                        notifier.sourceQAFramework.uploadSourceCode,
+                        notifier.sourceQAFramework.generateCrr,
+                        notifier.sourceQAFramework.generateMdr,
+                        notifier.sourceQAFramework.generateHis,
+                        notifier.sourceQAFramework.generateSup,
+                        notifier.sourceQAFramework.analysisSettings,
+                        notifier.sourceQAFramework.stopWhenFail,
+                        notifier.sourceQAFramework.customCpuThreads,
+                        notifier.sourceQAFramework.maxNumThreads,
+                        notifier.sourceQAFramework.generatePreprocess,
+                        notifier.sourceQAFramework.assembleSupportAnalytics,
+                        notifier.sourceQAFramework.generateReportOnAnalysisError,
+                        notifier.sourceQAFramework.addBuildNumber,
+                        notifier.sourceQAFramework.projectConfiguration
+                );
+            }
+        }
+        return null;
+    }
+
+    private PRQABuildAction getBuildActionByProject(String project) {
+        List<PRQABuildAction> buildActions = this.build.getActions(PRQABuildAction.class);
+        for (PRQABuildAction buildAction : buildActions) {
+            if (buildAction.getProjectName().equalsIgnoreCase(project)) return  buildAction;
+        }
+        return null;
+    }
+
     /**
      * Determines weather to draw threhshold graphs. Uses the most recent build as base.
      *
@@ -183,13 +265,15 @@ public class PRQABuildAction
      * @return
      */
     private HashMap<StatusCategory, Boolean> _doDrawThresholds(StaplerRequest req,
-                                                               StaplerResponse rsp) {
-        PRQANotifier notifier = (PRQANotifier) getPublisher();
+                                                               StaplerResponse rsp, PRQABuildAction buildAction) {
+
+        PRQANotifier notifier = buildAction.getPublisher(PRQANotifier.class);
+
         HashMap<StatusCategory, Boolean> stats = new HashMap<>();
         if (notifier != null) {
             String className = req.getParameter("graph");
             PRQAGraph graph = notifier.getGraph(className);
-            for (PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
+            for(PRQABuildAction prqabuild = buildAction; prqabuild != null; prqabuild = prqabuild.getPreviousAction(prqabuild.getProjectName())) {
                 if (prqabuild.getResult() != null) {
                     for (StatusCategory cat : graph.getCategories()) {
                         Number threshold = prqabuild.getThreshold(cat);
@@ -203,7 +287,6 @@ public class PRQABuildAction
                 }
             }
         }
-
         return stats;
     }
 
@@ -225,20 +308,21 @@ public class PRQABuildAction
     public void doReportGraphs(StaplerRequest req,
                                StaplerResponse rsp)
             throws IOException {
-        PRQANotifier notifier = (PRQANotifier) getPublisher();
-        HashMap<StatusCategory, Boolean> drawMatrix = _doDrawThresholds(req, rsp);
 
-        if (notifier != null) {
-            Integer tSetting = Integer.parseInt(req.getParameter("tsetting"));
-            String className = req.getParameter("graph");
-            PRQAGraph graph = notifier.getGraph(className);
-            PRQAStatusCollection collection = new PRQAStatusCollection();
-            DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
+        List<PRQABuildAction> buildActions = this.build.getActions(PRQABuildAction.class);
+        Integer tSetting = Integer.parseInt(req.getParameter("tsetting"));
+        String className = req.getParameter("graph");
+        DataSetBuilder<String, ChartUtil.NumberOnlyBuildLabel> dsb = new DataSetBuilder<>();
+        Double tMax = null;
+        PRQAGraph graph = null;
+        PRQAStatusCollection collection = new PRQAStatusCollection();
+
+        for(PRQABuildAction buildAction : buildActions) {
+            PRQANotifier notifier = buildAction.getPublisher(PRQANotifier.class);
+            graph = notifier.getGraph(className);
             ChartUtil.NumberOnlyBuildLabel label;
 
-            Double tMax = null;
-
-            for (PRQABuildAction prqabuild = this; prqabuild != null; prqabuild = prqabuild.getPreviousAction()) {
+            for (PRQABuildAction prqabuild = buildAction; prqabuild != null; prqabuild = prqabuild.getPreviousAction(prqabuild.getProjectName())) {
                 if (prqabuild.getResult() != null) {
                     label = new ChartUtil.NumberOnlyBuildLabel(prqabuild.build);
                     PRQAReading stat = prqabuild.getResult();
@@ -247,7 +331,6 @@ public class PRQABuildAction
                         try {
                             PRQAComplianceStatus cs = (PRQAComplianceStatus) stat;
                             if (cat.equals(StatusCategory.Messages)) {
-//                                res = cs.getMessageCount(tSetting);
                                 res = cs.getMessagesWithinThresholdCount(tSetting);
                             } else {
                                 res = stat.getReadout(cat);
@@ -256,8 +339,9 @@ public class PRQABuildAction
                             continue;
                         }
 
+                        HashMap<StatusCategory, Boolean>  drawMatrix = _doDrawThresholds(req, rsp, prqabuild);
                         if (drawMatrix.containsKey(cat) && drawMatrix.get(cat)) {
-                            Number threshold = prqabuild.getThreshold(cat);
+                            Number threshold = buildAction.getThreshold(cat);
                             if (threshold != null) {
                                 if (tMax == null) {
                                     tMax = threshold.doubleValue();
@@ -273,7 +357,8 @@ public class PRQABuildAction
                     }
                 }
             }
-
+        }
+        if (graph != null) {
             graph.setData(collection);
             graph.drawGraph(req, rsp, dsb, tMax);
         }
@@ -281,6 +366,29 @@ public class PRQABuildAction
 
     @Override
     public Collection<? extends Action> getProjectActions() {
+        if (this.fullPrqaProjectName == null) {
+            getProjectName();
+        }
+        if (this.projectActions.get(0).getProjectName() == null) {
+            this.projectActions.clear();
+            this.projectActions.add(new PRQAProjectAction(build.getParent(), this.fullPrqaProjectName));
+        }
         return this.projectActions;
+    }
+
+    public List<PRQAGraph> getSupportedGraphs() {
+        PRQANotifier notifier = this.getPublisher(PRQANotifier.class);
+        if (notifier != null) {
+            return notifier.getSupportedGraphs();
+        }
+        return null;
+    }
+
+    public int getThresholdLevel() {
+        PRQANotifier notifier = this.getPublisher(PRQANotifier.class);
+        if (notifier != null) {
+            return notifier.getThresholdLevel();
+        }
+        return 0;
     }
 }

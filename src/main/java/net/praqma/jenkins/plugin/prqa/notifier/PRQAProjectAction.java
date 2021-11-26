@@ -4,36 +4,52 @@ import com.google.common.collect.Iterables;
 import hudson.model.Actionable;
 import hudson.model.Job;
 import hudson.model.ProminentProjectAction;
+import hudson.model.Run;
 import hudson.tasks.Publisher;
 import hudson.util.RunList;
 import net.praqma.jenkins.plugin.prqa.globalconfig.PRQAGlobalConfig;
 import net.praqma.jenkins.plugin.prqa.globalconfig.QAVerifyServerConfiguration;
+import net.praqma.util.debug.Logger;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Praqma
  */
 public class PRQAProjectAction
         extends Actionable
-        implements ProminentProjectAction {
+        implements ProminentProjectAction, PrqaProjectName {
 
     private final Job<?, ?> job;
     private static final String ICON_NAME = "/plugin/prqa-plugin/images/32x32/helix_qac.png";
+    private String fullPrqaProjectName;
+    private String displayName;
 
-
-    public PRQAProjectAction(Job<?, ?> job) {
+    public PRQAProjectAction(Job<?, ?> job, final String fullPrqaProjectName) {
         this.job = job;
+        this.fullPrqaProjectName = fullPrqaProjectName;
+        setDisplayName();
     }
 
+    private void setDisplayName() {
+        String pattern = Pattern.quote(File.separator);
+        String[] parts = this.fullPrqaProjectName.split(pattern);
+        this.displayName = parts.length >= 1 ? parts[parts.length - 1] : "";
+    }
 
     @Override
     public String getDisplayName() {
-        return "Helix QAC Results";
+        return this.displayName;
+    }
+
+    public String getProjectName() {
+        return this.fullPrqaProjectName;
     }
 
 
@@ -61,9 +77,13 @@ public class PRQAProjectAction
 
 
     public PRQABuildAction getLatestActionInProject() {
-        if (job.getLastSuccessfulBuild() != null) {
-            return job.getLastSuccessfulBuild()
-                    .getAction(PRQABuildAction.class);
+        Run<?,?> lastSuccessfulBuild = job.getLastSuccessfulBuild();
+        if (lastSuccessfulBuild != null) {
+            for (PRQABuildAction buildAction : lastSuccessfulBuild.getActions(PRQABuildAction.class)) {
+                if (buildAction.getProjectName().equalsIgnoreCase(this.fullPrqaProjectName)) {
+                    return buildAction;
+                }
+            }
         }
         return null;
     }
@@ -93,7 +113,7 @@ public class PRQAProjectAction
             try {
                 action.doReportGraphs(req, rsp);
             } catch (IOException exception) {
-
+                Logger.getLogger().error(exception);
             }
         }
     }

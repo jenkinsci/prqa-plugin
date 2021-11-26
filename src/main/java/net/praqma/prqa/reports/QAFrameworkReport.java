@@ -467,7 +467,7 @@ public class QAFrameworkReport
 
     public PRQAComplianceStatus getComplianceStatus(PrintStream out)
             throws PrqaException {
-        PRQAComplianceStatus status = new PRQAComplianceStatus();
+        PRQAComplianceStatus status = new PRQAComplianceStatus(settings);
 
         String report_structure;
         report_structure = new File(extractReportsPath(workspace.getAbsolutePath(), settings.getQaProject(),

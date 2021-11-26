@@ -3,8 +3,11 @@
     <j:set var="latestAction"
            value="${from.latestActionInProject}"/>
     <j:if test="${latestAction != null}">
+        <j:set var="displayName" value="${latestAction.getDisplayName()}"/>
+        <j:set var="projectName" value="${latestAction.getProjectName()}"/>
         <j:choose>
-            <j:when test="${latestAction.previousAction != null}">
+            <h2>Project: ${displayName}</h2>
+            <j:when test="${latestAction.getPreviousAction(projectName) != null}">
                 <div>
                     <j:set var="publisher"
                            value="${from.getLatestActionInProject().getPublisher()}"/>
@@ -15,13 +18,15 @@
                         <img style="margin-left:20px;"
                              src="${from.urlName}/reportGraphs?width=400&amp;height=233&amp;graph=${pgraph.getClass().getSimpleName()}&amp;tsetting=${publisher.getThresholdLevel()}"/>
                     </j:forEach>
+                    <hr/>
                 </div>
             </j:when>
             <j:otherwise>
                 <div id="marginme"
                      style="margin-right:150px">
-                    <h3>${%Not enough data}</h3>
-                    <p>${%The project needs to have at least two builds with data to generate a graph with results.}</p>
+                    <h3>${%Not enough data}: ${projectName}</h3>
+                    <p>${%There is one prior build. At least 2 are required to produce report graphs.}</p>
+                    <hr/>
                 </div>
             </j:otherwise>
         </j:choose>
@@ -30,7 +35,8 @@
         <div id="marginme"
              style="margin-right:150px">
             <h3>${%Not enough data}</h3>
-            <p>${%The project needs to have at least two builds with data to generate a graph with results.}</p>
+            <p>${%There appear to be no prior builds. At least 2 builds are required to produce report graphs.}</p>
+            <hr/>
         </div>
     </j:if>
 </j:jelly>

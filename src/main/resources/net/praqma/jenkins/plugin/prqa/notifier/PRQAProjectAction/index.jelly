@@ -3,7 +3,6 @@
          xmlns:l="/lib/layout">
     <l:layout title="Helix QAC Results">
         <l:main-panel>
-
             <j:set var="latestAction"
                    value="${it.getLatestActionInProject()}"/>
             <j:set var="publisher"
@@ -25,10 +24,9 @@
                 </j:if>
                 <j:if test="${drawGraphs == false}">
                     <p>
-                        ${%Currently there is not enough Helix QAC data to generate a result graph. You need to have at least 2 succesful builds in order for the graphs to be created}
+                        ${%Currently there is not enough Helix QAC data to generate a result graph. You need to have at least 2 successful builds in order for the graphs to be created}
                     </p>
                 </j:if>
-
             </div>
         </l:main-panel>
     </l:layout>
