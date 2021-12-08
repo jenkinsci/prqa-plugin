@@ -1,4 +1,5 @@
 
+
 Maintained by
  [![Perforce](https://www.perforce.com/themes/custom/themekit/logo.svg)](https://www.perforce.com)
 
@@ -50,3 +51,17 @@ The plug-in displays a graphical history depicting the number of messages, and o
 * Compliance Summary on the Freestyle project summary page may display twice.
 * The completion of a Pipeline build on the projects summary page will not refresh the entire page. The user should refresh the page on completion of the job run.
 * Reports may be missing colours on pie charts and legend keys. This is due to Jenkins default security settings regarding JavaScript and CSS where both are disallowed. To remedy, please follow the instructions in the top answer to this [Stack Overflow](https://stackoverflow.com/questions/35783964/jenkins-html-publisher-plugin-no-css-is-displayed-when-report-is-viewed-in-j) question.
+
+# Change Log / Release Notes
+Changes are tracked in 1 of 4 categories:
+
+    E - Enhancement to an existing feature.
+    F - A fix for a bug or problem feature.
+    N - New functionality has been introduced.
+    O - Other, such as documentation, feature removal etc
+
+| Plugin Version | Ticket | Type | Description                                                                  |
+|----------------|--------|------|------------------------------------------------------------------------------|
+| 3.3.4          | 47308  | F    | Fix fault with pipeline data showing results of first stage/step             |
+| 3.3.4          | 47485  | N    | Replace graph library to permit 47308 fix to show graphs for each stage/step |
+| 3.3.4          | 39708  | F    | Removed deprecated QAC options (--reuseCmaDB and --useDiskStorage)           |
