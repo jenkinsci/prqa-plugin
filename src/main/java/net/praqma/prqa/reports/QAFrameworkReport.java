@@ -281,14 +281,6 @@ public class QAFrameworkReport
             throws PrqaException {
         PRQACommandBuilder builder = new PRQACommandBuilder(formatQacliPath());
         builder.appendArgument("analyze");
-
-        if (settings.isReuseCmaDb()) {
-            builder.appendArgument("--reuse_db");
-        }
-        if (settings.isUseDiskStorage()) {
-            builder.appendArgument("--use_disk_storage");
-        }
-
         builder.appendArgument("-cf");
         builder.appendArgument("-P");
         builder.appendArgument(PRQACommandBuilder.wrapFile(workspace, settings.getQaProject()));

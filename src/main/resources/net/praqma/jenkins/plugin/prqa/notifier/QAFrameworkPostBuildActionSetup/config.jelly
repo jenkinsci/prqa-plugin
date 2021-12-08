@@ -63,20 +63,6 @@
                                  help="/plugin/prqa-plugin/config/help-qaCMAProjectName.html">
                             <f:textbox value="${instance.cmaProjectName}"/>
                         </f:entry>
-                        <f:entry title="${%Reuse CMA Database}"
-                                 field="reuseCmaDb"
-                                 help="/plugin/prqa-plugin/config/help-qaReuseCmaDb.html">
-                            <f:checkbox name="reuseCmaDb"
-                                        value="${instance.reuseCmaDb}"
-                                        checked="${instance.reuseCmaDb}"/>
-                        </f:entry>
-                        <f:entry title="${%Use Temporary Disk Storage for CMA}"
-                                 field="useDiskStorage"
-                                 help="/plugin/prqa-plugin/config/help-qaUseDiskStorage.html">
-                            <f:checkbox name="useDiskStorage"
-                                        value="${instance.useDiskStorage}"
-                                        checked="${instance.useDiskStorage}"/>
-                        </f:entry>
                     </f:optionalBlock>
                 </f:nested>
 

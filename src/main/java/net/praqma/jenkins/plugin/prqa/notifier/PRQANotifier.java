@@ -717,8 +717,6 @@ public class PRQANotifier
                 qaFrameworkPostBuildActionSetup.performCrossModuleAnalysis,
                 PRQABuildUtils.normalizeWithEnv(
                         qaFrameworkPostBuildActionSetup.cmaProjectName, run, workspace, listener),
-                qaFrameworkPostBuildActionSetup.reuseCmaDb,
-                qaFrameworkPostBuildActionSetup.useDiskStorage,
                 qaFrameworkPostBuildActionSetup.generateReport,
                 qaFrameworkPostBuildActionSetup.publishToQAV,
                 qaFrameworkPostBuildActionSetup.loginToQAV,
