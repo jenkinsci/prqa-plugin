@@ -16,8 +16,6 @@ public class QaFrameworkReportSettings
     private boolean qaEnableDependencyMode;
     private boolean qaCrossModuleAnalysis;
     private String cmaProjectName;
-    private boolean reuseCmaDb;
-    private boolean useDiskStorage;
     private boolean generateReport;
     private boolean publishToQAV;
     private boolean loginToQAV;
@@ -49,8 +47,6 @@ public class QaFrameworkReportSettings
                                      boolean qaEnableDependencyMode,
                                      boolean qaCrossModuleAnalysis,
                                      String cmaProjectName,
-                                     boolean reuseCmaDb,
-                                     boolean useDiskStorage,
                                      boolean generateReport,
                                      boolean publishToQAV,
                                      boolean loginToQAV,
@@ -80,8 +76,6 @@ public class QaFrameworkReportSettings
         this.pullUnifiedProject = pullUnifiedProject;
         this.qaCrossModuleAnalysis = qaCrossModuleAnalysis;
         this.cmaProjectName = cmaProjectName;
-        this.reuseCmaDb = reuseCmaDb;
-        this.useDiskStorage = useDiskStorage;
         this.publishToQAV = publishToQAV;
         this.loginToQAV = loginToQAV;
         this.qaEnableDependencyMode = qaEnableDependencyMode;
@@ -265,14 +259,6 @@ public class QaFrameworkReportSettings
 
     public boolean isGenerateReportOnAnalysisError() {
         return generateReportOnAnalysisError;
-    }
-
-    public boolean isReuseCmaDb() {
-        return reuseCmaDb;
-    }
-
-    public boolean isUseDiskStorage() {
-        return useDiskStorage;
     }
 
     public String getMaxNumThreads() {

@@ -51,8 +51,6 @@ public class QAFrameworkPostBuildActionSetup
     public boolean downloadUnifiedProjectDefinition;
     public boolean performCrossModuleAnalysis;
     public String cmaProjectName;
-    public boolean reuseCmaDb;
-    public boolean useDiskStorage;
     public boolean enableDependencyMode;
     public boolean generateReport;
     public boolean publishToQAV;
@@ -86,8 +84,6 @@ public class QAFrameworkPostBuildActionSetup
                                            String unifiedProjectName,
                                            boolean performCrossModuleAnalysis,
                                            String cmaProjectName,
-                                           boolean reuseCmaDb,
-                                           boolean useDiskStorage,
                                            boolean enableDependencyMode,
                                            boolean generateReport,
                                            boolean publishToQAV,
@@ -120,7 +116,6 @@ public class QAFrameworkPostBuildActionSetup
         this.unifiedProjectName = unifiedProjectName;
         this.performCrossModuleAnalysis = performCrossModuleAnalysis;
         this.cmaProjectName = cmaProjectName;
-        this.reuseCmaDb = reuseCmaDb;
         this.enableDependencyMode = enableDependencyMode;
         this.generateReport = generateReport;
         this.publishToQAV = publishToQAV;
@@ -137,7 +132,6 @@ public class QAFrameworkPostBuildActionSetup
         this.generateSup = generateSup;
         this.analysisSettings = analysisSettings;
         this.stopWhenFail = stopWhenFail;
-        this.useDiskStorage = useDiskStorage;
         this.customCpuThreads = customCpuThreads;
         this.maxNumThreads = maxNumThreads;
         this.generatePreprocess = generatePreprocess;
@@ -303,14 +297,6 @@ public class QAFrameworkPostBuildActionSetup
         this.assembleSupportAnalytics = assembleSupportAnalytics;
     }
 
-    public void setReuseCmaDb(boolean reuseCmaDb) {
-        this.reuseCmaDb = reuseCmaDb;
-    }
-
-    public void setUseDiskStorage(boolean useDiskStorage) {
-        this.useDiskStorage = useDiskStorage;
-    }
-
     public void setMaxNumThreads(String maxNumThreads) {
         this.maxNumThreads = maxNumThreads;
     }
@@ -337,14 +323,6 @@ public class QAFrameworkPostBuildActionSetup
 
     public boolean isGenerateReportOnAnalysisError() {
         return generateReportOnAnalysisError;
-    }
-
-    public boolean isReuseCmaDb() {
-        return reuseCmaDb;
-    }
-
-    public boolean isUseDiskStorage() {
-        return useDiskStorage;
     }
 
     public String getMaxNumThreads() {

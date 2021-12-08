@@ -218,8 +218,6 @@ public class PRQABuildAction
                         notifier.sourceQAFramework.enableDependencyMode,
                         notifier.sourceQAFramework.performCrossModuleAnalysis,
                         notifier.sourceQAFramework.cmaProjectName,
-                        notifier.sourceQAFramework.reuseCmaDb,
-                        notifier.sourceQAFramework.useDiskStorage,
                         notifier.sourceQAFramework.generateReport,
                         notifier.sourceQAFramework.publishToQAV,
                         notifier.sourceQAFramework.loginToQAV,
