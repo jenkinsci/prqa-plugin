@@ -217,7 +217,9 @@ public class PRQAProjectAction
         Run<?,?> lastBuild = job.getLastBuild();
         if (lastBuild != null) {
             PRQABuildAction buildAction = lastBuild.getAction(PRQABuildAction.class);
-            return buildAction.getProjectName().equals(this.fullPrqaProjectName);
+            if (buildAction != null) {
+                return buildAction.getProjectName().equals(this.fullPrqaProjectName);
+            }
         }
         return false;
     }
