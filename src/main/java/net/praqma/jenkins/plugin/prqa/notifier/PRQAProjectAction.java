@@ -2,6 +2,7 @@ package net.praqma.jenkins.plugin.prqa.notifier;
 
 import com.google.common.collect.Iterables;
 import hudson.model.Actionable;
+import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import hudson.model.ProminentProjectAction;
 import hudson.model.Result;
@@ -27,15 +28,17 @@ import java.util.regex.Pattern;
  */
 public class PRQAProjectAction
         extends Actionable
-        implements ProminentProjectAction, PrqaProjectName {
+        implements ProminentProjectAction, PrqaProjectName, IndexedAction {
 
     private final Job<?, ?> job;
     private static final String ICON_NAME = "/plugin/prqa-plugin/images/32x32/helix_qac.png";
     private String fullPrqaProjectName;
     private String displayName;
+    private int index;
 
     public PRQAProjectAction(Job<?, ?> job, final String fullPrqaProjectName) {
         this.job = job;
+        this.index = getProjectActionIndex();
         this.fullPrqaProjectName = fullPrqaProjectName;
         setDisplayName();
     }
@@ -44,6 +47,11 @@ public class PRQAProjectAction
         String pattern = Pattern.quote(File.separator);
         String[] parts = this.fullPrqaProjectName.split(pattern);
         this.displayName = parts.length >= 1 ? parts[parts.length - 1] : "";
+    }
+
+    @Override
+    public int getIndex() {
+        return getProjectActionIndex();
     }
 
     @Override
@@ -78,20 +86,32 @@ public class PRQAProjectAction
         return null;
     }
 
-    public Job<?, ?> getJob() {
-        return job;
-    }
-
     public PRQABuildAction getLatestActionInProject() {
+        if (job == null) return null;
         Run<?,?> lastSuccessfulBuild = job.getLastSuccessfulBuild();
+        this.index = getProjectActionIndex();
         if (lastSuccessfulBuild != null) {
-            for (PRQABuildAction buildAction : lastSuccessfulBuild.getActions(PRQABuildAction.class)) {
-                if (buildAction.getProjectName().equalsIgnoreCase(this.fullPrqaProjectName)) {
-                    return buildAction;
-                }
-            }
+            List<PRQABuildAction> buildActions = lastSuccessfulBuild.getActions(PRQABuildAction.class);
+            if (buildActions.size() > 0 && index < buildActions.size() && index > -1) return buildActions.get(index);
         }
         return null;
+    }
+
+    private int getProjectActionIndex() {
+        if (job == null || job instanceof FreeStyleProject) {
+            return 0;
+        }
+        int index=0;
+        List<PRQAProjectAction> projectActions = job.getActions(PRQAProjectAction.class);
+        for(PRQAProjectAction projectAction : projectActions) {
+            if (projectAction == this) break;
+            index++;
+        }
+        return index;
+    }
+
+    public List<PRQAProjectAction> getAllProjectActions() {
+        return job != null ? job.getActions(PRQAProjectAction.class) : null;
     }
 
     public List<PRQABuildAction> getLatestActions() {
@@ -112,39 +132,43 @@ public class PRQAProjectAction
         return Iterables.size(builds) >= 2;
     }
 
-    public JSONGraph getChartData(final String project, final int width, final int height, final String className, final int thresholdLevel) {
+    public JSONGraph getChartData(final PRQABuildAction buildAction, final int width, final int height, final String className, final int thresholdLevel) {
         // determine type of graph to display
         boolean isComplianceIndexGraph = className.equalsIgnoreCase("ComplianceIndexGraphs");
 
         // instantiate DTO for capturing graph data
-        JSONGraph graph = new JSONGraph(project, isComplianceIndexGraph, thresholdLevel);
+        JSONGraph graph = new JSONGraph(buildAction.getProjectName(), isComplianceIndexGraph, thresholdLevel);
         List<String> xAxisLabels = new ArrayList<>();
         List<Double> primary_values = new ArrayList<>();
         List<Double> threshold_values = new ArrayList<>();
         List<Double> secondary_values = new ArrayList<>();
 
         // iterate through historical builds
-        for (Run<?, ?> build = getJob().getFirstBuild(); build != null; build = build.getNextBuild()) {
-            PRQABuildAction buildAction = getBuildActionForProject(build, project);
-            if (buildAction != null) {
-                Result result = build.getResult();
-                if (result != null && (result == Result.SUCCESS || result == Result.UNSTABLE)) {
-                    xAxisLabels.add("#".concat(build.getId()));
-                    PRQAReading stat = buildAction.getResult();
-                    try {
-                        PRQAComplianceStatus cs = (PRQAComplianceStatus) stat;
-                        if (!isComplianceIndexGraph) {
-                            Integer value = cs.getMessagesWithinThresholdCount(thresholdLevel);
-                            primary_values.add(value.doubleValue());
-                        } else {
-                            primary_values.add(stat.getReadout(StatusCategory.ProjectCompliance).doubleValue());
-                            secondary_values.add(stat.getReadout(StatusCategory.FileCompliance).doubleValue());
+        Run<?,?> build = job != null ? job.getFirstBuild() : null;
+        if (build != null) {
+            do {
+                PRQABuildAction historicBuildAction = getBuildActionByIndex(build, index);
+                if (historicBuildAction != null) {
+                    Result result = build.getResult();
+                    if (result != null && (result == Result.SUCCESS || result == Result.UNSTABLE)) {
+                        xAxisLabels.add("#".concat(build.getId()));
+                        PRQAReading stat = historicBuildAction.getResult();
+                        try {
+                            PRQAComplianceStatus cs = (PRQAComplianceStatus) stat;
+                            if (!isComplianceIndexGraph) {
+                                Integer value = cs.getMessagesWithinThresholdCount(thresholdLevel);
+                                primary_values.add(value.doubleValue());
+                            } else {
+                                primary_values.add(stat.getReadout(StatusCategory.ProjectCompliance).doubleValue());
+                                secondary_values.add(stat.getReadout(StatusCategory.FileCompliance).doubleValue());
+                            }
+                        } catch (PrqaException ex) {
+                            continue;
                         }
-                    } catch (PrqaException ex) {
-                        continue;
                     }
                 }
-            }
+                build = build.getNextBuild();
+            } while(build != null);
         }
         graph.setSecondaryValues(secondary_values);
         graph.setPrimaryValues(primary_values);
@@ -153,13 +177,9 @@ public class PRQAProjectAction
         return graph;
     }
 
-    private PRQABuildAction getBuildActionForProject(Run<?,?> build, String project) {
+    private PRQABuildAction getBuildActionByIndex(Run<?,?> build, int index) {
         List<PRQABuildAction> buildActions = build.getActions(PRQABuildAction.class);
-        for(PRQABuildAction buildAction : buildActions) {
-            if (buildAction.getProjectName().equalsIgnoreCase(project)) {
-                return buildAction;
-            }
-        }
+        if (index > -1 && index < buildActions.size()) return buildActions.get(index);
         return null;
     }
 
@@ -214,10 +234,13 @@ public class PRQAProjectAction
     }
 
     private boolean isPrimaryStep() {
+        if (job == null) return true;
         Run<?,?> lastBuild = job.getLastBuild();
         if (lastBuild != null) {
             PRQABuildAction buildAction = lastBuild.getAction(PRQABuildAction.class);
-            return buildAction.getProjectName().equals(this.fullPrqaProjectName);
+            if (buildAction != null) {
+                return buildAction.getProjectName().equals(this.fullPrqaProjectName);
+            }
         }
         return false;
     }

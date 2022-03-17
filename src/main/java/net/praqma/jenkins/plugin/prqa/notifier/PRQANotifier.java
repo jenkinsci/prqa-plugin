@@ -686,7 +686,7 @@ public class PRQANotifier
         outStream.println(Messages.PRQANotifier_ScannedValues());
         outStream.println(currentBuild);
 
-        PRQABuildAction action = new PRQABuildAction(run, this.sourceQAFramework.getQaProject());
+        PRQABuildAction action = new PRQABuildAction(run, this.sourceQAFramework.getQaProject(), run.getActions(PRQABuildAction.class).size());
         action.setResult(currentBuild);
         action.setPublisher(this);
         run.addAction(action);
