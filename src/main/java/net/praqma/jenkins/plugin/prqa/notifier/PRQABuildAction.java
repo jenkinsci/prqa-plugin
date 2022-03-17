@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * @author Praqma
  */
 public class PRQABuildAction
-        implements Action, SimpleBuildStep.LastBuildAction, PrqaProjectName {
+        implements Action, SimpleBuildStep.LastBuildAction, PrqaProjectName, IndexedAction {
 
     private final Run<?, ?> build;
     private Publisher publisher;
@@ -32,6 +32,7 @@ public class PRQABuildAction
     private List<PRQAProjectAction> projectActions;
     private String fullPrqaProjectName;
     private boolean isPrimary;
+    private int index;
 
     public PRQABuildAction() {
         this.build = null;
@@ -39,12 +40,17 @@ public class PRQABuildAction
         this.isPrimary = isPrimaryStep();
     }
 
-    public PRQABuildAction(Run<?, ?> build, final String fullPrqaProjectName) {
+    public PRQABuildAction(Run<?, ?> build, final String fullPrqaProjectName, int index) {
         this.build = build;
+        this.index = index;
+        this.isPrimary = true;
         this.fullPrqaProjectName = fullPrqaProjectName == null ? getProjectName() : fullPrqaProjectName;
-        List<PRQAProjectAction> projectActions = new ArrayList<>();
-        projectActions.add( new PRQAProjectAction( build.getParent(), fullPrqaProjectName ) );
-        this.projectActions = projectActions;
+        this.projectActions = build.getParent().getActions(PRQAProjectAction.class);
+    }
+
+    @Override
+    public int getIndex() {
+        return index;
     }
 
     @Override
@@ -72,7 +78,6 @@ public class PRQABuildAction
             }
         }
         return this.fullPrqaProjectName;
-
     }
 
     @Override
@@ -150,8 +155,8 @@ public class PRQABuildAction
      *
      * @return previous build
      */
-    public PRQABuildAction getPreviousAction(String fullPrqaProjectName) {
-        return getPreviousAction(build, fullPrqaProjectName);
+    public PRQABuildAction getPreviousAction(int index) {
+        return getPreviousAction(build, index);
     }
 
     /**
@@ -161,23 +166,16 @@ public class PRQABuildAction
      * @param run: the base
      * @return previous build
      */
-    public PRQABuildAction getPreviousAction(Run<?, ?> run, String projectName) {
+    public PRQABuildAction getPreviousAction(Run<?, ?> run, int index) {
         Run<?,?> lastRun = run.getPreviousNotFailedBuild();
         if (lastRun == null) {
             return null;
         }
 
         List<PRQABuildAction> buildActions = lastRun.getActions(PRQABuildAction.class);
-        if (buildActions == null) return getPreviousAction(projectName);
+        if (buildActions == null) return getPreviousAction(lastRun, index);
 
-        for(PRQABuildAction buildAction : buildActions) {
-            PRQANotifier notifier = buildAction.getPublisher(PRQANotifier.class);
-            if (notifier != null) {
-                if (notifier.sourceQAFramework.qaProject == projectName) {
-                    return buildAction;
-                }
-            }
-        }
+        if (index > -1 && index < buildActions.size()) return buildActions.get(index);
         return null;
     }
 
@@ -263,7 +261,7 @@ public class PRQABuildAction
         if (notifier != null) {
             String className = req.getParameter("graph");
             PRQAGraph graph = notifier.getGraph(className);
-            for(PRQABuildAction prqabuild = buildAction; prqabuild != null; prqabuild = prqabuild.getPreviousAction(prqabuild.getProjectName())) {
+            for(PRQABuildAction prqabuild = buildAction; prqabuild != null; prqabuild = prqabuild.getPreviousAction(prqabuild.getIndex())) {
                 if (prqabuild.getResult() != null) {
                     for (StatusCategory cat : graph.getCategories()) {
                         Number threshold = prqabuild.getThreshold(cat);
@@ -284,10 +282,6 @@ public class PRQABuildAction
     public Collection<? extends Action> getProjectActions() {
         if (this.fullPrqaProjectName == null) {
             getProjectName();
-        }
-        if (this.projectActions.get(0).getProjectName() == null) {
-            this.projectActions.clear();
-            this.projectActions.add(new PRQAProjectAction(build.getParent(), this.fullPrqaProjectName));
         }
         return this.projectActions;
     }
@@ -316,7 +310,7 @@ public class PRQABuildAction
         Run<?,?> lastBuild = build.getPreviousBuild();
         if (lastBuild != null) {
             PRQABuildAction buildAction = lastBuild.getAction(PRQABuildAction.class);
-            return buildAction.getProjectName().equals(this.fullPrqaProjectName);
+            return buildAction.getIndex() == 0;
         }
         return false;
     }
