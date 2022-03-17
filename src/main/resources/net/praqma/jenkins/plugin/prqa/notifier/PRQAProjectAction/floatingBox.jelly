@@ -3,30 +3,26 @@
     <j:set var="latestAction"
            value="${from.latestActionInProject}"/>
     <j:if test="${latestAction != null}">
-
         <script type="text/javascript" src="${rootURL}/plugin/prqa-plugin/js/dist/Chart.min-2.7.2.js"></script>
 
         <j:set var="displayName" value="${latestAction.getDisplayName2()}"/>
         <j:set var="projectName" value="${latestAction.getProjectName()}"/>
         <j:choose>
-            <j:when test="${latestAction.getPreviousAction(projectName) != null}">
+            <j:when test="${latestAction.getPreviousAction(latestAction.getIndex()) != null}">
                 <table width="400px">
                     <tr>
                         <div>
                             <j:set var="publisher"
-                                   value="${from.getLatestActionInProject().getPublisher()}"/>
+                                   value="${latestAction.getPublisher()}"/>
                             <j:set var="cnt"
                                    value="${publisher.getSupportedGraphs()}"/>
                             <j:forEach var="pgraph"
                                        items="${publisher.getSupportedGraphs()}">
-                                <j:set var="chartData" value="${from.getChartData(projectName,400,233,pgraph.getClass().getSimpleName(),publisher.getThresholdLevel())}" />
-                                <j:set var="canvasId" value="${chartData.title}"/>
-                                <!-- z-index makes sure the trend chart is on top of the stage view -->
-<!--                                <div style="z-index:1">-->
-                                    <td width="400" height="233">
-                                        <canvas id="${canvasId}" width="400" height="233"></canvas>
-                                    </td>
-<!--                                </div>-->
+                                <j:set var="chartData" value="${from.getChartData(latestAction,400,233,pgraph.getClass().getSimpleName(),publisher.getThresholdLevel())}" />
+                                <j:set var="canvasId" value="${from.getIndex() +1}. ${chartData.title}"/>
+                                <td width="400" height="233">
+                                    <canvas id="${canvasId}" width="400" height="233"></canvas>
+                                </td>
 
                                 <script type="text/javascript" src="${rootURL}/plugin/prqa-plugin/js/PrqaTrendChart.js"></script>
                                 <script>
