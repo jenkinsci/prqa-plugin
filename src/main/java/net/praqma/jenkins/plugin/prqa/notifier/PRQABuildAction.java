@@ -45,7 +45,9 @@ public class PRQABuildAction
         this.index = index;
         this.isPrimary = true;
         this.fullPrqaProjectName = fullPrqaProjectName == null ? getProjectName() : fullPrqaProjectName;
-        this.projectActions = build.getParent().getActions(PRQAProjectAction.class);
+        List<PRQAProjectAction> projectActions = new ArrayList<>();
+        projectActions.add( new PRQAProjectAction( build.getParent(), fullPrqaProjectName ) );
+        this.projectActions = projectActions;
     }
 
     @Override
