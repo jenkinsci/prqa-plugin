@@ -62,6 +62,7 @@ Changes are tracked in 1 of 4 categories:
 
 | Plugin Version | Ticket | Type | Description                                                                  |
 |----------------|--------|------|------------------------------------------------------------------------------|
+| 3.3.5          | 48550  | F    | Update JDOM2 library to eliminate exposure to CVE-2021-33813                 |
 | 3.3.4          | 47308  | F    | Fix fault with pipeline data showing results of first stage/step             |
 | 3.3.4          | 47485  | N    | Replace graph library to permit 47308 fix to show graphs for each stage/step |
 | 3.3.4          | 39708  | F    | Removed deprecated QAC options (--reuseCmaDB and --useDiskStorage)           |
