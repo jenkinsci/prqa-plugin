@@ -90,7 +90,7 @@ public class PRQARemoteToolCheck
             Map<String, String> envExpanded = expandEnvironment(environment);
             return product.getProductVersion(envExpanded, f, isUnix);
         } catch (PrqaSetupException setupException) {
-            throw new IOException("Tool misconfiguration detected", setupException);
+            throw new IOException("Tool misconfiguration detected: " + setupException.getMessage(), setupException);
         }
     }
 }
